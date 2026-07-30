@@ -1,0 +1,51 @@
+---
+import '../styles/global.css';
+import SkipLink from '../components/SkipLink.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Seo from '../components/Seo.astro';
+import StructuredData from '../components/StructuredData.astro';
+
+type Props = {
+  title: string;
+  description: string;
+  canonicalPath?: string;
+  ogType?: 'website' | 'article';
+  noindex?: boolean;
+  includeOrganizationSchema?: boolean;
+};
+
+const {
+  title,
+  description,
+  canonicalPath,
+  ogType,
+  noindex = false,
+  includeOrganizationSchema = true,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <Seo
+      title={title}
+      description={description}
+      canonicalPath={canonicalPath}
+      ogType={ogType}
+      noindex={noindex}
+    />
+    {includeOrganizationSchema ? <StructuredData /> : null}
+  </head>
+  <body class="flex min-h-screen flex-col">
+    <SkipLink />
+    <Header />
+    <main id="main-content" class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

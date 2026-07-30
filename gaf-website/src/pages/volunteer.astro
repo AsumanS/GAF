@@ -1,0 +1,52 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { volunteerContent } from '../content/volunteer';
+
+const c = volunteerContent;
+---
+
+<BaseLayout title="Volunteer" description={c.metaDescription} canonicalPath="/volunteer">
+  <header class="border-b border-rule bg-white py-8 sm:py-9">
+    <div class="site-shell measure">
+      <h1 class="font-display text-4xl sm:text-5xl">Volunteer</h1>
+      <p class="lede mt-4">{c.intro}</p>
+    </div>
+  </header>
+
+  <article class="py-8 sm:py-10">
+    <div class="site-shell grid gap-10 lg:grid-cols-2">
+      <section aria-labelledby="lost-stories-roles">
+        <h2 id="lost-stories-roles" class="font-display text-2xl">
+          {c.lostStories.heading}
+        </h2>
+        <ul class="mt-4 list-disc space-y-2 pl-5 font-sans text-ink-muted">
+          {c.lostStories.roles.map((role) => <li>{role}</li>)}
+        </ul>
+      </section>
+
+      <section aria-labelledby="worlds-roles">
+        <h2 id="worlds-roles" class="font-display text-2xl">
+          {c.worldsImagined.heading}
+        </h2>
+        <ul class="mt-4 list-disc space-y-2 pl-5 font-sans text-ink-muted">
+          {c.worldsImagined.roles.map((role) => <li>{role}</li>)}
+        </ul>
+      </section>
+    </div>
+
+    <div class="site-shell mt-10 max-w-2xl border-t border-rule pt-8">
+      <h2 class="font-display text-2xl">{c.eligibility.heading}</h2>
+      {c.eligibility.paragraphs.map((p) => <p class="body-copy mt-4">{p}</p>)}
+      <p class="mt-6 flex flex-wrap gap-3">
+        {
+          c.applicationUrl ? (
+            <a href={c.applicationUrl} class="btn-donate">
+              {c.applicationLabel}
+            </a>
+          ) : null
+        }
+        <a href="/contact" class="btn-volunteer">Contact</a>
+      </p>
+    </div>
+  </article>
+</BaseLayout>

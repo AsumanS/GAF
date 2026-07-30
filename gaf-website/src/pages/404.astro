@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Page not found"
+  description="The requested page could not be found on the Golden Archive Foundation website."
+  noindex={true}
+  includeOrganizationSchema={false}
+>
+  <section class="section-pad">
+    <div class="site-shell measure">
+      <p class="kicker">Error 404</p>
+      <h1 class="mt-3 text-4xl sm:text-5xl">Page not found</h1>
+      <p class="body-copy mt-5">
+        The page you requested is not available. It may have been moved, renamed, or not yet
+        published.
+      </p>
+      <ul class="mt-8 space-y-3">
+        <li><a href="/" class="editorial-link">Return home</a></li>
+        <li><a href="/projects" class="editorial-link">Review the projects</a></li>
+        <li><a href="/contact" class="editorial-link">Contact the foundation</a></li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

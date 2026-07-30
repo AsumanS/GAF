@@ -1,0 +1,47 @@
+---
+import { absoluteUrl, configuredSocialLinks, site } from '../config/site';
+
+/**
+ * Organization structured data.
+ * Donation actions are intentionally omitted while donationsEnabled is false.
+ */
+const sameAs = configuredSocialLinks().map((link) => link.href);
+
+const organization: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'NonProfitOrganization',
+  name: site.organizationName,
+  alternateName: site.shortName,
+  description: site.description,
+  url: site.siteUrl || undefined,
+  email: site.publicEmail || undefined,
+  taxID: site.ein || undefined,
+  nonprofitStatus: 'Nonprofit501c3',
+  areaServed: {
+    '@type': 'Country',
+    name: 'United States',
+  },
+};
+
+if (sameAs.length > 0) {
+  organization.sameAs = sameAs;
+}
+
+if (site.mailingAddress) {
+  organization.address = {
+    '@type': 'PostalAddress',
+    streetAddress: site.mailingAddress,
+    addressCountry: 'US',
+  };
+}
+
+if (site.siteUrl) {
+  organization.logo = absoluteUrl('/favicon.svg');
+  organization.image = absoluteUrl(site.defaultOgImage);
+}
+
+// Strip undefined keys for cleaner JSON-LD.
+const cleaned = JSON.parse(JSON.stringify(organization));
+---
+
+<script is:inline type="application/ld+json" set:html={JSON.stringify(cleaned)} />

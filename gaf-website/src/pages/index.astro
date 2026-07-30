@@ -1,0 +1,187 @@
+---
+import '../styles/home.css';
+import Seo from '../components/Seo.astro';
+import StructuredData from '../components/StructuredData.astro';
+import { copyrightYear, site } from '../config/site';
+import { homeContent } from '../content/home';
+
+const donateHref = site.donationUrl || '/#donate';
+---
+
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <Seo
+      title={site.organizationName}
+      description={homeContent.metaDescription}
+      canonicalPath="/"
+    />
+    <StructuredData />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="wordmark" href="/" aria-label="Golden Archive Foundation home">
+          <span>Golden Archive</span>
+          <span>Foundation</span>
+        </a>
+
+        <nav class="main-nav" aria-label="Primary navigation">
+          <a class="nav-link" href="#projects">Projects</a>
+          <a class="nav-link" href="/about">About</a>
+          <a class="nav-link" href="/contact">Contact</a>
+          <a class="button button-secondary button-header" href="/volunteer">Volunteer</a>
+          <a class="button button-primary button-header" href={donateHref}>Donate</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section class="hero" aria-labelledby="hero-title">
+        <figure class="hero-visual">
+          <img
+            src="/assets/hero-art.jpg"
+            alt="Artistic landscape representing the foundation's cultural and creative work"
+            width="1412"
+            height="796"
+          />
+        </figure>
+
+        <div class="hero-inner">
+          <div class="hero-copy">
+            <h1 id="hero-title">
+              <span>{homeContent.hero.titleLineOne}</span>
+              <span>{homeContent.hero.titleLineTwo}</span>
+            </h1>
+            <p class="hero-subtitle">{homeContent.hero.subtitle}</p>
+            <p class="nonprofit-line">
+              <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
+                <path d="M12 2.5 19 5v5.5c0 4.7-2.9 8.7-7 10.9-4.1-2.2-7-6.2-7-10.9V5l7-2.5Z"
+                ></path>
+                <path d="M12 7v9M8.8 11.5h6.4"></path>
+              </svg>
+              <span>{homeContent.hero.nonprofitLabel}</span>
+            </p>
+            <div class="hero-actions" aria-label="Primary actions">
+              <a class="button button-primary" href={donateHref}>
+                <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
+                  <path d="M12 20.5 4.4 13A5 5 0 0 1 11 5.5L12 6.6l1-1.1A5 5 0 0 1 19.6 13L12 20.5Z"
+                  ></path>
+                </svg>
+                Donate
+              </a>
+              <a class="button button-secondary" href="/volunteer">
+                <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
+                  <circle cx="8" cy="8" r="3"></circle>
+                  <circle cx="16.5" cy="9" r="2.5"></circle>
+                  <path
+                    d="M2.8 19c.4-3.6 2.3-5.5 5.2-5.5s4.8 1.9 5.2 5.5M13.5 14.5c2.4-.8 5.2.4 5.7 4.5"
+                  ></path>
+                </svg>
+                Volunteer
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="projects" id="projects" aria-labelledby="projects-title">
+        <div class="projects-inner">
+          <div class="section-heading-row">
+            <h2 id="projects-title">{homeContent.projectsHeading}</h2>
+            <span aria-hidden="true"></span>
+          </div>
+
+          <div class="project-grid">
+            <article class="project project-lost">
+              <div class="project-image">
+                <img
+                  src={homeContent.projects.lostStories.image.src}
+                  alt={homeContent.projects.lostStories.image.alt}
+                  width="640"
+                  height="470"
+                />
+              </div>
+              <div class="project-copy project-copy-dark">
+                <h3>{homeContent.projects.lostStories.title}</h3>
+                <span class="project-rule" aria-hidden="true"></span>
+                <p>{homeContent.projects.lostStories.description}</p>
+                <a class="project-link" href={homeContent.projects.lostStories.href}>
+                  {homeContent.projects.lostStories.linkLabel}
+                  <span aria-hidden="true">→</span>
+                </a>
+              </div>
+            </article>
+
+            <article class="project project-worlds">
+              <div class="project-image">
+                <img
+                  src={homeContent.projects.worldsImagined.image.src}
+                  alt={homeContent.projects.worldsImagined.image.alt}
+                  width="576"
+                  height="470"
+                />
+              </div>
+              <div class="project-copy project-copy-light">
+                <h3>{homeContent.projects.worldsImagined.title}</h3>
+                <span class="project-rule" aria-hidden="true"></span>
+                <p>{homeContent.projects.worldsImagined.description}</p>
+                <a class="project-link" href={homeContent.projects.worldsImagined.href}>
+                  {homeContent.projects.worldsImagined.linkLabel}
+                  <span aria-hidden="true">→</span>
+                </a>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="donation" id="donate" aria-labelledby="donation-title">
+        <div class="donation-art" aria-hidden="true"></div>
+        <div class="donation-inner">
+          <div class="donation-symbol" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="44" height="44">
+              <path d="M12 20.5 4.4 13A5 5 0 0 1 11 5.5L12 6.6l1-1.1A5 5 0 0 1 19.6 13L12 20.5Z"
+              ></path>
+            </svg>
+          </div>
+          <div class="donation-copy">
+            <h2 id="donation-title">{homeContent.donation.heading}</h2>
+            <p>{homeContent.donation.description}</p>
+          </div>
+          <a class="button button-gold" href={donateHref}>
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
+              <path d="M12 20.5 4.4 13A5 5 0 0 1 11 5.5L12 6.6l1-1.1A5 5 0 0 1 19.6 13L12 20.5Z"
+              ></path>
+            </svg>
+            Donate
+          </a>
+          <p class="donation-legal">{homeContent.donation.legal}</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-identity">
+          <div class="footer-wordmark">
+            <span>Golden Archive</span>
+            <span>Foundation</span>
+          </div>
+          <p>© {copyrightYear} Golden Archive Foundation</p>
+        </div>
+        <nav aria-label="Footer navigation">
+          <a href="/contact">Contact</a>
+          <a href="/transparency">Transparency</a>
+          <a href="/privacy">Privacy</a>
+          <a href="/terms">Terms</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

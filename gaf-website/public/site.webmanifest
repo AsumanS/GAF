@@ -1,0 +1,18 @@
+{
+  "name": "Golden Archive Foundation",
+  "short_name": "Golden Archive",
+  "description": "A 501(c)(3) public charity devoted to researching, interpreting, and returning overlooked cultural heritage to public life.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#f6f1e7",
+  "theme_color": "#f6f1e7",
+  "lang": "en-US",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

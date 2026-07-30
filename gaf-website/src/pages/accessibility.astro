@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../config/site';
+---
+
+<BaseLayout
+  title="Accessibility"
+  description={`Accessibility statement for the ${site.organizationName} website.`}
+  canonicalPath="/accessibility"
+>
+  <header class="section-pad-tight rule-bottom">
+    <div class="site-shell measure-wide">
+      <p class="kicker">Access</p>
+      <h1 class="mt-3 text-4xl sm:text-5xl">Accessibility statement</h1>
+      <p class="lede mt-5">
+        This website is intended to be usable by people with diverse abilities and assistive
+        technologies.
+      </p>
+    </div>
+  </header>
+
+  <article class="section-pad">
+    <div class="site-shell prose-editorial">
+      <h2>Commitment</h2>
+      <p>
+        This website targets conformance with the Web Content Accessibility Guidelines (WCAG) 2.2
+        Level AA. Accessibility is treated as an ongoing responsibility.
+      </p>
+
+      <h2>Measures already in place</h2>
+      <ul>
+        <li>Semantic HTML and a logical heading structure</li>
+        <li>A skip-to-content link for keyboard users</li>
+        <li>Keyboard-accessible navigation and visible focus styles</li>
+        <li>An accessible mobile menu control with clear open and close states</li>
+        <li>Text that remains readable when browser zoom is increased</li>
+        <li>Support for prefers-reduced-motion</li>
+        <li>Descriptive link text and alternatives for meaningful graphics</li>
+      </ul>
+
+      <h2>Known limitations</h2>
+      <p>
+        The site is in an early public phase. Project pages document frameworks still under
+        development. If you encounter a barrier, please report it.
+      </p>
+
+      <h2>Reporting barriers</h2>
+      {
+        site.publicEmail ? (
+          <p>
+            To report an accessibility barrier, email{' '}
+            <a href={`mailto:${site.publicEmail}`}>{site.publicEmail}</a> with the page URL, a
+            description of the problem, and the assistive technology or browser you were using when
+            possible.
+          </p>
+        ) : (
+          <p>
+            A public email address for accessibility reports will be added before the site launches.
+            Until then, see the <a href="/contact">Contact</a> page for current contact status.
+          </p>
+        )
+      }
+
+      <h2>Compatibility</h2>
+      <p>
+        Pages are intended to work with current major browsers and with common assistive
+        technologies.
+      </p>
+    </div>
+  </article>
+</BaseLayout>

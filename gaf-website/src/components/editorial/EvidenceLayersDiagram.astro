@@ -1,0 +1,195 @@
+---
+/**
+ * Method diagram for Worlds Imagined.
+ * Communicates the distinction between historical source, later interpretation,
+ * modern reconstruction, and public-facing illustration.
+ */
+---
+
+<figure class="w-full">
+  <svg
+    viewBox="0 0 640 280"
+    class="h-auto w-full border border-rule bg-bone"
+    role="img"
+    aria-labelledby="evidence-layers-title evidence-layers-desc"
+  >
+    <title id="evidence-layers-title">Evidence layers in Worlds Imagined</title>
+    <desc id="evidence-layers-desc">
+      Four related layers: historical source, later interpretation, modern reconstruction, and
+      public-facing illustration. Arrows show direction from evidence toward presentation, not
+      equivalence.
+    </desc>
+
+    <rect x="24" y="36" width="130" height="72" fill="#f3eee4" stroke="#141a22" stroke-width="1.25"
+    ></rect>
+    <text
+      x="89"
+      y="68"
+      text-anchor="middle"
+      font-family="Georgia, serif"
+      font-size="13"
+      fill="#141a22"
+    >
+      Historical
+    </text>
+    <text
+      x="89"
+      y="86"
+      text-anchor="middle"
+      font-family="Georgia, serif"
+      font-size="13"
+      fill="#141a22"
+    >
+      source
+    </text>
+
+    <rect x="178" y="36" width="130" height="72" fill="#e8e1d4" stroke="#141a22" stroke-width="1.25"
+    ></rect>
+    <text
+      x="243"
+      y="68"
+      text-anchor="middle"
+      font-family="Georgia, serif"
+      font-size="13"
+      fill="#141a22"
+    >
+      Later
+    </text>
+    <text
+      x="243"
+      y="86"
+      text-anchor="middle"
+      font-family="Georgia, serif"
+      font-size="13"
+      fill="#141a22"
+    >
+      interpretation
+    </text>
+
+    <rect x="332" y="36" width="130" height="72" fill="#faf7f1" stroke="#141a22" stroke-width="1.25"
+    ></rect>
+    <text
+      x="397"
+      y="68"
+      text-anchor="middle"
+      font-family="Georgia, serif"
+      font-size="13"
+      fill="#141a22"
+    >
+      Modern
+    </text>
+    <text
+      x="397"
+      y="86"
+      text-anchor="middle"
+      font-family="Georgia, serif"
+      font-size="13"
+      fill="#141a22"
+    >
+      reconstruction
+    </text>
+
+    <rect x="486" y="36" width="130" height="72" fill="#1c2a3d" stroke="#141a22" stroke-width="1.25"
+    ></rect>
+    <text
+      x="551"
+      y="68"
+      text-anchor="middle"
+      font-family="Georgia, serif"
+      font-size="13"
+      fill="#faf7f1"
+    >
+      Public-facing
+    </text>
+    <text
+      x="551"
+      y="86"
+      text-anchor="middle"
+      font-family="Georgia, serif"
+      font-size="13"
+      fill="#faf7f1"
+    >
+      illustration
+    </text>
+
+    <path d="M154 72 H178" stroke="#8a7348" stroke-width="1.5" marker-end="url(#arrow)"></path>
+    <path d="M308 72 H332" stroke="#8a7348" stroke-width="1.5" marker-end="url(#arrow)"></path>
+    <path d="M462 72 H486" stroke="#8a7348" stroke-width="1.5" marker-end="url(#arrow)"></path>
+
+    <line x1="89" y1="108" x2="89" y2="150" stroke="#8b8680" stroke-width="1"></line>
+    <line x1="243" y1="108" x2="243" y2="150" stroke="#8b8680" stroke-width="1"></line>
+    <line x1="397" y1="108" x2="397" y2="150" stroke="#8b8680" stroke-width="1"></line>
+    <line x1="551" y1="108" x2="551" y2="150" stroke="#8b8680" stroke-width="1"></line>
+
+    <text
+      x="89"
+      y="172"
+      text-anchor="middle"
+      font-family="ui-sans-serif, system-ui, sans-serif"
+      font-size="11"
+      fill="#5a6676"
+    >
+      Evidence
+    </text>
+    <text
+      x="243"
+      y="172"
+      text-anchor="middle"
+      font-family="ui-sans-serif, system-ui, sans-serif"
+      font-size="11"
+      fill="#5a6676"
+    >
+      Commentary
+    </text>
+    <text
+      x="397"
+      y="172"
+      text-anchor="middle"
+      font-family="ui-sans-serif, system-ui, sans-serif"
+      font-size="11"
+      fill="#5a6676"
+    >
+      Hypothesis
+    </text>
+    <text
+      x="551"
+      y="172"
+      text-anchor="middle"
+      font-family="ui-sans-serif, system-ui, sans-serif"
+      font-size="11"
+      fill="#5a6676"
+    >
+      Communication
+    </text>
+
+    <text
+      x="320"
+      y="220"
+      text-anchor="middle"
+      font-family="ui-sans-serif, system-ui, sans-serif"
+      font-size="12"
+      fill="#3a4554"
+    >
+      Direction of use — not identity of status
+    </text>
+    <text
+      x="320"
+      y="242"
+      text-anchor="middle"
+      font-family="ui-sans-serif, system-ui, sans-serif"
+      font-size="12"
+      fill="#5a6676"
+    >
+      Each layer must remain labeled when presented to the public.
+    </text>
+
+    <defs>
+      <marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+        <path d="M0,0 L6,3 L0,6 Z" fill="#8a7348"></path>
+      </marker>
+    </defs>
+  </svg>
+  <figcaption class="caption mt-3">
+    <slot />
+  </figcaption>
+</figure>

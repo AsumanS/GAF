@@ -1,0 +1,119 @@
+---
+/**
+ * Homepage project: name, description, link, distinct visual treatment.
+ */
+import type { Project } from '../../data/projects';
+
+type Props = {
+  project: Project;
+};
+
+const { project } = Astro.props;
+const isLostStories = project.id === 'lost-stories';
+---
+
+<article
+  class:list={[
+    'overflow-hidden',
+    isLostStories ? 'bg-project-a text-project-a-ink' : 'bg-project-b text-project-b-ink',
+  ]}
+>
+  <div
+    class:list={[
+      'relative aspect-[5/3] overflow-hidden',
+      isLostStories ? 'bg-[#e4d5c5]' : 'bg-[#0f242c]',
+    ]}
+    aria-hidden="true"
+  >
+    {
+      isLostStories ? (
+        <svg
+          class="absolute inset-0 h-full w-full"
+          viewBox="0 0 400 240"
+          preserveAspectRatio="xMidYMid slice"
+          fill="none"
+        >
+          <rect width="400" height="240" fill="#e8d9c8" />
+          <rect
+            x="48"
+            y="36"
+            width="140"
+            height="168"
+            fill="#f7f1ea"
+            stroke="#1c1410"
+            stroke-width="1.5"
+          />
+          <line x1="68" y1="64" x2="168" y2="64" stroke="#1c1410" stroke-opacity="0.35" />
+          <line x1="68" y1="84" x2="160" y2="84" stroke="#1c1410" stroke-opacity="0.28" />
+          <line x1="68" y1="104" x2="164" y2="104" stroke="#1c1410" stroke-opacity="0.28" />
+          <line x1="68" y1="124" x2="148" y2="124" stroke="#1c1410" stroke-opacity="0.22" />
+          <line x1="68" y1="144" x2="156" y2="144" stroke="#1c1410" stroke-opacity="0.22" />
+          <rect
+            x="210"
+            y="56"
+            width="130"
+            height="128"
+            fill="#b33a2b"
+            fill-opacity="0.12"
+            stroke="#b33a2b"
+            stroke-width="1.5"
+          />
+          <path
+            d="M230 96 H320 M230 116 H300 M230 136 H310"
+            stroke="#b33a2b"
+            stroke-opacity="0.55"
+          />
+        </svg>
+      ) : (
+        <svg
+          class="absolute inset-0 h-full w-full"
+          viewBox="0 0 400 240"
+          preserveAspectRatio="xMidYMid slice"
+          fill="none"
+        >
+          <rect width="400" height="240" fill="#12262e" />
+          <circle
+            cx="200"
+            cy="120"
+            r="78"
+            stroke="#f3f6f7"
+            stroke-opacity="0.55"
+            stroke-width="1.5"
+          />
+          <ellipse cx="200" cy="120" rx="38" ry="78" stroke="#f3f6f7" stroke-opacity="0.35" />
+          <line x1="122" y1="120" x2="278" y2="120" stroke="#f3f6f7" stroke-opacity="0.4" />
+          <line x1="200" y1="42" x2="200" y2="198" stroke="#f3f6f7" stroke-opacity="0.4" />
+          <circle cx="200" cy="120" r="6" fill="#b33a2b" />
+          <path
+            d="M70 190 H140 M260 50 H330"
+            stroke="#b33a2b"
+            stroke-opacity="0.7"
+            stroke-width="1.5"
+          />
+        </svg>
+      )
+    }
+  </div>
+  <div class="p-5 sm:p-6">
+    <h3 class="font-display text-2xl sm:text-[1.65rem]">{project.title}</h3>
+    <p
+      class:list={[
+        'mt-3 font-sans text-[0.98rem] leading-relaxed',
+        isLostStories ? 'text-project-a-ink/80' : 'text-project-b-ink/80',
+      ]}
+    >
+      {project.premise}
+    </p>
+    <p class="mt-4">
+      <a
+        href={project.href}
+        class:list={[
+          'font-sans text-sm font-semibold no-underline',
+          isLostStories ? 'text-accent hover:text-accent-dark' : 'text-white hover:text-white/80',
+        ]}
+      >
+        {project.title}
+      </a>
+    </p>
+  </div>
+</article>

@@ -1,0 +1,33 @@
+---
+/**
+ * Homepage donation section.
+ * Tax-deductibility / solicitation language appears only when supplied in configuration.
+ */
+import { site } from '../config/site';
+
+const donateHref = site.donationUrl || '#donate';
+---
+
+<section
+  id="donate"
+  class="border-t border-rule bg-white py-8 sm:py-10"
+  aria-labelledby="donate-heading"
+>
+  <div class="site-shell max-w-2xl">
+    <h2 id="donate-heading" class="font-display text-2xl sm:text-3xl">Donate</h2>
+    {site.donationSupportText ? <p class="body-copy mt-4">{site.donationSupportText}</p> : null}
+    {
+      site.donationTaxLanguage ? (
+        <p class="mt-3 font-sans text-sm text-ink-muted">{site.donationTaxLanguage}</p>
+      ) : null
+    }
+    {
+      site.donationDisclosure ? (
+        <p class="mt-3 font-sans text-sm text-ink-muted">{site.donationDisclosure}</p>
+      ) : null
+    }
+    <p class="mt-6">
+      <a href={donateHref} class="btn-donate">Donate</a>
+    </p>
+  </div>
+</section>

@@ -1,0 +1,47 @@
+---
+import { absoluteUrl, site } from '../config/site';
+
+type Props = {
+  title: string;
+  description: string;
+  canonicalPath?: string;
+  ogType?: 'website' | 'article';
+  noindex?: boolean;
+};
+
+const {
+  title,
+  description,
+  canonicalPath = Astro.url.pathname.replace(/\/$/, '') || '/',
+  ogType = 'website',
+  noindex = false,
+} = Astro.props;
+
+const pageTitle = title === site.organizationName ? title : `${title} · ${site.organizationName}`;
+const canonical = absoluteUrl(canonicalPath === '' ? '/' : canonicalPath);
+const ogImage = absoluteUrl(site.defaultOgImage);
+const hasAbsoluteSite = Boolean(site.siteUrl);
+---
+
+<title>{pageTitle}</title>
+<meta name="description" content={description} />
+{hasAbsoluteSite ? <link rel="canonical" href={canonical} /> : null}
+<meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
+
+<meta property="og:title" content={pageTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:type" content={ogType} />
+<meta property="og:site_name" content={site.organizationName} />
+{hasAbsoluteSite ? <meta property="og:url" content={canonical} /> : null}
+<meta property="og:image" content={ogImage} />
+<meta property="og:locale" content="en_US" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={pageTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+
+<meta name="theme-color" content="#f7f7f5" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="manifest" href="/site.webmanifest" />
+<link rel="apple-touch-icon" href="/favicon.svg" />

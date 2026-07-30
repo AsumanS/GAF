@@ -1,0 +1,48 @@
+---
+import { configuredSocialLinks, copyrightYear, site } from '../config/site';
+
+const links = [
+  { label: 'Contact', href: '/contact' },
+  { label: 'Transparency', href: '/transparency' },
+  { label: 'Privacy', href: '/privacy' },
+  { label: 'Terms', href: '/terms' },
+];
+
+const social = configuredSocialLinks();
+---
+
+<footer class="mt-auto bg-footer text-white">
+  <div class="site-shell py-8 sm:py-9">
+    <p class="font-display text-lg text-white">{site.organizationName}</p>
+    <ul class="mt-5 flex flex-wrap gap-x-5 gap-y-2">
+      {
+        links.map((item) => (
+          <li>
+            <a
+              href={item.href}
+              class="font-sans text-sm text-white/75 no-underline hover:text-white"
+            >
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+      {
+        social.map((item) => (
+          <li>
+            <a
+              href={item.href}
+              class="font-sans text-sm text-white/75 no-underline hover:text-white"
+              rel="noopener noreferrer"
+            >
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="mt-6 font-sans text-xs text-white/45">
+      © {copyrightYear}{' '}{site.organizationName}
+    </p>
+  </div>
+</footer>
