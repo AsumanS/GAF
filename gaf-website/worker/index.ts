@@ -1,20 +1,21 @@
-export interface Env {
-  ASSETS: Fetcher;
-  SUBMISSIONS_DB: D1Database;
-  SUBMISSION_FILES: R2Bucket;
-  TURNSTILE_SECRET_KEY: string;
-}
+import type { Env } from './env';
+import { handleVolunteerSubmit } from './forms/volunteer';
+import { jsonResponse } from './forms/common';
+
+export type { Env };
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
     if (url.pathname.startsWith('/api/')) {
-      return new Response('API route not implemented yet', {
-        status: 404,
-        headers: {
-          'content-type': 'text/plain; charset=utf-8',
-        },
+      if (url.pathname === '/api/forms/volunteer') {
+        return handleVolunteerSubmit(request, env);
+      }
+
+      return jsonResponse(404, {
+        success: false,
+        error: 'invalid_submission',
       });
     }
 

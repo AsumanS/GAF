@@ -120,7 +120,7 @@ export const site: SiteConfig = {
   donationUrl: '/donate',
   submissionsOpen: false,
   volunteerApplicationsOpen: false,
-  volunteerFormAction: '',
+  volunteerFormAction: '/api/forms/volunteer',
   hiddenWorksSubmitFormAction: '',
   defaultOgImage: '/images/foundation/og-default.png',
   tagline: 'Stories from the Past. Service for the Future.',

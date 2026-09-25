@@ -9,7 +9,8 @@ import {
 } from '../content/volunteerForm';
 
 const formAction = site.volunteerFormAction.trim();
-const canSubmit = Boolean(formAction);
+const turnstileSiteKey = (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '').trim();
+const canSubmit = Boolean(formAction && turnstileSiteKey);
 ---
 
 <form
@@ -18,6 +19,8 @@ const canSubmit = Boolean(formAction);
   enctype="multipart/form-data"
   action={canSubmit ? formAction : undefined}
   aria-labelledby="volunteer-form-title"
+  data-form-action={canSubmit ? formAction : ''}
+  data-turnstile-sitekey={canSubmit ? turnstileSiteKey : ''}
 >
   <h2 id="volunteer-form-title" class="font-display text-3xl sm:text-4xl">
     Volunteer Application
@@ -25,6 +28,8 @@ const canSubmit = Boolean(formAction);
   <p class="body-copy mt-3">
     Required fields are marked with an asterisk (<span aria-hidden="true">*</span>).
   </p>
+
+  <input type="hidden" name="submission_idempotency_key" value="" autocomplete="off" />
 
   <section class="volunteer-form-section" aria-labelledby="contact-info-heading">
     <h3 id="contact-info-heading" class="volunteer-form-section-title">Contact Information</h3>
@@ -205,7 +210,7 @@ const canSubmit = Boolean(formAction);
         accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         required
       />
-      <p class="field-hint">PDF or Word document.</p>
+      <p class="field-hint">PDF or Word document (DOC/DOCX), max 10 MB.</p>
     </div>
     <div class="volunteer-form-grid mt-5">
       <div class="field">
@@ -219,7 +224,13 @@ const canSubmit = Boolean(formAction);
     </div>
     <div class="field mt-5">
       <label for="work-sample">Additional file or work sample</label>
-      <input id="work-sample" name="work_sample" type="file" />
+      <input
+        id="work-sample"
+        name="work_sample"
+        type="file"
+        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png"
+      />
+      <p class="field-hint">Optional. PDF, Word, JPG, or PNG, max 10 MB.</p>
     </div>
   </section>
 
@@ -340,34 +351,222 @@ const canSubmit = Boolean(formAction);
     </fieldset>
   </section>
 
+  <div class="volunteer-turnstile" data-turnstile-widget aria-hidden="true"></div>
+
   <div class="volunteer-form-actions">
-    <button type="submit" class="btn-primary" disabled={!canSubmit}>
+    <p
+      class="volunteer-submit-status body-copy"
+      data-submit-status
+      aria-live="polite"
+      aria-atomic="true"
+    ></p>
+    <button type="submit" class="btn-primary" data-submit-button disabled={!canSubmit}>
       Submit Volunteer Application
     </button>
   </div>
 </form>
 
+{
+  canSubmit ? (
+    <script
+      is:inline
+      src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+      async
+      defer
+    ></script>
+  ) : null
+}
+
 <script is:inline>
   document.querySelectorAll('.volunteer-form').forEach((form) => {
-    form.addEventListener('submit', (event) => {
-      const boxes = form.querySelectorAll('input[name="preferred_availability"]');
-      if (!boxes.length) return;
-      const checked = Array.from(boxes).some((box) => box.checked);
-      if (!checked) {
-        event.preventDefault();
-        boxes[0].focus();
-        boxes[0].setCustomValidity('Please select at least one preferred availability option.');
-        boxes[0].reportValidity();
-      } else {
-        boxes.forEach((box) => box.setCustomValidity(''));
-      }
-    });
+    const formAction = form.getAttribute('data-form-action') || '';
+    const sitekey = form.getAttribute('data-turnstile-sitekey') || '';
+    const submitButton = form.querySelector('[data-submit-button]');
+    const statusEl = form.querySelector('[data-submit-status]');
+    const widgetHost = form.querySelector('[data-turnstile-widget]');
+    const idempotencyInput = form.querySelector('input[name="submission_idempotency_key"]');
+
+    if (idempotencyInput && !idempotencyInput.value) {
+      idempotencyInput.value =
+        typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : String(Date.now()) + '-' + Math.random().toString(16).slice(2);
+    }
+
     form.querySelectorAll('input[name="preferred_availability"]').forEach((box) => {
       box.addEventListener('change', () => {
         form
           .querySelectorAll('input[name="preferred_availability"]')
           .forEach((item) => item.setCustomValidity(''));
       });
+    });
+
+    if (!formAction || !sitekey || !submitButton || !statusEl || !widgetHost) {
+      return;
+    }
+
+    let widgetId = null;
+    let submitting = false;
+    let tokenResolver = null;
+    let tokenRejecter = null;
+
+    function setStatus(message) {
+      statusEl.textContent = message || '';
+    }
+
+    function errorMessageForStatus(status) {
+      if (status === 413) {
+        return 'This submission is too large. Please reduce file sizes and try again.';
+      }
+      if (status === 403) {
+        return 'Verification failed. Please try again.';
+      }
+      if (status === 400) {
+        return 'Please check the form and try again.';
+      }
+      return 'Something went wrong. Please try again.';
+    }
+
+    function ensureTurnstileTokenInput(token) {
+      let input = form.querySelector('input[name="cf-turnstile-response"]');
+      if (!input) {
+        input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'cf-turnstile-response';
+        form.appendChild(input);
+      }
+      input.value = token;
+    }
+
+    function executeTurnstile() {
+      return new Promise((resolve, reject) => {
+        tokenResolver = resolve;
+        tokenRejecter = reject;
+        if (widgetId === null || !window.turnstile) {
+          reject(new Error('turnstile_unavailable'));
+          return;
+        }
+        window.turnstile.execute(widgetId);
+      });
+    }
+
+    function renderWidget() {
+      if (!window.turnstile || widgetId !== null) return;
+      widgetId = window.turnstile.render(widgetHost, {
+        sitekey: sitekey,
+        execution: 'execute',
+        appearance: 'interaction-only',
+        action: 'volunteer_submit',
+        callback: function (token) {
+          if (tokenResolver) {
+            tokenResolver(token);
+            tokenResolver = null;
+            tokenRejecter = null;
+          }
+        },
+        'error-callback': function () {
+          if (tokenRejecter) {
+            tokenRejecter(new Error('turnstile_error'));
+            tokenResolver = null;
+            tokenRejecter = null;
+          }
+          return true;
+        },
+        'expired-callback': function () {
+          if (tokenRejecter) {
+            tokenRejecter(new Error('turnstile_expired'));
+            tokenResolver = null;
+            tokenRejecter = null;
+          }
+        },
+      });
+    }
+
+    function waitForTurnstile(attempt) {
+      if (window.turnstile) {
+        renderWidget();
+        return;
+      }
+      if (attempt > 200) return;
+      setTimeout(function () {
+        waitForTurnstile(attempt + 1);
+      }, 50);
+    }
+
+    waitForTurnstile(0);
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (submitting) return;
+
+      const boxes = form.querySelectorAll('input[name="preferred_availability"]');
+      if (boxes.length) {
+        const checked = Array.from(boxes).some((box) => box.checked);
+        if (!checked) {
+          boxes[0].focus();
+          boxes[0].setCustomValidity('Please select at least one preferred availability option.');
+          boxes[0].reportValidity();
+          return;
+        }
+        boxes.forEach((box) => box.setCustomValidity(''));
+      }
+
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      submitting = true;
+      submitButton.disabled = true;
+      setStatus('Verifying…');
+
+      try {
+        if (widgetId === null) {
+          renderWidget();
+        }
+        const token = await executeTurnstile();
+        ensureTurnstileTokenInput(token);
+
+        setStatus('Submitting your application…');
+        const body = new FormData(form);
+        const response = await fetch(formAction, {
+          method: 'POST',
+          body: body,
+          credentials: 'same-origin',
+        });
+
+        let data = null;
+        try {
+          data = await response.json();
+        } catch (_err) {
+          data = null;
+        }
+
+        if (response.ok && data && data.success && data.submission_id) {
+          setStatus(
+            'Thank you. Your volunteer application has been received.\n\nApplication reference: ' +
+              data.submission_id,
+          );
+          form.querySelectorAll('input, textarea, select, button').forEach((el) => {
+            el.disabled = true;
+          });
+          return;
+        }
+
+        setStatus(errorMessageForStatus(response.status));
+        if (window.turnstile && widgetId !== null) {
+          window.turnstile.reset(widgetId);
+        }
+        submitButton.disabled = false;
+        submitting = false;
+      } catch (_err) {
+        setStatus('Something went wrong. Please try again.');
+        if (window.turnstile && widgetId !== null) {
+          window.turnstile.reset(widgetId);
+        }
+        submitButton.disabled = false;
+        submitting = false;
+      }
     });
   });
 </script>

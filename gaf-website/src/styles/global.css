@@ -385,6 +385,10 @@
     @apply mt-10 flex flex-col items-start gap-3;
   }
 
+  .volunteer-submit-status {
+    @apply whitespace-pre-line;
+  }
+
   .volunteer-form button:disabled {
     @apply cursor-not-allowed opacity-50;
   }
