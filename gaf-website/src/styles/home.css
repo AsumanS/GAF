@@ -127,7 +127,7 @@
 }
 
 .projects {
-  padding: 20px 0 22px;
+  padding: 56px 0 88px;
   background: var(--home-white);
 }
 
@@ -465,7 +465,7 @@
   }
 
   .projects {
-    padding-top: 18px;
+    padding: 40px 0 64px;
   }
 
   .project-image img {
