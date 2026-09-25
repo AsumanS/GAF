@@ -208,7 +208,6 @@ export async function handleVolunteerSubmit(
   }
 
   const submissionId = newSubmissionId();
-  const eventId = newEntityId();
 
   try {
     await env.SUBMISSIONS_DB.batch([
@@ -226,9 +225,9 @@ export async function handleVolunteerSubmit(
       ),
       env.SUBMISSIONS_DB.prepare(
         `INSERT INTO submission_events (
-          id, submission_id, event_type, actor, previous_status, new_status, metadata_json
-        ) VALUES (?, ?, 'received', 'system', NULL, 'received', NULL)`,
-      ).bind(eventId, submissionId),
+          submission_id, event_type, actor, previous_status, new_status, metadata_json
+        ) VALUES (?, 'received', 'system', NULL, 'received', NULL)`,
+      ).bind(submissionId),
     ]);
   } catch {
     return jsonResponse(500, { success: false, error: 'submission_failed' });
