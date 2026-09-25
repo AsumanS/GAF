@@ -7,27 +7,27 @@ import { projects } from '../../data/projects';
 
 <BaseLayout
   title="Projects"
-  description={`Research and publishing projects of ${site.organizationName}, including Lost Stories and Worlds Imagined.`}
+  description={`Research and publishing projects of ${site.organizationName}, including Hidden Works and Worlds Imagined.`}
   canonicalPath="/projects"
 >
   <header class="section-pad-tight rule-bottom">
     <div class="site-shell measure-wide">
       <p class="kicker">Projects</p>
-      <h1 class="mt-3 text-4xl sm:text-5xl">Project index</h1>
-      <p class="lede mt-5">
-        Individual rules, dates, and participation processes will be published on each project’s own
-        page. Until then, these entries describe premises, defined work, and open questions.
+      <h1 class="mt-3 text-4xl sm:text-5xl">Our Projects — intro</h1>
+      <p class="lede mt-5 max-w-3xl">
+        Golden Archive Foundation develops projects that bring overlooked cultural material back into
+        public view and explore the many ways people have understood, recorded, and imagined their
+        world. Each project begins with research, but its purpose is broader: to make cultural
+        knowledge easier to discover, experience, and share.
       </p>
     </div>
   </header>
 
   <section class="section-pad">
     <div class="site-shell">
-      {projects.map((project) => <ProjectEntry project={project} />)}
-      <p class="body-copy measure mt-12 border-t border-rule pt-6 text-sm">
-        Submissions and applications are not open. For collaboration inquiries, see the{' '}
-        <a href="/contact">Contact</a> page.
-      </p>
+      {projects.map((project, index) => (
+        <ProjectEntry project={project} index={index} />
+      ))}
     </div>
   </section>
 </BaseLayout>

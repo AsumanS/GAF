@@ -28,11 +28,13 @@
     'Helvetica Neue', Arial, sans-serif;
 
   --measure: 36rem;
+  --measure-wide: 48rem;
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
     color-scheme: light;
   }
 
@@ -90,11 +92,16 @@
 
 @layer components {
   .site-shell {
-    @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
+    @apply mx-auto w-full px-5 sm:px-8;
+    max-width: 90rem;
   }
 
   .measure {
     max-width: var(--measure);
+  }
+
+  .measure-wide {
+    max-width: var(--measure-wide);
   }
 
   .nonprofit-mark {
@@ -113,24 +120,43 @@
     @apply font-sans text-sm font-semibold text-ink no-underline hover:text-accent;
   }
 
+  /* Primary action = GAF red (accent). Semantic aliases share Donate styling. */
+  .btn-primary,
   .btn-donate {
     @apply inline-flex items-center justify-center border-2 border-accent bg-accent px-5 py-2.5 font-sans text-sm font-semibold tracking-wide text-white no-underline transition-colors hover:border-accent-dark hover:bg-accent-dark hover:text-white;
   }
 
+  .btn-primary-header,
   .btn-donate-header {
     @apply inline-flex items-center justify-center border-2 border-accent bg-accent px-4 py-2 font-sans text-sm font-semibold tracking-wide text-white no-underline transition-colors hover:border-accent-dark hover:bg-accent-dark hover:text-white;
   }
 
+  /* Secondary action = outline. Semantic aliases share Volunteer styling. */
+  .btn-secondary,
   .btn-volunteer {
     @apply inline-flex items-center justify-center border-2 border-ink bg-transparent px-5 py-2.5 font-sans text-sm font-semibold tracking-wide text-ink no-underline transition-colors hover:bg-ink hover:text-white;
   }
 
+  .btn-secondary-header,
   .btn-volunteer-header {
     @apply inline-flex items-center justify-center border-2 border-ink bg-transparent px-4 py-2 font-sans text-sm font-semibold tracking-wide text-ink no-underline transition-colors hover:bg-ink hover:text-white;
   }
 
+  .btn-primary:focus-visible,
+  .btn-donate:focus-visible,
+  .btn-primary-header:focus-visible,
+  .btn-donate-header:focus-visible,
+  .btn-secondary:focus-visible,
+  .btn-volunteer:focus-visible,
+  .btn-secondary-header:focus-visible,
+  .btn-volunteer-header:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  /* Typography only — pair with .measure / .measure-wide; do not put on .site-shell. */
   .prose-editorial {
-    max-width: var(--measure);
+    max-width: none;
   }
 
   .prose-editorial > * + * {
@@ -191,6 +217,10 @@
     @apply font-sans text-sm font-semibold text-ink no-underline hover:text-accent;
   }
 
+  .project-involve-cta {
+    @apply inline-flex items-center gap-2 border-2 border-ink bg-transparent px-4 py-2.5 font-sans text-sm font-semibold tracking-wide text-ink no-underline transition-colors hover:bg-ink hover:text-white;
+  }
+
   .caption {
     @apply font-sans text-xs leading-relaxed text-ink-soft;
   }
@@ -209,5 +239,108 @@
 
   .band-bone {
     @apply bg-white;
+  }
+
+  .project-entry-media {
+    @apply w-full overflow-hidden;
+  }
+
+  .project-entry-img {
+    @apply block h-full w-full;
+    aspect-ratio: 4 / 3;
+    object-fit: fill;
+  }
+
+  .project-detail-figure img {
+    @apply block w-full;
+    aspect-ratio: 3 / 2;
+    object-fit: fill;
+  }
+
+  /* Volunteer application form */
+  .volunteer-form {
+    @apply mt-12 border-t border-rule pt-10;
+  }
+
+  .volunteer-form-section {
+    @apply mt-10 border border-rule bg-white p-6 sm:p-8;
+  }
+
+  .volunteer-form-section-title {
+    @apply mb-6 font-display text-2xl text-ink;
+  }
+
+  .volunteer-form-grid {
+    @apply grid gap-5 sm:grid-cols-2;
+  }
+
+  .volunteer-form .field {
+    @apply min-w-0;
+  }
+
+  .volunteer-form .field label,
+  .volunteer-form-choice > legend {
+    @apply mb-2 block font-sans text-sm font-semibold text-ink;
+  }
+
+  .volunteer-form .req {
+    @apply text-accent;
+  }
+
+  .volunteer-form input[type='text'],
+  .volunteer-form input[type='email'],
+  .volunteer-form input[type='tel'],
+  .volunteer-form input[type='url'],
+  .volunteer-form input[type='date'],
+  .volunteer-form select,
+  .volunteer-form textarea {
+    @apply box-border w-full max-w-full border border-rule-strong bg-canvas px-3 py-2.5 font-sans text-base text-ink;
+  }
+
+  .volunteer-form input[type='file'] {
+    @apply block w-full max-w-full font-sans text-sm text-ink-muted;
+  }
+
+  .volunteer-form input:focus-visible,
+  .volunteer-form select:focus-visible,
+  .volunteer-form textarea:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  .volunteer-form .field-hint {
+    @apply mt-1.5 font-sans text-xs text-ink-soft;
+  }
+
+  .volunteer-form-choice {
+    @apply min-w-0 border-0 p-0;
+  }
+
+  .volunteer-form-choice > legend {
+    @apply float-none mb-3 w-full px-0;
+  }
+
+  .volunteer-form .choice-row {
+    @apply flex flex-wrap gap-x-6 gap-y-3;
+  }
+
+  .volunteer-form .choice {
+    @apply inline-flex items-start gap-2 font-sans text-sm text-ink;
+  }
+
+  .volunteer-form .choice-block {
+    @apply w-full;
+  }
+
+  .volunteer-form .declaration-list {
+    @apply flex flex-col gap-4;
+  }
+
+  .volunteer-form-actions {
+    @apply mt-10 flex flex-col items-start gap-3;
+  }
+
+  .volunteer-form button:disabled {
+    @apply cursor-not-allowed opacity-50;
   }
 }

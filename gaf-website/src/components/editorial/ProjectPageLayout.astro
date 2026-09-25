@@ -1,0 +1,126 @@
+---
+/**
+ * Canonical layout for all project detail pages.
+ * Supply ProjectPageContent + Project data; keep page files as thin wrappers.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { site } from '../../config/site';
+import type { Project } from '../../data/projects';
+import type { ProjectPageContent } from '../../types/projectPage';
+
+type Props = {
+  project: Project;
+  content: ProjectPageContent;
+};
+
+const { project, content: c } = Astro.props;
+const donateHref = site.donationUrl || '/donate';
+---
+
+<BaseLayout
+  title={project.title}
+  description={c.metaDescription}
+  canonicalPath={project.href}
+>
+  <header class="section-pad-tight rule-bottom bg-white">
+    <div class="site-shell">
+      <div class="grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
+        <div>
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl">{project.title}</h1>
+          <p class="lede mt-5 text-ink">{c.opening}</p>
+          <p class="body-copy mt-4">{c.heroBody}</p>
+          {
+            c.statusNote ? (
+              <p class="mt-4 font-sans text-sm font-semibold tracking-wide text-accent">
+                {c.statusNote}
+              </p>
+            ) : null
+          }
+        </div>
+        <figure class="project-detail-figure overflow-hidden border border-rule">
+          <img
+            src={project.image.src}
+            alt={project.image.alt}
+            width="960"
+            height="720"
+            class="aspect-[4/3] w-full object-fill"
+            decoding="async"
+          />
+        </figure>
+      </div>
+    </div>
+  </header>
+
+  <article class="section-pad">
+    <div class="site-shell">
+      <div class="prose-editorial measure-wide">
+        {
+          c.paragraphs.map((paragraph) =>
+            typeof paragraph === 'string' ? (
+              <p>{paragraph}</p>
+            ) : (
+              <p set:html={paragraph.html} />
+            ),
+          )
+        }
+      </div>
+
+      {
+        c.participate ? (
+          <section
+            class="mt-14 border-t border-rule pt-12"
+            aria-labelledby="participate-heading"
+          >
+            <div class="grid items-center gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:gap-12">
+              <div>
+                <h2 id="participate-heading" class="font-display text-3xl sm:text-4xl">
+                  {c.participate.heading}
+                </h2>
+                <p class="body-copy mt-4 max-w-2xl">{c.participate.body}</p>
+              </div>
+              <div>
+                <a href={c.participate.href} class="project-involve-cta">
+                  {c.participate.ctaLabel}
+                  <span aria-hidden="true">→</span>
+                </a>
+              </div>
+            </div>
+          </section>
+        ) : null
+      }
+
+      <div
+        class:list={[
+          'grid gap-6 md:grid-cols-2',
+          c.participate ? 'mt-10' : 'mt-14 border-t border-rule pt-12',
+        ]}
+      >
+        <section
+          class="border border-rule bg-white p-7 sm:p-9"
+          aria-labelledby="contribute-heading"
+        >
+          <h2 id="contribute-heading" class="font-display text-2xl sm:text-3xl">
+            {c.contribute.heading}
+          </h2>
+          <p class="body-copy mt-4">{c.contribute.body}</p>
+          <p class="mt-6">
+            <a href={c.contribute.href} class="btn-secondary">{c.contribute.ctaLabel}</a>
+          </p>
+        </section>
+
+        <section
+          class="border border-rule bg-project-a p-7 sm:p-9"
+          aria-labelledby="support-heading"
+        >
+          <h2 id="support-heading" class="font-display text-2xl sm:text-3xl">
+            {c.support.heading}
+          </h2>
+          <p class="body-copy mt-4">{c.support.body}</p>
+          <p class="mt-6">
+            <a href={donateHref} class="btn-primary">{c.support.ctaLabel}</a>
+          </p>
+        </section>
+      </div>
+    </div>
+  </article>
+</BaseLayout>

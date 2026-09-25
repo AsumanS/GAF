@@ -36,6 +36,12 @@ export type SiteConfig = {
   mailingAddress: string;
   determinationLetterUrl: string;
   irsSearchUrl: string;
+  formationDocumentUrl: string;
+  bylawsUrl: string;
+  conflictOfInterestPolicyUrl: string;
+  form990Url: string;
+  annualReportUrl: string;
+  financialStatementsUrl: string;
   socialLinks: SocialLinks;
   /**
    * Master switch for any donation UI, links, or structured-data actions.
@@ -59,6 +65,13 @@ export type SiteConfig = {
   donationUrl: string;
   submissionsOpen: boolean;
   volunteerApplicationsOpen: boolean;
+  /**
+   * POST endpoint for the volunteer application form (multipart).
+   * Leave empty until a reviewed form handler (e.g. Formspree) is configured.
+   */
+  volunteerFormAction: string;
+  /** POST endpoint for the Hidden Works submission form (multipart). */
+  hiddenWorksSubmitFormAction: string;
   defaultOgImage: string;
   tagline: string;
   description: string;
@@ -84,10 +97,16 @@ export const site: SiteConfig = {
   legalStatus: '501(c)(3) tax-exempt organization',
   foundationClassification: 'Public charity',
   ein: '',
-  publicEmail: '',
+  publicEmail: 'goldenarchivefoundation@gmail.com',
   mailingAddress: '',
   determinationLetterUrl: '',
   irsSearchUrl: '',
+  formationDocumentUrl: '',
+  bylawsUrl: '',
+  conflictOfInterestPolicyUrl: '',
+  form990Url: '',
+  annualReportUrl: '',
+  financialStatementsUrl: '',
   socialLinks: {},
   donationsEnabled: false,
   zelleEnabled: false,
@@ -96,9 +115,11 @@ export const site: SiteConfig = {
   donationDisclosure: '',
   donationSupportText: '',
   donationTaxLanguage: '',
-  donationUrl: '',
+  donationUrl: '/donate',
   submissionsOpen: false,
   volunteerApplicationsOpen: false,
+  volunteerFormAction: '',
+  hiddenWorksSubmitFormAction: '',
   defaultOgImage: '/images/foundation/og-default.png',
   tagline: 'Stories from the Past. Service for the Future.',
   description:

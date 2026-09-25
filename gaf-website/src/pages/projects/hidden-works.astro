@@ -1,0 +1,10 @@
+---
+import ProjectPageLayout from '../../components/editorial/ProjectPageLayout.astro';
+import { getProjectBySlug } from '../../data/projects';
+import { hiddenWorksContent } from '../../content/projects/hidden-works';
+
+const project = getProjectBySlug('hidden-works');
+if (!project) throw new Error('Hidden Works project data is missing.');
+---
+
+<ProjectPageLayout project={project} content={hiddenWorksContent} />

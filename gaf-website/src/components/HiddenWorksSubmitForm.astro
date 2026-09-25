@@ -1,0 +1,1015 @@
+---
+import { site } from '../config/site';
+import { countryOptions } from '../content/volunteerForm';
+import {
+  hiddenWorksSubmitContent as c,
+  workTypeOptions,
+  type AgreementItem,
+} from '../content/projects/hidden-works-submit';
+
+const formAction = site.hiddenWorksSubmitFormAction.trim();
+const canSubmit = Boolean(formAction);
+
+function agreementLabel(item: AgreementItem) {
+  if (!item.link?.text) return item.label;
+  const parts = item.label.split(item.link.text);
+  return {
+    before: parts[0] ?? '',
+    linkText: item.link.text,
+    after: parts[1] ?? '',
+    href: item.link.href,
+  };
+}
+---
+
+<form
+  class="volunteer-form hidden-works-submit-form"
+  method="post"
+  enctype="multipart/form-data"
+  action={canSubmit ? formAction : undefined}
+  data-submit-form
+>
+  <!-- Participant Information -->
+  <section class="volunteer-form-section" aria-labelledby="participant-heading">
+    <h2 id="participant-heading" class="volunteer-form-section-title">Participant Information</h2>
+
+    <fieldset class="volunteer-form-choice">
+      <legend>Entry Type <span class="req" aria-hidden="true">*</span></legend>
+      <div class="choice-row">
+        <label class="choice">
+          <input type="radio" name="entry_type" value="Individual" required data-entry-type checked />
+          <span>Individual</span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="entry_type" value="Team" required data-entry-type />
+          <span>Team</span>
+        </label>
+      </div>
+    </fieldset>
+
+    <h3 class="mt-8 font-display text-xl">Lead Entrant</h3>
+    <div class="volunteer-form-grid mt-4">
+      <div class="field">
+        <label for="legal-first-name">Legal First Name <span class="req" aria-hidden="true">*</span></label>
+        <input id="legal-first-name" name="legal_first_name" type="text" autocomplete="given-name" required />
+      </div>
+      <div class="field">
+        <label for="legal-middle-name">Legal Middle Name</label>
+        <input id="legal-middle-name" name="legal_middle_name" type="text" autocomplete="additional-name" />
+      </div>
+      <div class="field">
+        <label for="legal-last-name">Legal Last Name <span class="req" aria-hidden="true">*</span></label>
+        <input id="legal-last-name" name="legal_last_name" type="text" autocomplete="family-name" required />
+      </div>
+      <div class="field">
+        <label for="email">Email Address <span class="req" aria-hidden="true">*</span></label>
+        <input id="email" name="email" type="email" autocomplete="email" required />
+      </div>
+      <div class="field">
+        <label for="phone">Phone Number <span class="req" aria-hidden="true">*</span></label>
+        <input id="phone" name="phone" type="tel" autocomplete="tel" required />
+      </div>
+      <div class="field">
+        <label for="date-of-birth">Date of Birth <span class="req" aria-hidden="true">*</span></label>
+        <input id="date-of-birth" name="date_of_birth" type="date" required />
+      </div>
+      <div class="field">
+        <label for="country">Country of Residence <span class="req" aria-hidden="true">*</span></label>
+        <select id="country" name="country" autocomplete="country-name" required>
+          <option value="">Select a country</option>
+          {countryOptions.map((option) => <option value={option}>{option}</option>)}
+        </select>
+      </div>
+      <div class="field">
+        <label for="state-region">State / Province / Region <span class="req" aria-hidden="true">*</span></label>
+        <input id="state-region" name="state_region" type="text" autocomplete="address-level1" required />
+      </div>
+      <div class="field">
+        <label for="city">City <span class="req" aria-hidden="true">*</span></label>
+        <input id="city" name="city" type="text" autocomplete="address-level2" required />
+      </div>
+      <div class="field sm:col-span-2">
+        <label for="affiliation">Professional, Academic, or Organizational Affiliation</label>
+        <input id="affiliation" name="affiliation" type="text" />
+      </div>
+    </div>
+
+    <fieldset class="volunteer-form-choice mt-6">
+      <legend>Are you 18 years of age or older? <span class="req" aria-hidden="true">*</span></legend>
+      <div class="choice-row">
+        <label class="choice">
+          <input type="radio" name="age_18_or_older" value="Yes" required />
+          <span>Yes</span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="age_18_or_older" value="No" required />
+          <span>No</span>
+        </label>
+      </div>
+    </fieldset>
+
+    <div class="mt-8 hidden" data-team-section hidden>
+      <h3 class="font-display text-xl">Team Members</h3>
+      <div class="mt-4 space-y-6" data-team-list></div>
+      <p class="mt-4">
+        <button type="button" class="btn-secondary" data-add-team-member>Add Team Member</button>
+      </p>
+    </div>
+  </section>
+
+  <!-- Public Credit -->
+  <section class="volunteer-form-section" aria-labelledby="public-credit-heading">
+    <h2 id="public-credit-heading" class="volunteer-form-section-title">Public Credit</h2>
+    <p class="body-copy">
+      If your submission is selected, you may be publicly credited under your legal name or a pen
+      name. Golden Archive Foundation must still receive your true legal identity for contest
+      administration and verification.
+    </p>
+    <fieldset class="volunteer-form-choice mt-6">
+      <legend>
+        How would you like to be credited publicly if your submission is selected?
+        <span class="req" aria-hidden="true">*</span>
+      </legend>
+      <div class="choice-row">
+        <label class="choice">
+          <input type="radio" name="public_credit" value="legal_name" required data-credit-toggle />
+          <span>My legal name</span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="public_credit" value="pen_name" required data-credit-toggle />
+          <span>A pen name</span>
+        </label>
+      </div>
+    </fieldset>
+    <div class="field mt-5 hidden" data-pen-name-field hidden>
+      <label for="pen-name">Pen Name</label>
+      <input id="pen-name" name="pen_name" type="text" />
+    </div>
+    <p class="field-hint mt-3">
+      For team submissions, each team member may provide a separate public credit name.
+    </p>
+  </section>
+
+  <!-- The Work -->
+  <section class="volunteer-form-section" aria-labelledby="the-work-heading">
+    <h2 id="the-work-heading" class="volunteer-form-section-title">The Work</h2>
+    <div class="volunteer-form-grid">
+      <div class="field">
+        <label for="work-title">Title of the Work <span class="req" aria-hidden="true">*</span></label>
+        <input id="work-title" name="work_title" type="text" required />
+      </div>
+      <div class="field">
+        <label for="original-title">Original-Language Title</label>
+        <input id="original-title" name="original_language_title" type="text" />
+      </div>
+      <div class="field sm:col-span-2">
+        <label for="alternate-titles">Alternate Titles / Transliterations / Romanizations</label>
+        <textarea id="alternate-titles" name="alternate_titles" rows="3"></textarea>
+      </div>
+      <div class="field">
+        <label for="author">Author / Creator / Attribution <span class="req" aria-hidden="true">*</span></label>
+        <input id="author" name="author_creator" type="text" required />
+      </div>
+      <div class="field">
+        <label for="author-dates">Author / Creator Dates</label>
+        <input id="author-dates" name="author_creator_dates" type="text" />
+      </div>
+      <div class="field">
+        <label for="original-language">Original Language <span class="req" aria-hidden="true">*</span></label>
+        <input id="original-language" name="original_language" type="text" required />
+      </div>
+      <div class="field">
+        <label for="origin">Country or Place of Origin <span class="req" aria-hidden="true">*</span></label>
+        <input id="origin" name="country_or_place_of_origin" type="text" required />
+      </div>
+      <div class="field">
+        <label for="first-publication-date">
+          Date of First Publication or First Availability in Book Form
+          <span class="req" aria-hidden="true">*</span>
+        </label>
+        <input id="first-publication-date" name="first_publication_date" type="text" required />
+      </div>
+      <div class="field">
+        <label for="first-publication-place">
+          Place of First Publication <span class="req" aria-hidden="true">*</span>
+        </label>
+        <input id="first-publication-place" name="place_of_first_publication" type="text" required />
+      </div>
+      <div class="field sm:col-span-2">
+        <label for="publisher">Original Publisher / Printer, if known</label>
+        <input id="publisher" name="original_publisher" type="text" />
+      </div>
+      <div class="field">
+        <label for="type-of-work">Type of Work <span class="req" aria-hidden="true">*</span></label>
+        <select id="type-of-work" name="type_of_work" required data-work-type>
+          <option value="">Select a type</option>
+          {workTypeOptions.map((option) => <option value={option}>{option}</option>)}
+        </select>
+      </div>
+      <div class="field hidden" data-work-type-other hidden>
+        <label for="type-of-work-other">If Other</label>
+        <input id="type-of-work-other" name="type_of_work_other" type="text" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Competition Category -->
+  <section class="volunteer-form-section" aria-labelledby="category-heading">
+    <h2 id="category-heading" class="volunteer-form-section-title">Competition Category</h2>
+    <fieldset class="volunteer-form-choice">
+      <legend>
+        Select the category under which you are submitting this work.
+        <span class="req" aria-hidden="true">*</span>
+      </legend>
+      <div class="space-y-4">
+        <label class="choice choice-block">
+          <input type="radio" name="competition_category" value="Untranslated Discovery" required />
+          <span>
+            <strong>{c.categories.untranslated.title}</strong>
+            <br />
+            {c.categories.untranslated.body}
+          </span>
+        </label>
+        <label class="choice choice-block">
+          <input type="radio" name="competition_category" value="General Reader Recovery" required />
+          <span>
+            <strong>{c.categories.recovery.title}</strong>
+            <br />
+            {c.categories.recovery.body}
+          </span>
+        </label>
+      </div>
+    </fieldset>
+    <div class="field mt-5">
+      <label for="category-explain">
+        Explain why the work qualifies for the selected category.
+        <span class="req" aria-hidden="true">*</span>
+      </label>
+      <textarea id="category-explain" name="category_explain" rows="4" required></textarea>
+    </div>
+  </section>
+
+  <!-- Historical Eligibility -->
+  <section class="volunteer-form-section" aria-labelledby="historical-heading">
+    <h2 id="historical-heading" class="volunteer-form-section-title">Historical Eligibility</h2>
+    <div class="field">
+      <label for="publication-evidence">
+        What evidence establishes the work’s date of first publication or first availability in book
+        form?
+        <span class="req" aria-hidden="true">*</span>
+      </label>
+      <textarea id="publication-evidence" name="publication_evidence" rows="4" required></textarea>
+    </div>
+    <div class="field mt-5">
+      <label for="primary-source">
+        Primary Bibliographic or Catalog Source <span class="req" aria-hidden="true">*</span>
+      </label>
+      <input id="primary-source" name="primary_bibliographic_source" type="url" placeholder="https://" required />
+    </div>
+    <div class="field mt-5">
+      <label for="additional-source">Additional Supporting Source</label>
+      <input id="additional-source" name="additional_supporting_source" type="url" placeholder="https://" />
+    </div>
+    <div class="field mt-5">
+      <label for="bibliographic-citations">
+        Bibliographic Citation(s) <span class="req" aria-hidden="true">*</span>
+      </label>
+      <textarea id="bibliographic-citations" name="bibliographic_citations" rows="4" required></textarea>
+    </div>
+    <div class="field mt-5">
+      <label for="supporting-evidence">Supporting Evidence</label>
+      <input
+        id="supporting-evidence"
+        name="supporting_evidence"
+        type="file"
+        accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+        multiple
+      />
+      <p class="field-hint">Accepted file types: PDF, JPG, PNG</p>
+    </div>
+  </section>
+
+  <!-- Source Availability -->
+  <section class="volunteer-form-section" aria-labelledby="source-heading">
+    <h2 id="source-heading" class="volunteer-form-section-title">Source Availability</h2>
+    <div class="field">
+      <label for="source-access">
+        Where can a complete source of the work be accessed?
+        <span class="req" aria-hidden="true">*</span>
+      </label>
+      <textarea id="source-access" name="source_access" rows="4" required></textarea>
+      <p class="field-hint">
+        Include the library, archive, digital repository, edition, collection, shelfmark, identifier,
+        URL, or other information necessary to locate the source.
+      </p>
+    </div>
+    <div class="volunteer-form-grid mt-5">
+      <div class="field">
+        <label for="source-url">Source URL</label>
+        <input id="source-url" name="source_url" type="url" placeholder="https://" />
+      </div>
+      <div class="field">
+        <label for="repository">Repository / Library / Archive</label>
+        <input id="repository" name="repository" type="text" />
+      </div>
+      <div class="field sm:col-span-2">
+        <label for="shelfmark">Shelfmark / Catalog Identifier</label>
+        <input id="shelfmark" name="shelfmark" type="text" />
+      </div>
+    </div>
+    <fieldset class="volunteer-form-choice mt-6">
+      <legend>Is the complete source currently accessible? <span class="req" aria-hidden="true">*</span></legend>
+      <div class="choice-row">
+        <label class="choice"><input type="radio" name="source_accessible" value="Yes" required /><span>Yes</span></label>
+        <label class="choice"><input type="radio" name="source_accessible" value="No" required /><span>No</span></label>
+        <label class="choice">
+          <input type="radio" name="source_accessible" value="Access requires permission or payment" required />
+          <span>Access requires permission or payment</span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="source_accessible" value="I am not sure" required />
+          <span>I am not sure</span>
+        </label>
+      </div>
+    </fieldset>
+    <div class="field mt-5">
+      <label for="access-restrictions">
+        Describe any known access restrictions, costs, permissions, or conditions.
+      </label>
+      <textarea id="access-restrictions" name="access_restrictions" rows="3"></textarea>
+    </div>
+    <div class="field mt-5">
+      <label for="sample-pages">
+        Upload sample source pages <span class="req" aria-hidden="true">*</span>
+      </label>
+      <input id="sample-pages" name="sample_source_pages" type="file" multiple required />
+    </div>
+  </section>
+
+  <!-- Length and Scope -->
+  <section class="volunteer-form-section" aria-labelledby="length-heading">
+    <h2 id="length-heading" class="volunteer-form-section-title">Length and Scope</h2>
+    <div class="volunteer-form-grid">
+      <div class="field">
+        <label for="word-count">
+          Estimated source-language word count <span class="req" aria-hidden="true">*</span>
+        </label>
+        <input id="word-count" name="word_count" type="number" min="0" required />
+      </div>
+      <div class="field">
+        <label for="page-count">Page count, if known</label>
+        <input id="page-count" name="page_count" type="number" min="0" />
+      </div>
+    </div>
+    <div class="field mt-5">
+      <label for="scope-estimate">
+        If a reliable word count is unavailable, explain how you estimated the scope.
+      </label>
+      <textarea id="scope-estimate" name="scope_estimate" rows="3"></textarea>
+    </div>
+    <fieldset class="volunteer-form-choice mt-6">
+      <legend>
+        Does the submission form part of a larger multi-volume work, cycle, collection, or textual
+        tradition?
+        <span class="req" aria-hidden="true">*</span>
+      </legend>
+      <div class="choice-row">
+        <label class="choice">
+          <input type="radio" name="larger_work" value="Yes" required data-larger-work />
+          <span>Yes</span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="larger_work" value="No" required data-larger-work />
+          <span>No</span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="larger_work" value="I am not sure" required data-larger-work />
+          <span>I am not sure</span>
+        </label>
+      </div>
+    </fieldset>
+    <div class="field mt-5 hidden" data-larger-work-yes hidden>
+      <label for="larger-work-explain">
+        Explain the relationship of the submitted work to the larger work or collection.
+        <span class="req" aria-hidden="true">*</span>
+      </label>
+      <textarea id="larger-work-explain" name="larger_work_explain" rows="4"></textarea>
+    </div>
+  </section>
+
+  <!-- Public-Domain Status -->
+  <section class="volunteer-form-section" aria-labelledby="public-domain-heading">
+    <h2 id="public-domain-heading" class="volunteer-form-section-title">Public-Domain Status</h2>
+    <div class="field">
+      <label for="public-domain-why">
+        Why do you believe the underlying historical work is in the public domain in the United
+        States?
+        <span class="req" aria-hidden="true">*</span>
+      </label>
+      <textarea id="public-domain-why" name="public_domain_why" rows="4" required></textarea>
+    </div>
+    <div class="field mt-5">
+      <label for="public-domain-source">Source Supporting Public-Domain Status</label>
+      <input id="public-domain-source" name="public_domain_source" type="url" placeholder="https://" />
+    </div>
+    <div class="field mt-5">
+      <label for="public-domain-edition">Public-Domain Edition or Source Text</label>
+      <input id="public-domain-edition" name="public_domain_edition" type="url" placeholder="https://" />
+    </div>
+    <div class="field mt-5">
+      <label for="rights-docs">Supporting Rights Documentation</label>
+      <input id="rights-docs" name="supporting_rights_documentation" type="file" />
+      <p class="field-hint">{c.publicDomainNote}</p>
+    </div>
+  </section>
+
+  <!-- English-Language Publication History -->
+  <section class="volunteer-form-section" aria-labelledby="english-heading">
+    <h2 id="english-heading" class="volunteer-form-section-title">English-Language Publication History</h2>
+    <fieldset class="volunteer-form-choice">
+      <legend>
+        Are you aware of any English translation of this work?
+        <span class="req" aria-hidden="true">*</span>
+      </legend>
+      <div class="choice-row">
+        <label class="choice">
+          <input type="radio" name="english_translation_aware" value="Yes" required data-english-toggle />
+          <span>Yes</span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="english_translation_aware" value="No" required data-english-toggle />
+          <span>No</span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="english_translation_aware" value="I am not sure" required data-english-toggle />
+          <span>I am not sure</span>
+        </label>
+      </div>
+    </fieldset>
+    <div class="field mt-5 hidden" data-english-yes hidden>
+      <label for="known-translations">Known English Translation(s)</label>
+      <textarea id="known-translations" name="known_english_translations" rows="4"></textarea>
+      <p class="field-hint">{c.englishTranslationNote}</p>
+    </div>
+    <fieldset class="volunteer-form-choice mt-6">
+      <legend>
+        Has the work ever been published as a complete or substantially complete English-language
+        edition intended for general readers in the United States?
+        <span class="req" aria-hidden="true">*</span>
+      </legend>
+      <div class="choice-row">
+        <label class="choice"><input type="radio" name="english_edition_us" value="Yes" required /><span>Yes</span></label>
+        <label class="choice"><input type="radio" name="english_edition_us" value="No" required /><span>No</span></label>
+        <label class="choice">
+          <input type="radio" name="english_edition_us" value="I am not sure" required />
+          <span>I am not sure</span>
+        </label>
+      </div>
+    </fieldset>
+    <div class="field mt-5">
+      <label for="english-explain">Explain your answer. <span class="req" aria-hidden="true">*</span></label>
+      <textarea id="english-explain" name="english_edition_explain" rows="4" required></textarea>
+    </div>
+  </section>
+
+  <!-- Publication-History Search -->
+  <section class="volunteer-form-section" aria-labelledby="search-heading">
+    <h2 id="search-heading" class="volunteer-form-section-title">Publication-History Search</h2>
+    <p class="body-copy">
+      Describe the research you performed to determine whether the work has previously reached
+      general U.S. readers in an accessible English edition.
+    </p>
+    <div class="field mt-5">
+      <label for="variants-searched">
+        Title and author variants searched <span class="req" aria-hidden="true">*</span>
+      </label>
+      <textarea id="variants-searched" name="variants_searched" rows="3" required></textarea>
+    </div>
+    <div class="field mt-5">
+      <label for="sources-searched">
+        Catalogs, databases, bibliographies, repositories, bookseller records, and other sources
+        searched
+        <span class="req" aria-hidden="true">*</span>
+      </label>
+      <textarea id="sources-searched" name="sources_searched" rows="3" required></textarea>
+    </div>
+    <div class="field mt-5">
+      <label for="search-dates">
+        Search dates and representative search terms <span class="req" aria-hidden="true">*</span>
+      </label>
+      <textarea id="search-dates" name="search_dates_terms" rows="3" required></textarea>
+    </div>
+    <div class="field mt-5">
+      <label for="apparent-matches">
+        Apparent English editions, translations, references, or similar works located during your
+        search
+        <span class="req" aria-hidden="true">*</span>
+      </label>
+      <textarea id="apparent-matches" name="apparent_matches" rows="3" required></textarea>
+    </div>
+    <div class="field mt-5">
+      <label for="match-explain">
+        Explain why each apparent match does or does not affect the work’s eligibility.
+        <span class="req" aria-hidden="true">*</span>
+      </label>
+      <textarea id="match-explain" name="match_explain" rows="4" required></textarea>
+    </div>
+    <div class="field mt-5">
+      <label for="search-records">Supporting Search Records</label>
+      <input id="search-records" name="supporting_search_records" type="file" multiple />
+    </div>
+  </section>
+
+  <!-- Why This Work? -->
+  <section class="volunteer-form-section" aria-labelledby="why-work-heading">
+    <h2 id="why-work-heading" class="volunteer-form-section-title">Why This Work?</h2>
+    <div class="field">
+      <label for="reader-case">
+        Reader-Facing Case for Recovery <span class="req" aria-hidden="true">*</span>
+      </label>
+      <p class="field-hint"><strong>{c.readerCaseHint}</strong></p>
+      <textarea id="reader-case" name="reader_facing_case" rows="10" required></textarea>
+      <p class="field-hint mt-2">
+        Describe the work, why it matters, and why it deserves renewed attention from general
+        readers in the United States. Your response should address its literary, cultural,
+        historical, philosophical, intellectual, narrative, or other significance and the value that
+        its recovery would add to public cultural access.
+      </p>
+    </div>
+    <div class="field mt-5">
+      <label for="how-discovered">
+        How did you discover or learn about this work?
+        <span class="req" aria-hidden="true">*</span>
+      </label>
+      <textarea id="how-discovered" name="how_discovered" rows="4" required></textarea>
+    </div>
+  </section>
+
+  <!-- Translation and Publication Feasibility -->
+  <section class="volunteer-form-section" aria-labelledby="feasibility-heading">
+    <h2 id="feasibility-heading" class="volunteer-form-section-title">
+      Translation and Publication Feasibility
+    </h2>
+    <div class="field">
+      <label for="challenges">
+        Are you aware of any particular translation, editorial, cultural, technical, or production
+        challenges associated with this work?
+        <span class="req" aria-hidden="true">*</span>
+      </label>
+      <textarea id="challenges" name="translation_challenges" rows="4" required></textarea>
+    </div>
+    <fieldset class="volunteer-form-choice mt-6">
+      <legend>
+        Does the work contain images, maps, music, illustrations, tables, unusual scripts, or other
+        components that may require separate rights or specialist treatment?
+        <span class="req" aria-hidden="true">*</span>
+      </legend>
+      <div class="choice-row">
+        <label class="choice">
+          <input type="radio" name="special_components" value="Yes" required data-special-components />
+          <span>Yes</span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="special_components" value="No" required data-special-components />
+          <span>No</span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="special_components" value="I am not sure" required data-special-components />
+          <span>I am not sure</span>
+        </label>
+      </div>
+    </fieldset>
+    <div class="field mt-5 hidden" data-special-components-yes hidden>
+      <label for="special-components-explain">Please explain.</label>
+      <textarea id="special-components-explain" name="special_components_explain" rows="3"></textarea>
+    </div>
+    <fieldset class="volunteer-form-choice mt-6">
+      <legend>
+        Are you aware of any archive conditions, community protocols, cultural restrictions, privacy
+        concerns, or other limitations relevant to responsible publication of the work?
+        <span class="req" aria-hidden="true">*</span>
+      </legend>
+      <div class="choice-row">
+        <label class="choice">
+          <input type="radio" name="publication_limitations" value="Yes" required data-pub-limits />
+          <span>Yes</span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="publication_limitations" value="No" required data-pub-limits />
+          <span>No</span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="publication_limitations" value="I am not sure" required data-pub-limits />
+          <span>I am not sure</span>
+        </label>
+      </div>
+    </fieldset>
+    <div class="field mt-5 hidden" data-pub-limits-yes hidden>
+      <label for="pub-limits-explain">Please explain.</label>
+      <textarea id="pub-limits-explain" name="publication_limitations_explain" rows="3"></textarea>
+    </div>
+  </section>
+
+  <!-- Conflicts -->
+  <section class="volunteer-form-section" aria-labelledby="conflicts-heading">
+    <h2 id="conflicts-heading" class="volunteer-form-section-title">Conflicts and Relationships</h2>
+    <fieldset class="volunteer-form-choice">
+      <legend>
+        Do you or any member of your team have a relationship or interest that could reasonably be
+        relevant to the evaluation of this submission?
+        <span class="req" aria-hidden="true">*</span>
+      </legend>
+      <div class="choice-row">
+        <label class="choice">
+          <input type="radio" name="conflicts" value="Yes" required data-conflicts />
+          <span>Yes</span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="conflicts" value="No" required data-conflicts />
+          <span>No</span>
+        </label>
+      </div>
+    </fieldset>
+    <p class="field-hint mt-2">{c.conflictsNote}</p>
+    <div class="field mt-5 hidden" data-conflicts-yes hidden>
+      <label for="conflicts-describe">
+        Please describe the relationship or interest. <span class="req" aria-hidden="true">*</span>
+      </label>
+      <textarea id="conflicts-describe" name="conflicts_describe" rows="4"></textarea>
+    </div>
+  </section>
+
+  <!-- Outside Assistance -->
+  <section class="volunteer-form-section" aria-labelledby="assistance-heading">
+    <h2 id="assistance-heading" class="volunteer-form-section-title">Outside Assistance</h2>
+    <fieldset class="volunteer-form-choice">
+      <legend>
+        Did anyone other than the identified entrant or team members provide substantial assistance
+        in preparing this submission?
+        <span class="req" aria-hidden="true">*</span>
+      </legend>
+      <div class="choice-row">
+        <label class="choice">
+          <input type="radio" name="outside_assistance" value="Yes" required data-assistance />
+          <span>Yes</span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="outside_assistance" value="No" required data-assistance />
+          <span>No</span>
+        </label>
+      </div>
+    </fieldset>
+    <div class="field mt-5 hidden" data-assistance-yes hidden>
+      <label for="assistance-describe">
+        Identify the person or organization and describe the assistance provided.
+        <span class="req" aria-hidden="true">*</span>
+      </label>
+      <textarea id="assistance-describe" name="outside_assistance_describe" rows="4"></textarea>
+    </div>
+  </section>
+
+  <!-- Additional Sources -->
+  <section class="volunteer-form-section" aria-labelledby="additional-sources-heading">
+    <h2 id="additional-sources-heading" class="volunteer-form-section-title">
+      Additional Sources and Documents
+    </h2>
+    <div class="field">
+      <label for="key-sources">
+        Key Sources Used in Preparing This Submission
+        <span class="req" aria-hidden="true">*</span>
+      </label>
+      <textarea id="key-sources" name="key_sources" rows="4" required></textarea>
+    </div>
+    <div class="field mt-5">
+      <label for="additional-link-1">Additional Links</label>
+      <div class="space-y-3" data-link-list>
+        <input id="additional-link-1" name="additional_links" type="url" placeholder="https://" />
+      </div>
+      <p class="mt-3">
+        <button type="button" class="btn-secondary" data-add-link>Add another link</button>
+      </p>
+    </div>
+    <div class="field mt-5">
+      <label for="additional-documents">Additional Supporting Documents</label>
+      <input id="additional-documents" name="additional_documents" type="file" multiple />
+    </div>
+  </section>
+
+  <!-- Additional Information -->
+  <section class="volunteer-form-section" aria-labelledby="additional-info-heading">
+    <h2 id="additional-info-heading" class="volunteer-form-section-title">Additional Information</h2>
+    <div class="field">
+      <label for="anything-else">
+        Is there anything else Golden Archive Foundation should know when evaluating this submission?
+      </label>
+      <textarea id="anything-else" name="anything_else" rows="4"></textarea>
+    </div>
+  </section>
+
+  <!-- Submission Agreement -->
+  <section class="volunteer-form-section" aria-labelledby="agreement-heading">
+    <h2 id="agreement-heading" class="volunteer-form-section-title">Submission Agreement</h2>
+    <p class="body-copy">{c.agreementIntro}</p>
+    <div class="declaration-list mt-6">
+      {
+        c.agreements.map((item) => {
+          const linked = agreementLabel(item);
+          return (
+            <label class="choice choice-block">
+              <input type="checkbox" name={item.name} value="yes" required />
+              <span>
+                <strong>{item.title}</strong>
+                <br />
+                {typeof linked === 'string' ? (
+                  linked
+                ) : (
+                  <>
+                    {linked.before}
+                    {linked.href ? (
+                      <a href={linked.href}>{linked.linkText}</a>
+                    ) : (
+                      <strong>{linked.linkText}</strong>
+                    )}
+                    {linked.after}
+                  </>
+                )}
+                <span class="req" aria-hidden="true">
+                  {' '}
+                  *
+                </span>
+              </span>
+            </label>
+          );
+        })
+      }
+    </div>
+
+    <div class="volunteer-form-grid mt-8">
+      <div class="field">
+        <label for="typed-legal-name">
+          Typed Legal Name <span class="req" aria-hidden="true">*</span>
+        </label>
+        <input id="typed-legal-name" name="typed_legal_name" type="text" required />
+        <p class="field-hint">{c.teamTypedNameNote}</p>
+      </div>
+      <div class="field">
+        <label for="submission-date">Date</label>
+        <input id="submission-date" name="submission_date" type="date" readonly />
+        <p class="field-hint">Automatically recorded on submission.</p>
+      </div>
+    </div>
+    <div class="mt-4 space-y-4 hidden" data-team-typed-names hidden></div>
+  </section>
+
+  <div class="volunteer-form-actions">
+    <button type="submit" class="project-involve-cta" disabled={!canSubmit}>
+      Submit a Hidden Work
+      <span aria-hidden="true">→</span>
+    </button>
+  </div>
+</form>
+
+<template id="team-member-template">
+  <div class="border border-rule p-5" data-team-member>
+    <div class="volunteer-form-grid">
+      <div class="field">
+        <label>Legal First Name <span class="req" aria-hidden="true">*</span></label>
+        <input name="team_first_name[]" type="text" />
+      </div>
+      <div class="field">
+        <label>Legal Middle Name</label>
+        <input name="team_middle_name[]" type="text" />
+      </div>
+      <div class="field">
+        <label>Legal Last Name <span class="req" aria-hidden="true">*</span></label>
+        <input name="team_last_name[]" type="text" />
+      </div>
+      <div class="field">
+        <label>Email Address <span class="req" aria-hidden="true">*</span></label>
+        <input name="team_email[]" type="email" />
+      </div>
+      <div class="field">
+        <label>Country of Residence <span class="req" aria-hidden="true">*</span></label>
+        <select name="team_country[]">
+          <option value="">Select a country</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Affiliation</label>
+        <input name="team_affiliation[]" type="text" />
+      </div>
+    </div>
+    <fieldset class="volunteer-form-choice mt-4">
+      <legend>Are you 18 years of age or older? <span class="req" aria-hidden="true">*</span></legend>
+      <div class="choice-row">
+        <label class="choice"><input type="radio" name="team_age_PLACEHOLDER" value="Yes" /><span>Yes</span></label>
+        <label class="choice"><input type="radio" name="team_age_PLACEHOLDER" value="No" /><span>No</span></label>
+      </div>
+    </fieldset>
+    <div class="field mt-4">
+      <label>Public Credit Name (optional)</label>
+      <input name="team_public_credit[]" type="text" />
+    </div>
+    <p class="mt-4">
+      <button type="button" class="btn-secondary" data-remove-team-member>Remove</button>
+    </p>
+  </div>
+</template>
+
+<script is:inline>
+  (function () {
+    const form = document.querySelector('[data-submit-form]');
+    if (!form) return;
+
+    const countries = Array.from(
+      form.querySelectorAll('#country option'),
+    ).map((opt) => ({ value: opt.value, text: opt.textContent }));
+
+    const dateInput = form.querySelector('#submission-date');
+    if (dateInput) {
+      const today = new Date();
+      dateInput.value = [
+        today.getFullYear(),
+        String(today.getMonth() + 1).padStart(2, '0'),
+        String(today.getDate()).padStart(2, '0'),
+      ].join('-');
+    }
+
+    function show(el, on) {
+      if (!el) return;
+      el.hidden = !on;
+      el.classList.toggle('hidden', !on);
+    }
+
+    function syncEntryType() {
+      const team = form.querySelector('input[name="entry_type"][value="Team"]');
+      const section = form.querySelector('[data-team-section]');
+      const typed = form.querySelector('[data-team-typed-names]');
+      const on = team && team.checked;
+      show(section, on);
+      show(typed, on);
+      if (!on) {
+        const list = form.querySelector('[data-team-list]');
+        if (list) list.innerHTML = '';
+        if (typed) typed.innerHTML = '';
+      }
+    }
+
+    function syncPenName() {
+      const pen = form.querySelector('input[name="public_credit"][value="pen_name"]');
+      const wrap = form.querySelector('[data-pen-name-field]');
+      const input = form.querySelector('#pen-name');
+      const on = pen && pen.checked;
+      show(wrap, on);
+      if (input) {
+        input.required = Boolean(on);
+        if (!on) input.value = '';
+      }
+    }
+
+    function syncWorkTypeOther() {
+      const select = form.querySelector('[data-work-type]');
+      const wrap = form.querySelector('[data-work-type-other]');
+      const input = form.querySelector('#type-of-work-other');
+      const on = select && select.value === 'Other';
+      show(wrap, on);
+      if (input) {
+        input.required = Boolean(on);
+        if (!on) input.value = '';
+      }
+    }
+
+    function syncYes(name, dataAttr) {
+      const yes = form.querySelector(`input[name="${name}"][value="Yes"]`);
+      const wrap = form.querySelector(`[${dataAttr}]`);
+      const on = yes && yes.checked;
+      show(wrap, on);
+      if (!wrap) return;
+      wrap.querySelectorAll('textarea, input').forEach((el) => {
+        if (el.hasAttribute('data-keep-optional')) return;
+        if (on && el.closest('[data-required-when-shown]')) el.required = true;
+        else if (el.name && el.name.includes('explain') || el.name && el.name.includes('describe')) {
+          el.required = Boolean(on);
+        }
+        if (!on && el.type !== 'radio' && el.type !== 'checkbox') el.value = '';
+      });
+    }
+
+    function addTeamMember() {
+      const list = form.querySelector('[data-team-list]');
+      const tpl = document.getElementById('team-member-template');
+      if (!list || !tpl) return;
+      const index = list.children.length;
+      const node = tpl.content.cloneNode(true);
+      const block = node.querySelector('[data-team-member]');
+      block.querySelectorAll('input[type="radio"]').forEach((radio) => {
+        radio.name = `team_age_${index}`;
+        radio.required = true;
+      });
+      const select = block.querySelector('select');
+      if (select) {
+        countries.forEach((c) => {
+          const opt = document.createElement('option');
+          opt.value = c.value;
+          opt.textContent = c.text;
+          select.appendChild(opt);
+        });
+        select.required = true;
+      }
+      block.querySelectorAll('input[name="team_first_name[]"], input[name="team_last_name[]"], input[name="team_email[]"]').forEach((el) => {
+        el.required = true;
+      });
+      block.querySelector('[data-remove-team-member]').addEventListener('click', () => {
+        block.remove();
+        syncTeamTypedNames();
+      });
+      list.appendChild(node);
+      syncTeamTypedNames();
+    }
+
+    function syncTeamTypedNames() {
+      const wrap = form.querySelector('[data-team-typed-names]');
+      const list = form.querySelector('[data-team-list]');
+      if (!wrap || !list) return;
+      wrap.innerHTML = '';
+      Array.from(list.children).forEach((_, i) => {
+        const field = document.createElement('div');
+        field.className = 'field';
+        field.innerHTML = `<label>Team Member ${i + 1} Typed Legal Name <span class="req" aria-hidden="true">*</span></label><input name="team_typed_legal_name[]" type="text" required />`;
+        wrap.appendChild(field);
+      });
+    }
+
+    form.querySelectorAll('[data-entry-type]').forEach((el) => el.addEventListener('change', syncEntryType));
+    form.querySelectorAll('[data-credit-toggle]').forEach((el) => el.addEventListener('change', syncPenName));
+    const workType = form.querySelector('[data-work-type]');
+    if (workType) workType.addEventListener('change', syncWorkTypeOther);
+    form.querySelectorAll('[data-english-toggle]').forEach((el) =>
+      el.addEventListener('change', () => syncYes('english_translation_aware', 'data-english-yes')),
+    );
+    form.querySelectorAll('[data-larger-work]').forEach((el) =>
+      el.addEventListener('change', () => {
+        const yes = form.querySelector('input[name="larger_work"][value="Yes"]');
+        const wrap = form.querySelector('[data-larger-work-yes]');
+        const input = form.querySelector('#larger-work-explain');
+        const on = yes && yes.checked;
+        show(wrap, on);
+        if (input) {
+          input.required = Boolean(on);
+          if (!on) input.value = '';
+        }
+      }),
+    );
+    form.querySelectorAll('[data-special-components]').forEach((el) =>
+      el.addEventListener('change', () => syncYes('special_components', 'data-special-components-yes')),
+    );
+    form.querySelectorAll('[data-pub-limits]').forEach((el) =>
+      el.addEventListener('change', () => syncYes('publication_limitations', 'data-pub-limits-yes')),
+    );
+    form.querySelectorAll('[data-conflicts]').forEach((el) =>
+      el.addEventListener('change', () => {
+        const yes = form.querySelector('input[name="conflicts"][value="Yes"]');
+        const wrap = form.querySelector('[data-conflicts-yes]');
+        const input = form.querySelector('#conflicts-describe');
+        const on = yes && yes.checked;
+        show(wrap, on);
+        if (input) {
+          input.required = Boolean(on);
+          if (!on) input.value = '';
+        }
+      }),
+    );
+    form.querySelectorAll('[data-assistance]').forEach((el) =>
+      el.addEventListener('change', () => {
+        const yes = form.querySelector('input[name="outside_assistance"][value="Yes"]');
+        const wrap = form.querySelector('[data-assistance-yes]');
+        const input = form.querySelector('#assistance-describe');
+        const on = yes && yes.checked;
+        show(wrap, on);
+        if (input) {
+          input.required = Boolean(on);
+          if (!on) input.value = '';
+        }
+      }),
+    );
+
+    const addTeam = form.querySelector('[data-add-team-member]');
+    if (addTeam) addTeam.addEventListener('click', addTeamMember);
+
+    const addLink = form.querySelector('[data-add-link]');
+    const linkList = form.querySelector('[data-link-list]');
+    if (addLink && linkList) {
+      addLink.addEventListener('click', () => {
+        const input = document.createElement('input');
+        input.type = 'url';
+        input.name = 'additional_links';
+        input.placeholder = 'https://';
+        linkList.appendChild(input);
+      });
+    }
+
+    syncEntryType();
+    syncPenName();
+    syncWorkTypeOther();
+  })();
+</script>

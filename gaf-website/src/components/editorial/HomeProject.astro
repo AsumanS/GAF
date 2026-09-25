@@ -9,7 +9,7 @@ type Props = {
 };
 
 const { project } = Astro.props;
-const isLostStories = project.id === 'lost-stories';
+const isLostStories = project.id === 'hidden-works';
 ---
 
 <article
@@ -96,14 +96,18 @@ const isLostStories = project.id === 'lost-stories';
   </div>
   <div class="p-5 sm:p-6">
     <h3 class="font-display text-2xl sm:text-[1.65rem]">{project.title}</h3>
-    <p
-      class:list={[
-        'mt-3 font-sans text-[0.98rem] leading-relaxed',
-        isLostStories ? 'text-project-a-ink/80' : 'text-project-b-ink/80',
-      ]}
-    >
-      {project.premise}
-    </p>
+    {
+      project.premise.map((paragraph) => (
+        <p
+          class:list={[
+            'mt-3 font-sans text-[0.98rem] leading-relaxed',
+            isLostStories ? 'text-project-a-ink/80' : 'text-project-b-ink/80',
+          ]}
+        >
+          {paragraph}
+        </p>
+      ))
+    }
     <p class="mt-4">
       <a
         href={project.href}

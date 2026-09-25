@@ -1,5 +1,5 @@
 /**
- * Image credit record shape for future licensed or public-domain assets.
+ * Image credit record shape for future licensed or rights-cleared assets.
  * Do not invent credit data. Leave fields empty until verified.
  */
 export type ImageCredit = {

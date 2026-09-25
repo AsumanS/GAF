@@ -1,99 +1,102 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { site } from '../config/site';
+import { transparencyContent as c } from '../content/transparency';
 
-const toBePublished = 'To be published.';
+function linkClass(hasHref: boolean) {
+  return hasHref
+    ? 'editorial-link'
+    : 'font-sans text-sm font-semibold text-ink-soft no-underline';
+}
 ---
 
 <BaseLayout
   title="Transparency"
-  description={`Tax-exempt status, governance, and public accountability information for ${site.organizationName}.`}
+  description={c.metaDescription}
   canonicalPath="/transparency"
 >
-  <header class="section-pad-tight rule-bottom">
+  <header class="section-pad-tight rule-bottom bg-white">
     <div class="site-shell measure-wide">
-      <p class="kicker">Transparency</p>
-      <h1 class="mt-3 text-4xl sm:text-5xl">Public accountability</h1>
-      <p class="lede mt-5">
-        Records appear here when they exist. Empty fields and “to be published” notices are
-        intentional. They mark the difference between verified facts and unfinished paperwork.
-      </p>
+      <h1 class="text-4xl sm:text-5xl">Transparency</h1>
+      <p class="lede mt-5">{c.intro}</p>
     </div>
   </header>
 
   <article class="section-pad">
-    <div class="site-shell prose-editorial">
-      <h2>IRS status</h2>
-      <p>
-        Golden Archive Foundation is recognized by the Internal Revenue Service as a tax-exempt
-        organization under Section 501(c)(3).
-      </p>
-      <p>Legal status: {site.legalStatus}</p>
-
-      <h2>Foundation classification</h2>
-      <p>{site.foundationClassification}</p>
-
-      <h2>Employer Identification Number (EIN)</h2>
-      <p>{site.ein || toBePublished}</p>
-
-      <h2>Determination letter</h2>
-      {
-        site.determinationLetterUrl ? (
-          <p>
-            <a href={site.determinationLetterUrl}>View the IRS determination letter</a>
-          </p>
-        ) : (
-          <p>{toBePublished}</p>
-        )
-      }
-
-      <h2>IRS listing</h2>
-      {
-        site.irsSearchUrl ? (
-          <p>
-            <a href={site.irsSearchUrl}>Search the IRS Tax Exempt Organization Search tool</a>
-          </p>
-        ) : (
-          <p>{toBePublished}</p>
-        )
-      }
-
-      <h2>Governance documents</h2>
-      <p>{toBePublished}</p>
-
-      <h2>Annual filings</h2>
-      <p>{toBePublished}</p>
-
-      <h2>Financial information</h2>
-      <p>{toBePublished}</p>
-
-      <h2>Conflict-of-interest policy</h2>
-      <p>{toBePublished}</p>
-
-      <h2>Contact information</h2>
-      {
-        site.publicEmail || site.mailingAddress ? (
-          <ul>
-            {site.publicEmail ? (
+    <div class="site-shell">
+      <div class="prose-editorial measure-wide">
+      <section class="mt-0" aria-labelledby="tax-exempt-heading">
+        <h2 id="tax-exempt-heading">{c.taxExempt.heading}</h2>
+        <p>{c.taxExempt.body}</p>
+        <p>EIN: {site.ein || ''}</p>
+        <ul class="mt-6 list-none space-y-3 pl-0">
+          {
+            c.taxExempt.links.map((item) => (
               <li>
-                Email: <a href={`mailto:${site.publicEmail}`}>{site.publicEmail}</a>
+                {item.href ? (
+                  <a href={item.href} class={linkClass(true)}>
+                    {item.label}
+                    <span aria-hidden="true"> →</span>
+                  </a>
+                ) : (
+                  <span class={linkClass(false)}>
+                    {item.label}
+                    <span aria-hidden="true"> →</span>
+                  </span>
+                )}
               </li>
-            ) : null}
-            {site.mailingAddress ? <li>Mailing address: {site.mailingAddress}</li> : null}
-          </ul>
-        ) : (
-          <p>
-            Public contact information will be added before the site launches. See the{' '}
-            <a href="/contact">Contact</a> page for inquiry categories.
-          </p>
-        )
-      }
+            ))
+          }
+        </ul>
+      </section>
 
-      <h2>Online giving</h2>
-      <p>
-        Online giving is not currently available. Golden Archive Foundation is completing the
-        compliance and administrative work required for future fundraising activities.
-      </p>
+      <section class="mt-12" aria-labelledby="governance-heading">
+        <h2 id="governance-heading">{c.governance.heading}</h2>
+        <ul class="mt-6 list-none space-y-3 pl-0">
+          {
+            c.governance.links.map((item) => (
+              <li>
+                {item.href ? (
+                  <a href={item.href} class={linkClass(true)}>
+                    {item.label}
+                    <span aria-hidden="true"> →</span>
+                  </a>
+                ) : (
+                  <span class={linkClass(false)}>
+                    {item.label}
+                    <span aria-hidden="true"> →</span>
+                  </span>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <section class="mt-12" aria-labelledby="financial-heading">
+        <h2 id="financial-heading">{c.financial.heading}</h2>
+        <h3>{c.financial.year}</h3>
+        <ul class="mt-4 list-none space-y-3 pl-0">
+          {
+            c.financial.links.map((item) => (
+              <li>
+                {item.href ? (
+                  <a href={item.href} class={linkClass(true)}>
+                    {item.label}
+                    <span aria-hidden="true"> →</span>
+                  </a>
+                ) : (
+                  <span class={linkClass(false)}>
+                    {item.label}
+                    <span aria-hidden="true"> →</span>
+                  </span>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+      </div>
     </div>
   </article>
 </BaseLayout>

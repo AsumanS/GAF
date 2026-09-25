@@ -8,6 +8,9 @@ export default defineConfig({
   site: site.siteUrl || undefined,
   output: 'static',
   trailingSlash: 'never',
+  redirects: {
+    '/projects/lost-stories': '/projects/hidden-works',
+  },
   build: {
     // Keep production builds lean for Cloudflare Pages.
     inlineStylesheets: 'auto',

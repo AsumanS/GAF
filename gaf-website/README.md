@@ -24,7 +24,9 @@ No React, no database, no CMS, no authentication, no analytics, no cookies, and 
 gaf-website/
 ├── public/
 │   ├── _headers
-│   ├── favicon.svg
+│   ├── favicon.png
+│   ├── favicon-32.png
+│   ├── apple-touch-icon.png
 │   ├── site.webmanifest
 │   ├── js/menu.js
 │   └── images/
@@ -171,7 +173,7 @@ While `donationsEnabled` is `false`:
 - `/`
 - `/about`
 - `/projects`
-- `/projects/lost-stories`
+- `/projects/hidden-works`
 - `/projects/worlds`
 - `/transparency`
 - `/contact`

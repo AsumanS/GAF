@@ -1,5 +1,11 @@
 export type ProjectStatus = 'in-development' | 'active' | 'completed';
 
+export type ProjectImage = {
+  /** Public path under /assets or /images — single source for Home, index, and detail pages. */
+  src: string;
+  alt: string;
+};
+
 export type Project = {
   id: string;
   number: string;
@@ -7,25 +13,26 @@ export type Project = {
   slug: string;
   href: string;
   status: ProjectStatus;
-  statusLabel: string;
-  premise: string;
+  premise: string[];
   defined: string[];
   remaining: string[];
   linkLabel: string;
   layout: 'bibliographic' | 'spatial';
+  image: ProjectImage;
 };
 
 export const projects: Project[] = [
   {
-    id: 'lost-stories',
+    id: 'hidden-works',
     number: '01',
-    title: 'Lost Stories',
-    slug: 'lost-stories',
-    href: '/projects/lost-stories',
+    title: 'The Hidden Works Discovery Contest',
+    slug: 'hidden-works',
+    href: '/projects/hidden-works',
     status: 'in-development',
-    statusLabel: 'In development',
-    premise:
-      'A research and discovery initiative seeking historically significant public-domain works that have never reached a general English-language readership in the United States.',
+    premise: [
+      'Some important works are hidden in plain sight. A book can remain known in one country, one language, or one scholarly tradition while being almost invisible to readers somewhere else.',
+      'Hidden Works looks for historically significant works that have never reached a general U.S. readership in an accessible English edition—and invites people to bring those discoveries forward.',
+    ],
     defined: [
       'Core discovery problem and public-readership focus',
       'Working distinction between specialist survival and general availability',
@@ -36,19 +43,24 @@ export const projects: Project[] = [
       'Jury composition and review protocol',
       'Submission period and publication pathway agreements',
     ],
-    linkLabel: 'Read the Lost Stories project outline',
+    linkLabel: 'Get Involved',
     layout: 'bibliographic',
+    image: {
+      src: '/assets/lost-stories.jpg',
+      alt: 'Historic photographs and printed materials associated with cultural recovery research',
+    },
   },
   {
     id: 'worlds-imagined',
     number: '02',
-    title: 'Worlds Imagined',
+    title: 'Worlds Imagined: An Atlas of Mythic Cosmologies',
     slug: 'worlds',
     href: '/projects/worlds',
     status: 'in-development',
-    statusLabel: 'In development',
-    premise:
-      'An interdisciplinary project documenting how cultures have pictured the structure of the world through cosmology, sacred geography, narrative, art, and maps.',
+    premise: [
+      'Every culture has imagined the shape of the world: where it begins and ends, what lies above or below it, how the heavens are arranged, where extraordinary beings dwell, and how human life fits within a larger cosmos. Those ideas survive in stories, maps, sacred geographies, diagrams, art, and traditions passed across generations.',
+      'Worlds Imagined: An Atlas of Mythic Cosmologies brings these visions together in a collaborative atlas of mythic world models. Through research, illustration, and storytelling, contributors explore how cultures around the world have pictured the structure of existence and transform that research into engaging entries for a wider public. The project places different cosmologies side by side, allowing readers to discover both their striking differences and the questions they share.',
+    ],
     defined: [
       'Source categories spanning narrative, material, and cartographic evidence',
       'Working rules separating historical sources from modern reconstruction',
@@ -59,8 +71,12 @@ export const projects: Project[] = [
       'Illustration and diagram standards for public presentation',
       'Publication sequence for completed research units',
     ],
-    linkLabel: 'Examine the Worlds Imagined framework',
+    linkLabel: 'Get Involved',
     layout: 'spatial',
+    image: {
+      src: '/assets/worlds-imagined.jpg',
+      alt: 'Artwork representing cultural world models for the Worlds Imagined project',
+    },
   },
 ];
 

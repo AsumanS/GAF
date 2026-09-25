@@ -9,28 +9,17 @@ export const homeContent = {
     nonprofitLabel: 'A 501(c)(3) public charity',
   },
   projectsHeading: 'Our Projects',
+  /** Home card copy keyed by project slug — images come from src/data/projects.ts. */
   projects: {
-    lostStories: {
-      title: 'Lost Stories',
+    'hidden-works': {
       description:
         'A research and discovery project focused on historically significant public-domain works that have not reached a general English-language readership in the United States.',
-      linkLabel: 'Explore Lost Stories',
-      href: '/projects/lost-stories',
-      image: {
-        src: '/assets/lost-stories.jpg',
-        alt: 'Historic photographs and printed materials associated with Lost Stories research',
-      },
+      linkLabel: 'Get Involved',
     },
-    worldsImagined: {
-      title: 'Worlds Imagined',
+    worlds: {
       description:
         'A project documenting how cultures have represented the structure of the world through cosmology, sacred geography, narrative, art, and maps.',
-      linkLabel: 'Explore Worlds Imagined',
-      href: '/projects/worlds',
-      image: {
-        src: '/assets/worlds-imagined.jpg',
-        alt: 'Artwork representing cultural world models for the Worlds Imagined project',
-      },
+      linkLabel: 'Get Involved',
     },
   },
   donation: {

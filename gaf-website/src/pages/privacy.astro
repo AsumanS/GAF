@@ -1,74 +1,63 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { site } from '../config/site';
+import { privacyContent as c } from '../content/privacy';
 ---
 
-<BaseLayout
-  title="Privacy"
-  description={`Privacy practices for the ${site.organizationName} website.`}
-  canonicalPath="/privacy"
->
-  <header class="section-pad-tight rule-bottom">
+<BaseLayout title="Privacy Policy" description={c.metaDescription} canonicalPath="/privacy">
+  <header class="section-pad-tight rule-bottom bg-white">
     <div class="site-shell measure-wide">
-      <p class="kicker">Legal</p>
-      <h1 class="mt-3 text-4xl sm:text-5xl">Privacy policy</h1>
-      <p class="lede mt-5">Privacy posture for the initial public website.</p>
+      <h1 class="text-4xl sm:text-5xl">Privacy Policy</h1>
+      <p class="mt-4 font-sans text-sm text-ink-soft">Last updated: {c.lastUpdated}</p>
+      <p class="lede mt-5">{c.intro}</p>
     </div>
   </header>
 
   <article class="section-pad">
-    <div class="site-shell prose-editorial">
-      <h2>Overview</h2>
-      <p>
-        The initial website for Golden Archive Foundation is a static informational site. It is
-        designed to present organization and project information without advertising cookies,
-        behavioral tracking, online donations, account registration, or public submission forms.
-      </p>
+    <div class="site-shell">
+      <div class="prose-editorial measure-wide">
+        <h2>{c.informationWeCollect.heading}</h2>
+        {c.informationWeCollect.paragraphs.map((p) => <p>{p}</p>)}
 
-      <h2>What this initial website does not do</h2>
-      <ul>
-        <li>It does not use advertising cookies.</li>
-        <li>It does not use behavioral tracking.</li>
-        <li>It does not process online donations.</li>
-        <li>It does not currently provide account registration.</li>
-        <li>It does not currently operate public submission forms.</li>
-      </ul>
+        <h2>{c.automatic.heading}</h2>
+        <p>{c.automatic.body}</p>
 
-      <h2>Information you may choose to share</h2>
-      <p>
-        If a public email address is published, any message you send by email is voluntary. Email
-        correspondence is handled for the purpose of responding to your inquiry and related
-        administrative needs.
-      </p>
+        <h2>{c.howWeUse.heading}</h2>
+        <p>{c.howWeUse.intro}</p>
+        <ul>
+          {c.howWeUse.items.map((item) => <li>{item}</li>)}
+        </ul>
 
-      <h2>Hosting and technical logs</h2>
-      <p>
-        Website hosting providers may generate standard technical logs such as IP address, request
-        time, and requested URL as part of ordinary network operation and security. Those logs are
-        controlled by the hosting environment rather than by application-level tracking on this
-        site.
-      </p>
+        <h2>{c.volunteerApplications.heading}</h2>
+        {c.volunteerApplications.paragraphs.map((p) => <p>{p}</p>)}
 
-      <h2>Policy updates</h2>
-      <p>
-        This privacy policy must be updated before forms, analytics, donations, mailing-list tools,
-        or other data-collection features are introduced.
-      </p>
+        <h2>{c.donations.heading}</h2>
+        {c.donations.paragraphs.map((p) => <p>{p}</p>)}
 
-      <h2>Contact</h2>
-      {
-        site.publicEmail ? (
-          <p>
-            Privacy questions may be sent to{' '}
-            <a href={`mailto:${site.publicEmail}`}>{site.publicEmail}</a>.
-          </p>
-        ) : (
-          <p>
-            A public contact channel for privacy questions will be added before the site launches.
-            See the <a href="/contact">Contact</a> page for current status.
-          </p>
-        )
-      }
+        <h2>{c.howWeShare.heading}</h2>
+        {c.howWeShare.paragraphs.map((p) => <p>{p}</p>)}
+
+        <h2>{c.dataSecurity.heading}</h2>
+        <p>{c.dataSecurity.body}</p>
+
+        <h2>{c.dataRetention.heading}</h2>
+        <p>{c.dataRetention.body}</p>
+
+        <h2>{c.thirdParty.heading}</h2>
+        <p>{c.thirdParty.body}</p>
+
+        <h2>{c.yourInformation.heading}</h2>
+        <p>{c.yourInformation.body}</p>
+
+        <h2>{c.changes.heading}</h2>
+        <p>{c.changes.body}</p>
+
+        <h2>{c.contact.heading}</h2>
+        <p>{c.contact.intro}</p>
+        <p>
+          <a href={`mailto:${site.publicEmail}`}>{site.publicEmail}</a>
+        </p>
+      </div>
     </div>
   </article>
 </BaseLayout>

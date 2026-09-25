@@ -1,81 +1,63 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { site } from '../config/site';
+import { termsContent as c } from '../content/terms';
 ---
 
-<BaseLayout
-  title="Terms"
-  description={`Website terms of use for ${site.organizationName}.`}
-  canonicalPath="/terms"
->
-  <header class="section-pad-tight rule-bottom">
+<BaseLayout title="Website Terms" description={c.metaDescription} canonicalPath="/terms">
+  <header class="section-pad-tight rule-bottom bg-white">
     <div class="site-shell measure-wide">
-      <p class="kicker">Legal</p>
-      <h1 class="mt-3 text-4xl sm:text-5xl">Website terms</h1>
-      <p class="lede mt-5">Terms governing use of the Golden Archive Foundation website.</p>
+      <h1 class="text-4xl sm:text-5xl">Website Terms</h1>
+      <p class="mt-4 font-sans text-sm text-ink-soft">Last updated: {c.lastUpdated}</p>
+      <p class="lede mt-5">{c.intro}</p>
     </div>
   </header>
 
   <article class="section-pad">
-    <div class="site-shell prose-editorial">
-      <h2>Informational content</h2>
-      <p>
-        Materials on this website are provided for general informational and educational purposes.
-        They describe the foundation’s mission, projects, and public status as those items are
-        prepared for release.
-      </p>
+    <div class="site-shell">
+      <div class="prose-editorial measure-wide">
+        <h2>{c.useOfWebsite.heading}</h2>
+        {c.useOfWebsite.paragraphs.map((p) => <p>{p}</p>)}
 
-      <h2>No professional advice</h2>
-      <p>
-        Nothing on this website constitutes legal, tax, financial, medical, or other professional
-        advice.
-      </p>
+        <h2>{c.intellectualProperty.heading}</h2>
+        {c.intellectualProperty.paragraphs.map((p) => <p>{p}</p>)}
 
-      <h2>Intellectual property</h2>
-      <p>
-        Unless otherwise noted, website design, original text, and original graphics produced for
-        Golden Archive Foundation are protected by applicable intellectual property laws. Project
-        pages may later present third-party works under separate rights statements and credit lines.
-      </p>
-      <p>
-        You may link to public pages of this site. Do not present foundation materials in a way that
-        suggests endorsement or affiliation without permission.
-      </p>
+        <h2>{c.submissions.heading}</h2>
+        {c.submissions.paragraphs.map((p) => <p>{p}</p>)}
 
-      <h2>Third-party links</h2>
-      <p>
-        Links to external sites, including government resources, are provided for convenience. The
-        foundation is not responsible for the content, privacy practices, or availability of
-        third-party websites.
-      </p>
+        <h2>{c.projectRules.heading}</h2>
+        {c.projectRules.paragraphs.map((p) => <p>{p}</p>)}
 
-      <h2>Project rules</h2>
-      <p>
-        Official rules for contests, calls, or participation programs—if and when published—govern
-        those activities separately from these website terms. In the event of a conflict, the
-        official project rules control for that project.
-      </p>
+        <h2>{c.donations.heading}</h2>
+        {c.donations.paragraphs.map((p) => <p>{p}</p>)}
 
-      <h2>Changes to site content</h2>
-      <p>
-        The foundation may update, correct, or remove website content at any time. These terms may
-        also be revised. The version posted on this page is the current version.
-      </p>
+        <h2>{c.accuracy.heading}</h2>
+        {c.accuracy.paragraphs.map((p) => <p>{p}</p>)}
 
-      <h2>Contact</h2>
-      {
-        site.publicEmail ? (
-          <p>
-            Questions about these terms may be sent to{' '}
-            <a href={`mailto:${site.publicEmail}`}>{site.publicEmail}</a>.
-          </p>
-        ) : (
-          <p>
-            A public contact channel will be added before the site launches. See the{' '}
-            <a href="/contact">Contact</a> page for current status.
-          </p>
-        )
-      }
+        <h2>{c.disclaimer.heading}</h2>
+        <p>{c.disclaimer.body}</p>
+
+        <h2>{c.privacy.heading}</h2>
+        <p>
+          Use of personal information submitted through this website is described in our{' '}
+          <a href={c.privacy.href} class="editorial-link">
+            {c.privacy.label}
+            <span aria-hidden="true"> →</span>
+          </a>
+        </p>
+
+        <h2>{c.changes.heading}</h2>
+        <p>{c.changes.body}</p>
+
+        <h2>{c.governingLaw.heading}</h2>
+        <p>{c.governingLaw.body}</p>
+
+        <h2>{c.contact.heading}</h2>
+        <p>{c.contact.intro}</p>
+        <p>
+          <a href={`mailto:${site.publicEmail}`}>{site.publicEmail}</a>
+        </p>
+      </div>
     </div>
   </article>
 </BaseLayout>

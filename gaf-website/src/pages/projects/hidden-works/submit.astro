@@ -1,0 +1,93 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import HiddenWorksSubmitForm from '../../../components/HiddenWorksSubmitForm.astro';
+import { hiddenWorksSubmitContent as c } from '../../../content/projects/hidden-works-submit';
+
+type Rich = string | { html: string };
+
+function isHtml(value: Rich): value is { html: string } {
+  return typeof value === 'object' && value !== null && 'html' in value;
+}
+---
+
+<BaseLayout
+  title="Submit a Hidden Work"
+  description={c.metaDescription}
+  canonicalPath="/projects/hidden-works/submit"
+>
+  <header class="section-pad-tight rule-bottom bg-white">
+    <div class="site-shell measure-wide">
+      <h1 class="text-4xl sm:text-5xl">Submit a Hidden Work</h1>
+    </div>
+  </header>
+
+  <article class="section-pad">
+    <div class="site-shell">
+      <div class="prose-editorial measure-wide">
+        {c.intro.map((p) => <p>{p}</p>)}
+        <p set:html={c.submissionsOpenHtml} />
+        <p set:html={c.submissionPeriodHtml} />
+        <p>{c.orderNote}</p>
+        <p set:html={c.noFeeHtml} />
+
+        <h2>{c.eligibility.heading}</h2>
+        <ul>
+          {
+            c.eligibility.items.map((item) =>
+              isHtml(item) ? <li set:html={item.html} /> : <li>{item}</li>,
+            )
+          }
+        </ul>
+
+        <h2>{c.rules.heading}</h2>
+        {
+          c.rules.sections.map((section) => (
+            <section class="mt-8" aria-labelledby={`rule-${section.heading}`}>
+              <h3 id={`rule-${section.heading}`}>{section.heading}</h3>
+              {'intro' in section && section.intro ? <p>{section.intro}</p> : null}
+              {'paragraphs' in section && section.paragraphs
+                ? section.paragraphs.map((p: Rich) =>
+                    isHtml(p) ? <p set:html={p.html} /> : <p>{p}</p>,
+                  )
+                : null}
+              {'items' in section && section.items ? (
+                <ul>
+                  {section.items.map((item: Rich) =>
+                    isHtml(item) ? <li set:html={item.html} /> : <li>{item}</li>,
+                  )}
+                </ul>
+              ) : null}
+              {'after' in section && section.after
+                ? section.after.map((p: string) => <p>{p}</p>)
+                : null}
+              {'subsections' in section && section.subsections
+                ? section.subsections.map((sub) => (
+                    <div class="mt-6">
+                      <h4 class="font-display text-lg">{sub.heading}</h4>
+                      {sub.paragraphs?.map((p: Rich) =>
+                        isHtml(p) ? <p set:html={p.html} /> : <p>{p}</p>,
+                      )}
+                      {'items' in sub && sub.items ? (
+                        <ul>
+                          {sub.items.map((item: string) => (
+                            <li>{item}</li>
+                          ))}
+                        </ul>
+                      ) : null}
+                      {'after' in sub && sub.after
+                        ? sub.after.map((p: string) => <p>{p}</p>)
+                        : null}
+                    </div>
+                  ))
+                : null}
+            </section>
+          ))
+        }
+      </div>
+
+      <div class="mt-4 max-w-4xl">
+        <HiddenWorksSubmitForm />
+      </div>
+    </div>
+  </article>
+</BaseLayout>

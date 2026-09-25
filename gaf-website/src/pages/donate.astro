@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../config/site';
+---
+
+<BaseLayout
+  title="Support Golden Archive Foundation"
+  description="Support Golden Archive Foundation — online giving information and contact for questions about supporting the Foundation."
+  canonicalPath="/donate"
+>
+  <header class="section-pad-tight rule-bottom bg-white">
+    <div class="site-shell measure-wide">
+      <h1 class="text-4xl sm:text-5xl">Support Golden Archive Foundation</h1>
+      <p class="lede mt-5">
+        Your support helps Golden Archive Foundation advance its cultural, educational, and
+        charitable work, including research, publishing, public programs, and the development of
+        projects that bring overlooked cultural works and knowledge to wider audiences.
+      </p>
+    </div>
+  </header>
+
+  <article class="section-pad">
+    <div class="site-shell">
+      <div class="prose-editorial measure-wide">
+        <h2>Online Giving</h2>
+        <p>Online giving will be available shortly.</p>
+        <p>
+          Golden Archive Foundation is completing the final administrative steps required to open
+          online donations.
+        </p>
+        <p>For questions about supporting the Foundation, please contact:</p>
+        <p>
+          <a href={`mailto:${site.publicEmail}`}>{site.publicEmail}</a>
+        </p>
+      </div>
+    </div>
+  </article>
+</BaseLayout>

@@ -14,7 +14,7 @@ function isCurrent(href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-const donateHref = site.donationUrl || '/#donate';
+const donateHref = site.donationUrl || '/donate';
 ---
 
 <header class="sticky top-0 z-50 border-b border-rule bg-canvas/95 backdrop-blur-sm">
@@ -23,9 +23,7 @@ const donateHref = site.donationUrl || '/#donate';
       href="/"
       class="group flex min-w-0 items-center gap-2.5 text-ink no-underline hover:text-ink"
     >
-      <span class="text-accent transition-colors group-hover:text-accent-dark" aria-hidden="true">
-        <Emblem class="h-7 w-7" />
-      </span>
+      <Emblem class="h-8 w-8 shrink-0" />
       <span class="font-display text-lg leading-tight tracking-tight sm:text-xl">
         {site.organizationName}
       </span>
@@ -55,8 +53,8 @@ const donateHref = site.donationUrl || '/#donate';
       </nav>
 
       <div class="hidden items-center gap-2 sm:flex">
-        <a href="/volunteer" class="btn-volunteer-header">Volunteer</a>
-        <a href={donateHref} class="btn-donate-header">Donate</a>
+        <a href="/volunteer" class="btn-secondary-header">Volunteer</a>
+        <a href={donateHref} class="btn-primary-header">Donate</a>
       </div>
 
       <button
@@ -89,8 +87,8 @@ const donateHref = site.donationUrl || '/#donate';
           ))
         }
         <li class="flex flex-wrap gap-2 pt-3">
-          <a href="/volunteer" class="btn-volunteer">Volunteer</a>
-          <a href={donateHref} class="btn-donate">Donate</a>
+          <a href="/volunteer" class="btn-secondary">Volunteer</a>
+          <a href={donateHref} class="btn-primary">Donate</a>
         </li>
       </ul>
     </nav>

@@ -1,0 +1,373 @@
+---
+import { site } from '../config/site';
+import {
+  countryOptions,
+  preferredAvailabilityOptions,
+  timeCommitmentOptions,
+  timeZoneOptions,
+  volunteerDurationOptions,
+} from '../content/volunteerForm';
+
+const formAction = site.volunteerFormAction.trim();
+const canSubmit = Boolean(formAction);
+---
+
+<form
+  class="volunteer-form"
+  method="post"
+  enctype="multipart/form-data"
+  action={canSubmit ? formAction : undefined}
+  aria-labelledby="volunteer-form-title"
+>
+  <h2 id="volunteer-form-title" class="font-display text-3xl sm:text-4xl">
+    Volunteer Application
+  </h2>
+  <p class="body-copy mt-3">
+    Required fields are marked with an asterisk (<span aria-hidden="true">*</span>).
+  </p>
+
+  <section class="volunteer-form-section" aria-labelledby="contact-info-heading">
+    <h3 id="contact-info-heading" class="volunteer-form-section-title">Contact Information</h3>
+    <div class="volunteer-form-grid">
+      <div class="field">
+        <label for="first-name">First Name <span class="req" aria-hidden="true">*</span></label>
+        <input id="first-name" name="first_name" type="text" autocomplete="given-name" required />
+      </div>
+      <div class="field">
+        <label for="last-name">Last Name <span class="req" aria-hidden="true">*</span></label>
+        <input id="last-name" name="last_name" type="text" autocomplete="family-name" required />
+      </div>
+      <div class="field">
+        <label for="email">Email <span class="req" aria-hidden="true">*</span></label>
+        <input id="email" name="email" type="email" autocomplete="email" required />
+      </div>
+      <div class="field">
+        <label for="phone">Phone <span class="req" aria-hidden="true">*</span></label>
+        <input id="phone" name="phone" type="tel" autocomplete="tel" required />
+      </div>
+      <div class="field">
+        <label for="city">City <span class="req" aria-hidden="true">*</span></label>
+        <input id="city" name="city" type="text" autocomplete="address-level2" required />
+      </div>
+      <div class="field">
+        <label for="state-region">State / Region <span class="req" aria-hidden="true">*</span></label>
+        <input
+          id="state-region"
+          name="state_region"
+          type="text"
+          autocomplete="address-level1"
+          required
+        />
+      </div>
+      <div class="field">
+        <label for="country">Country <span class="req" aria-hidden="true">*</span></label>
+        <select id="country" name="country" autocomplete="country-name" required>
+          <option value="">Select a country</option>
+          {countryOptions.map((option) => <option value={option}>{option}</option>)}
+        </select>
+      </div>
+      <div class="field">
+        <label for="time-zone">Time Zone <span class="req" aria-hidden="true">*</span></label>
+        <select id="time-zone" name="time_zone" required>
+          <option value="">Select a time zone</option>
+          {timeZoneOptions.map((option) => <option value={option}>{option}</option>)}
+        </select>
+      </div>
+    </div>
+
+    <fieldset class="volunteer-form-choice mt-6">
+      <legend>Are you 18 or older? <span class="req" aria-hidden="true">*</span></legend>
+      <div class="choice-row">
+        <label class="choice">
+          <input type="radio" name="age_18_or_older" value="Yes" required />
+          <span>Yes</span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="age_18_or_older" value="No" required />
+          <span>No</span>
+        </label>
+      </div>
+    </fieldset>
+  </section>
+
+  <section class="volunteer-form-section" aria-labelledby="volunteer-interest-heading">
+    <h3 id="volunteer-interest-heading" class="volunteer-form-section-title">Volunteer Interest</h3>
+    <div class="field">
+      <label for="why-volunteer">
+        Why would you like to volunteer with Golden Archive Foundation?
+        <span class="req" aria-hidden="true">*</span>
+      </label>
+      <textarea id="why-volunteer" name="why_volunteer" rows="4" required></textarea>
+    </div>
+    <div class="field mt-5">
+      <label for="how-contribute">
+        How would you like to contribute? <span class="req" aria-hidden="true">*</span>
+      </label>
+      <textarea id="how-contribute" name="how_contribute" rows="4" required></textarea>
+    </div>
+    <div class="field mt-5">
+      <label for="work-interests">
+        Are there particular kinds of work you are especially interested in?
+      </label>
+      <textarea id="work-interests" name="work_interests" rows="3"></textarea>
+    </div>
+  </section>
+
+  <section class="volunteer-form-section" aria-labelledby="skills-heading">
+    <h3 id="skills-heading" class="volunteer-form-section-title">Skills &amp; Experience</h3>
+    <div class="field">
+      <label for="skills-experience">
+        Relevant skills and experience <span class="req" aria-hidden="true">*</span>
+      </label>
+      <textarea id="skills-experience" name="skills_experience" rows="4" required></textarea>
+    </div>
+    <div class="field mt-5">
+      <label for="languages">Languages spoken / read / written</label>
+      <input id="languages" name="languages" type="text" />
+    </div>
+    <div class="field mt-5">
+      <label for="tools">Software, platforms, or technical tools</label>
+      <input id="tools" name="tools" type="text" />
+    </div>
+    <div class="field mt-5">
+      <label for="qualifications">Professional qualifications, certifications, or licenses</label>
+      <textarea id="qualifications" name="qualifications" rows="3"></textarea>
+    </div>
+    <div class="field mt-5">
+      <label for="prior-volunteer">Previous volunteer or nonprofit experience</label>
+      <textarea id="prior-volunteer" name="prior_volunteer" rows="3"></textarea>
+    </div>
+  </section>
+
+  <section class="volunteer-form-section" aria-labelledby="availability-heading">
+    <h3 id="availability-heading" class="volunteer-form-section-title">Availability</h3>
+    <div class="volunteer-form-grid">
+      <div class="field">
+        <label for="start-date">
+          Available start date <span class="req" aria-hidden="true">*</span>
+        </label>
+        <input id="start-date" name="available_start_date" type="date" required />
+      </div>
+      <div class="field">
+        <label for="time-commitment">
+          Approximate time commitment <span class="req" aria-hidden="true">*</span>
+        </label>
+        <select id="time-commitment" name="time_commitment" required>
+          <option value="">Select an option</option>
+          {
+            timeCommitmentOptions.map((option) => (
+              <option value={option}>{option}</option>
+            ))
+          }
+        </select>
+      </div>
+      <div class="field sm:col-span-2">
+        <label for="volunteer-duration">
+          Preferred volunteer duration <span class="req" aria-hidden="true">*</span>
+        </label>
+        <select id="volunteer-duration" name="volunteer_duration" required>
+          <option value="">Select an option</option>
+          {
+            volunteerDurationOptions.map((option) => (
+              <option value={option}>{option}</option>
+            ))
+          }
+        </select>
+      </div>
+    </div>
+
+    <fieldset class="volunteer-form-choice mt-6">
+      <legend>Preferred availability <span class="req" aria-hidden="true">*</span></legend>
+      <div class="choice-row">
+        {
+          preferredAvailabilityOptions.map((option) => (
+            <label class="choice">
+              <input type="checkbox" name="preferred_availability" value={option} />
+              <span>{option}</span>
+            </label>
+          ))
+        }
+      </div>
+      <p class="field-hint">Select all that apply.</p>
+    </fieldset>
+  </section>
+
+  <section class="volunteer-form-section" aria-labelledby="supporting-heading">
+    <h3 id="supporting-heading" class="volunteer-form-section-title">Supporting Information</h3>
+    <div class="field">
+      <label for="resume">
+        Résumé / CV upload <span class="req" aria-hidden="true">*</span>
+      </label>
+      <input
+        id="resume"
+        name="resume"
+        type="file"
+        accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        required
+      />
+      <p class="field-hint">PDF or Word document.</p>
+    </div>
+    <div class="volunteer-form-grid mt-5">
+      <div class="field">
+        <label for="linkedin">LinkedIn profile</label>
+        <input id="linkedin" name="linkedin" type="url" placeholder="https://" autocomplete="url" />
+      </div>
+      <div class="field">
+        <label for="portfolio">Portfolio / personal website</label>
+        <input id="portfolio" name="portfolio" type="url" placeholder="https://" autocomplete="url" />
+      </div>
+    </div>
+    <div class="field mt-5">
+      <label for="work-sample">Additional file or work sample</label>
+      <input id="work-sample" name="work_sample" type="file" />
+    </div>
+  </section>
+
+  <section class="volunteer-form-section" aria-labelledby="reference-1-heading">
+    <h3 id="reference-1-heading" class="volunteer-form-section-title">Reference 1</h3>
+    <div class="volunteer-form-grid">
+      <div class="field">
+        <label for="ref1-name">Name <span class="req" aria-hidden="true">*</span></label>
+        <input id="ref1-name" name="reference_1_name" type="text" required />
+      </div>
+      <div class="field">
+        <label for="ref1-relationship">
+          Relationship to you <span class="req" aria-hidden="true">*</span>
+        </label>
+        <input id="ref1-relationship" name="reference_1_relationship" type="text" required />
+      </div>
+      <div class="field">
+        <label for="ref1-email">Email <span class="req" aria-hidden="true">*</span></label>
+        <input id="ref1-email" name="reference_1_email" type="email" required />
+      </div>
+      <div class="field">
+        <label for="ref1-phone">Phone <span class="req" aria-hidden="true">*</span></label>
+        <input id="ref1-phone" name="reference_1_phone" type="tel" required />
+      </div>
+    </div>
+  </section>
+
+  <section class="volunteer-form-section" aria-labelledby="reference-2-heading">
+    <h3 id="reference-2-heading" class="volunteer-form-section-title">Reference 2</h3>
+    <div class="volunteer-form-grid">
+      <div class="field">
+        <label for="ref2-name">Name <span class="req" aria-hidden="true">*</span></label>
+        <input id="ref2-name" name="reference_2_name" type="text" required />
+      </div>
+      <div class="field">
+        <label for="ref2-relationship">
+          Relationship to you <span class="req" aria-hidden="true">*</span>
+        </label>
+        <input id="ref2-relationship" name="reference_2_relationship" type="text" required />
+      </div>
+      <div class="field">
+        <label for="ref2-email">Email <span class="req" aria-hidden="true">*</span></label>
+        <input id="ref2-email" name="reference_2_email" type="email" required />
+      </div>
+      <div class="field">
+        <label for="ref2-phone">Phone <span class="req" aria-hidden="true">*</span></label>
+        <input id="ref2-phone" name="reference_2_phone" type="tel" required />
+      </div>
+    </div>
+  </section>
+
+  <section class="volunteer-form-section" aria-labelledby="additional-heading">
+    <h3 id="additional-heading" class="volunteer-form-section-title">Additional Information</h3>
+    <div class="field">
+      <label for="additional-info">Anything else you would like us to know?</label>
+      <textarea id="additional-info" name="additional_info" rows="4"></textarea>
+    </div>
+  </section>
+
+  <section class="volunteer-form-section" aria-labelledby="declarations-heading">
+    <h3 id="declarations-heading" class="volunteer-form-section-title">Declarations</h3>
+    <div class="declaration-list">
+      <label class="choice choice-block">
+        <input type="checkbox" name="declare_references_contact" value="yes" required />
+        <span>
+          I confirm that the references listed above may be contacted by Golden Archive Foundation
+          regarding my volunteer application.
+          <span class="req" aria-hidden="true">*</span>
+        </span>
+      </label>
+      <label class="choice choice-block">
+        <input type="checkbox" name="declare_accuracy" value="yes" required />
+        <span>
+          I certify that the information provided in this application is accurate to the best of my
+          knowledge.
+          <span class="req" aria-hidden="true">*</span>
+        </span>
+      </label>
+      <label class="choice choice-block">
+        <input type="checkbox" name="declare_no_guarantee" value="yes" required />
+        <span>
+          I understand that submitting an application does not guarantee a volunteer placement.
+          <span class="req" aria-hidden="true">*</span>
+        </span>
+      </label>
+      <label class="choice choice-block">
+        <input type="checkbox" name="declare_unpaid" value="yes" required />
+        <span>
+          I understand that volunteer roles with Golden Archive Foundation are unpaid.
+          <span class="req" aria-hidden="true">*</span>
+        </span>
+      </label>
+      <label class="choice choice-block">
+        <input type="checkbox" name="declare_confidentiality" value="yes" required />
+        <span>
+          I understand that some volunteer roles may involve access to confidential information and
+          may require additional confidentiality or data-handling requirements.
+          <span class="req" aria-hidden="true">*</span>
+        </span>
+      </label>
+    </div>
+
+    <fieldset class="volunteer-form-choice mt-6">
+      <legend>
+        If a particular volunteer role requires a background check, are you willing to complete one?
+        <span class="req" aria-hidden="true">*</span>
+      </legend>
+      <div class="choice-row">
+        <label class="choice">
+          <input type="radio" name="background_check_willing" value="Yes" required />
+          <span>Yes</span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="background_check_willing" value="No" required />
+          <span>No</span>
+        </label>
+      </div>
+    </fieldset>
+  </section>
+
+  <div class="volunteer-form-actions">
+    <button type="submit" class="btn-primary" disabled={!canSubmit}>
+      Submit Volunteer Application
+    </button>
+  </div>
+</form>
+
+<script is:inline>
+  document.querySelectorAll('.volunteer-form').forEach((form) => {
+    form.addEventListener('submit', (event) => {
+      const boxes = form.querySelectorAll('input[name="preferred_availability"]');
+      if (!boxes.length) return;
+      const checked = Array.from(boxes).some((box) => box.checked);
+      if (!checked) {
+        event.preventDefault();
+        boxes[0].focus();
+        boxes[0].setCustomValidity('Please select at least one preferred availability option.');
+        boxes[0].reportValidity();
+      } else {
+        boxes.forEach((box) => box.setCustomValidity(''));
+      }
+    });
+    form.querySelectorAll('input[name="preferred_availability"]').forEach((box) => {
+      box.addEventListener('change', () => {
+        form
+          .querySelectorAll('input[name="preferred_availability"]')
+          .forEach((item) => item.setCustomValidity(''));
+      });
+    });
+  });
+</script>

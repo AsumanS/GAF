@@ -5,7 +5,7 @@
  */
 import { site } from '../config/site';
 
-const donateHref = site.donationUrl || '#donate';
+const donateHref = site.donationUrl || '/donate';
 ---
 
 <section
@@ -27,7 +27,7 @@ const donateHref = site.donationUrl || '#donate';
       ) : null
     }
     <p class="mt-6">
-      <a href={donateHref} class="btn-donate">Donate</a>
+      <a href={donateHref} class="btn-primary">Donate</a>
     </p>
   </div>
 </section>

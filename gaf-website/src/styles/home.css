@@ -1,46 +1,24 @@
-:root {
-  --ink: #171612;
-  --paper: #f7f3ec;
-  --white: #ffffff;
-  --gold: #b58a3a;
-  --gold-dark: #966e28;
-  --line: #e2ddd4;
-  --muted: #57534d;
-  --footer: #151515;
-  --content: 1200px;
-  --serif: Georgia, 'Times New Roman', Times, serif;
-  --sans: Arial, Helvetica, sans-serif;
+/**
+ * Home page body styles only.
+ * Shared Header/Footer, skip link, focus, and CTA semantics live in global.css.
+ * Gold tokens here are decorative/editorial accents (rules, dark-panel emphasis) — not primary CTAs.
+ */
+.home {
+  --home-ink: #171612;
+  --home-paper: #f7f3ec;
+  --home-white: #ffffff;
+  --home-gold: #b58a3a;
+  --home-line: #e2ddd4;
+  --home-muted: #57534d;
+  --home-footer: #151515;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  margin: 0;
-  color: var(--ink);
-  background: var(--white);
-  font-family: var(--sans);
-  line-height: 1.45;
-}
-
-main {
-  display: block;
-}
-
-img {
+.home img {
   max-width: 100%;
 }
 
-a {
-  color: inherit;
-}
-
-svg {
+.home .hero svg,
+.home .donation svg {
   display: block;
   fill: none;
   stroke: currentColor;
@@ -49,148 +27,24 @@ svg {
   stroke-width: 1.7;
 }
 
-.skip-link {
-  position: absolute;
-  left: -9999px;
-  top: 0;
-  z-index: 100;
-  padding: 12px 16px;
-  background: var(--ink);
-  color: var(--white);
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.skip-link:focus {
-  left: 12px;
-  top: 12px;
-}
-
-.site-header {
-  position: relative;
-  z-index: 20;
-  height: 78px;
-  background: rgba(255, 255, 255, 0.99);
-  border-bottom: 1px solid var(--line);
-}
-
-.header-inner {
-  width: min(var(--content), calc(100% - 48px));
-  height: 100%;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 34px;
-}
-
-.wordmark,
-.footer-wordmark {
-  display: inline-flex;
-  flex-direction: column;
-  color: var(--ink);
-  font-family: var(--serif);
-  line-height: 0.96;
-  letter-spacing: 0.13em;
-  text-decoration: none;
-  text-transform: uppercase;
-}
-
-.wordmark {
-  font-size: 19px;
-}
-
-.wordmark span:last-child,
-.footer-wordmark span:last-child {
-  margin-top: 3px;
-  font-size: 0.67em;
-  letter-spacing: 0.32em;
-}
-
-.main-nav {
-  display: flex;
-  align-items: center;
-  gap: 27px;
-  font-size: 14px;
-}
-
-.nav-link {
-  text-decoration: none;
-}
-
-.nav-link:hover {
-  text-decoration: underline;
-  text-underline-offset: 5px;
-}
-
-.button {
-  min-height: 43px;
-  padding: 0 26px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.home .hero-actions .btn-primary,
+.home .hero-actions .btn-secondary,
+.home .donation-inner .btn-primary {
   gap: 9px;
-  border: 1px solid var(--ink);
-  border-radius: 0;
-  font-family: var(--serif);
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  text-decoration: none;
-  transition:
-    background-color 0.18s ease,
-    color 0.18s ease,
-    border-color 0.18s ease;
-}
-
-.button-header {
-  min-height: 42px;
-  padding-inline: 23px;
-  font-family: var(--sans);
-  font-size: 14px;
-}
-
-.button-primary,
-.button-gold {
-  color: var(--white);
-  background: var(--gold);
-  border-color: var(--gold);
-}
-
-.button-primary:hover,
-.button-gold:hover {
-  color: var(--white);
-  background: var(--gold-dark);
-  border-color: var(--gold-dark);
-}
-
-.button-secondary {
-  color: var(--ink);
-  background: rgba(255, 255, 255, 0.78);
-}
-
-.button-secondary:hover {
-  color: var(--white);
-  background: var(--ink);
-}
-
-.button-gold {
-  min-width: 170px;
 }
 
 .hero {
   position: relative;
   height: 397px;
   overflow: hidden;
-  background: var(--paper);
+  background: var(--home-paper);
+  color: var(--home-ink);
 }
 
 .hero-inner {
   position: relative;
   z-index: 3;
-  width: min(var(--content), calc(100% - 48px));
   height: 100%;
-  margin: 0 auto;
   display: flex;
   align-items: center;
 }
@@ -203,7 +57,7 @@ svg {
 .hero h1 {
   max-width: 515px;
   margin: 0;
-  font-family: var(--serif);
+  font-family: var(--font-display), Georgia, 'Times New Roman', Times, serif;
   font-size: clamp(44px, 3.6vw, 55px);
   font-weight: 400;
   line-height: 1.02;
@@ -219,7 +73,7 @@ svg {
   max-width: 455px;
   margin: 22px 0 0;
   color: #3a3732;
-  font-family: var(--serif);
+  font-family: var(--font-display), Georgia, 'Times New Roman', Times, serif;
   font-size: clamp(18px, 1.25vw, 20px);
   line-height: 1.42;
 }
@@ -229,7 +83,7 @@ svg {
   display: flex;
   align-items: center;
   gap: 9px;
-  font-family: var(--serif);
+  font-family: var(--font-display), Georgia, 'Times New Roman', Times, serif;
   font-size: 14px;
 }
 
@@ -254,7 +108,7 @@ svg {
   pointer-events: none;
   background: linear-gradient(
     90deg,
-    var(--paper) 0%,
+    var(--home-paper) 0%,
     rgba(247, 243, 236, 0.98) 8%,
     rgba(247, 243, 236, 0.86) 18%,
     rgba(247, 243, 236, 0.48) 30%,
@@ -274,12 +128,7 @@ svg {
 
 .projects {
   padding: 20px 0 22px;
-  background: var(--white);
-}
-
-.projects-inner {
-  width: min(var(--content), calc(100% - 48px));
-  margin: 0 auto;
+  background: var(--home-white);
 }
 
 .section-heading-row {
@@ -292,41 +141,65 @@ svg {
 
 .section-heading-row h2 {
   margin: 0;
-  font-family: var(--serif);
+  font-family: var(--font-display), Georgia, 'Times New Roman', Times, serif;
   font-size: 28px;
   font-weight: 400;
+}
+
+.section-heading-row h2 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.section-heading-row h2 a:hover {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 6px;
 }
 
 .section-heading-row span {
   width: 42px;
   height: 1px;
-  background: var(--gold);
+  background: var(--home-gold);
 }
 
 .project-grid {
   display: grid;
+  width: 100%;
   grid-template-columns: 1fr 1fr;
   gap: 26px;
 }
 
 .project {
-  height: 230px;
+  width: 100%;
+  min-width: 0;
+  min-height: 230px;
   display: grid;
-  grid-template-columns: 54% 46%;
-  overflow: hidden;
+  /* Image | copy — copy side slightly wider so long titles breathe inside the shared shell. */
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.15fr);
   background: #f3ede3;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.project:hover {
+  color: inherit;
+  text-decoration: none;
 }
 
 .project-image {
   min-width: 0;
+  min-height: 100%;
   overflow: hidden;
 }
 
 .project-image img {
   width: 100%;
   height: 100%;
+  min-height: 230px;
   display: block;
-  object-fit: cover;
+  object-fit: fill;
   transition: transform 0.5s ease;
 }
 
@@ -343,32 +216,43 @@ svg {
 }
 
 .project-copy-dark {
-  color: var(--white);
+  color: var(--home-white);
   background: #181817;
 }
 
 .project-copy-light {
-  color: var(--ink);
+  color: var(--home-ink);
   background: #f2ede5;
 }
 
 .project h3 {
   margin: 0;
-  font-family: var(--serif);
-  font-size: 29px;
+  color: inherit;
+  font-family: var(--font-display), Georgia, 'Times New Roman', Times, serif;
+  font-size: clamp(1.35rem, 1.6vw, 1.75rem);
   font-weight: 400;
-  line-height: 1.02;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.project-copy-dark h3 {
+  color: var(--home-white);
+}
+
+.project-copy-light h3 {
+  color: var(--home-ink);
 }
 
 .project-rule {
   width: 34px;
   height: 1px;
   margin: 12px 0 14px;
-  background: var(--gold);
+  background: var(--home-gold);
 }
 
 .project p {
   margin: 0 0 18px;
+  color: inherit;
   font-size: 14px;
   line-height: 1.48;
 }
@@ -378,33 +262,37 @@ svg {
   margin-top: auto;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  font-family: var(--serif);
-  font-size: 14px;
+  gap: 8px;
+  padding: 0.55rem 1rem;
+  border: 1.5px solid currentColor;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-size: 13px;
   font-weight: 700;
-  text-decoration: none;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
   white-space: nowrap;
 }
 
-.project-link:hover {
-  text-decoration: underline;
-  text-underline-offset: 5px;
+.project:hover .project-link {
+  background: color-mix(in srgb, currentColor 12%, transparent);
 }
 
 .project-copy-dark .project-link {
-  color: #d4ae62;
+  color: #e2c078;
+  border-color: #e2c078;
 }
 
 .project-copy-light .project-link {
-  color: #8d6628;
+  color: var(--home-ink);
+  border-color: var(--home-ink);
 }
 
 .donation {
   position: relative;
   min-height: 140px;
   overflow: hidden;
-  color: var(--white);
-  background: var(--footer);
+  color: var(--home-white);
+  background: var(--home-footer);
 }
 
 .donation-art {
@@ -412,17 +300,16 @@ svg {
   inset: 0 auto 0 0;
   width: min(31vw, 455px);
   background:
-    linear-gradient(90deg, transparent 75%, var(--footer) 100%),
+    linear-gradient(90deg, transparent 75%, var(--home-footer) 100%),
     url('/assets/donation-brush.jpg') center / cover no-repeat;
 }
 
 .donation-inner {
   position: relative;
   z-index: 1;
-  width: min(var(--content), calc(100% - 48px));
   min-height: 140px;
-  margin: 0 auto;
-  padding: 24px 0 24px 280px;
+  padding-block: 24px;
+  padding-left: 280px;
   display: grid;
   grid-template-columns: auto minmax(300px, 1fr) auto 270px;
   align-items: center;
@@ -434,13 +321,13 @@ svg {
   height: 48px;
   display: grid;
   place-items: center;
-  color: var(--gold);
+  color: var(--home-gold);
 }
 
 .donation-copy h2 {
   margin: 0 0 5px;
-  color: var(--white);
-  font-family: var(--serif);
+  color: var(--home-white);
+  font-family: var(--font-display), Georgia, 'Times New Roman', Times, serif;
   font-size: 28px;
   font-weight: 400;
 }
@@ -453,93 +340,25 @@ svg {
 .donation-copy p {
   max-width: 430px;
   color: #ece8e0;
-  font-family: var(--serif);
+  font-family: var(--font-display), Georgia, 'Times New Roman', Times, serif;
   font-size: 14px;
   line-height: 1.4;
 }
 
 .donation-legal {
   color: #ddd8ce;
-  font-family: var(--serif);
+  font-family: var(--font-display), Georgia, 'Times New Roman', Times, serif;
   font-size: 12.5px;
   line-height: 1.4;
 }
 
-.site-footer {
-  height: 91px;
-  margin-top: 0;
-  background: var(--white);
-}
-
-.footer-inner {
-  width: min(var(--content), calc(100% - 48px));
-  height: 100%;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 48px;
-}
-
-.footer-identity {
-  display: flex;
-  align-items: flex-end;
-  gap: 28px;
-}
-
-.footer-wordmark {
-  font-size: 16px;
-}
-
-.footer-identity p {
-  margin: 0 0 1px;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.site-footer nav {
-  display: flex;
-  gap: 31px;
-}
-
-.site-footer nav a {
-  font-family: var(--serif);
-  font-size: 14px;
-  text-decoration: none;
-}
-
-.site-footer nav a:hover {
-  text-decoration: underline;
-  text-underline-offset: 5px;
-}
-
 @media (max-width: 1160px) {
-  .header-inner,
-  .hero-inner,
-  .projects-inner,
-  .donation-inner,
-  .footer-inner {
-    width: min(100% - 40px, var(--content));
-  }
-
-  .main-nav {
-    gap: 16px;
-  }
-
   .hero-copy {
     width: 47%;
   }
 
   .hero h1 {
     font-size: clamp(42px, 4.5vw, 51px);
-  }
-
-  .project {
-    grid-template-columns: 51% 49%;
-  }
-
-  .project-copy {
-    padding-inline: 23px;
   }
 
   .donation-inner {
@@ -552,26 +371,40 @@ svg {
   }
 }
 
-@media (max-width: 900px) {
-  .site-header {
+/* Stack project cards before the two side-by-side splits become unreadable. */
+@media (max-width: 1100px) {
+  .project-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .project {
+    min-height: 0;
+    grid-template-columns: 1fr;
+  }
+
+  .project-image {
+    min-height: 0;
+  }
+
+  .project-image img {
+    width: 100%;
     height: auto;
+    min-height: 0;
+    aspect-ratio: 16 / 10;
+    object-fit: fill;
   }
 
-  .header-inner {
-    min-height: 70px;
-    padding: 12px 0;
-    align-items: center;
+  .project-copy {
+    padding: 26px 28px 28px;
   }
 
-  .main-nav {
-    flex-wrap: wrap;
-    justify-content: flex-end;
+  .project h3 {
+    font-size: clamp(1.45rem, 3.2vw, 1.85rem);
   }
+}
 
-  .nav-link {
-    display: none;
-  }
-
+@media (max-width: 900px) {
   .hero {
     height: auto;
     display: flex;
@@ -601,15 +434,7 @@ svg {
   }
 
   .hero-visual::after {
-    background: linear-gradient(180deg, var(--paper) 0%, transparent 22%);
-  }
-
-  .project-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .project {
-    height: 260px;
+    background: linear-gradient(180deg, var(--home-paper) 0%, transparent 22%);
   }
 
   .donation-art {
@@ -620,43 +445,9 @@ svg {
     padding-left: 165px;
     grid-template-columns: auto 1fr auto;
   }
-
-  .footer-inner {
-    height: auto;
-    min-height: 100px;
-    padding: 22px 0;
-    grid-template-columns: 1fr;
-    gap: 18px;
-  }
-
-  .footer-identity {
-    justify-content: space-between;
-  }
 }
 
 @media (max-width: 600px) {
-  .header-inner,
-  .hero-inner,
-  .projects-inner,
-  .donation-inner,
-  .footer-inner {
-    width: calc(100% - 32px);
-  }
-
-  .wordmark {
-    font-size: 16px;
-  }
-
-  .button-header {
-    min-height: 38px;
-    padding-inline: 12px;
-    font-size: 13px;
-  }
-
-  .main-nav {
-    gap: 8px;
-  }
-
   .hero-copy {
     padding: 34px 0 30px;
   }
@@ -677,18 +468,16 @@ svg {
     padding-top: 18px;
   }
 
-  .project {
-    height: auto;
-    grid-template-columns: 1fr;
-  }
-
   .project-image img {
-    height: 225px;
+    aspect-ratio: 4 / 3;
   }
 
   .project-copy {
-    min-height: 205px;
-    padding: 26px 24px 23px;
+    padding: 22px 20px 24px;
+  }
+
+  .project-link {
+    white-space: normal;
   }
 
   .donation {
@@ -714,28 +503,13 @@ svg {
     grid-column: auto;
   }
 
-  .button-gold {
+  .donation-inner .btn-primary {
     width: 100%;
-  }
-
-  .site-footer {
-    height: auto;
-  }
-
-  .footer-identity {
-    display: grid;
-    gap: 10px;
-  }
-
-  .site-footer nav {
-    flex-wrap: wrap;
-    gap: 14px 23px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * {
-    scroll-behavior: auto !important;
+  .home * {
     transition: none !important;
   }
 }
