@@ -22,6 +22,11 @@ export const transparencyContent = {
         href: site.irsSearchUrl,
       },
     ] satisfies TransparencyLink[],
+    source: {
+      prefix: 'Source:',
+      label: 'IRS Exempt Organizations Business Master File Extract',
+      href: 'https://www.irs.gov/charities-non-profits/exempt-organizations-business-master-file-extract-eo-bmf',
+    },
   },
   governance: {
     heading: 'Governance',
@@ -42,10 +47,10 @@ export const transparencyContent = {
   },
   financial: {
     heading: 'Financial Reports & Filings',
-    year: '2026',
+    year: '2025',
     links: [
       {
-        label: 'Annual Filing / Form 990',
+        label: 'Annual Filing / Form 990-EZ',
         href: site.form990Url,
       },
       {

@@ -217,6 +217,14 @@
     @apply font-sans text-sm font-semibold text-ink no-underline hover:text-accent;
   }
 
+  .transparency-doc-link {
+    @apply font-sans text-base font-semibold text-ink underline decoration-ink/30 underline-offset-[0.18em] hover:text-accent hover:decoration-accent/40;
+  }
+
+  .transparency-source-link {
+    @apply italic text-ink-muted underline decoration-ink/25 underline-offset-[0.18em] hover:text-accent hover:decoration-accent/40;
+  }
+
   .project-involve-cta {
     @apply inline-flex items-center gap-2 border-2 border-ink bg-transparent px-4 py-2.5 font-sans text-sm font-semibold tracking-wide text-ink no-underline transition-colors hover:bg-ink hover:text-white;
   }

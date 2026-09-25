@@ -2,12 +2,6 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { site } from '../config/site';
 import { transparencyContent as c } from '../content/transparency';
-
-function linkClass(hasHref: boolean) {
-  return hasHref
-    ? 'editorial-link'
-    : 'font-sans text-sm font-semibold text-ink-soft no-underline';
-}
 ---
 
 <BaseLayout
@@ -25,77 +19,81 @@ function linkClass(hasHref: boolean) {
   <article class="section-pad">
     <div class="site-shell">
       <div class="prose-editorial measure-wide">
-      <section class="mt-0" aria-labelledby="tax-exempt-heading">
-        <h2 id="tax-exempt-heading">{c.taxExempt.heading}</h2>
-        <p>{c.taxExempt.body}</p>
-        <p>EIN: {site.ein || ''}</p>
-        <ul class="mt-6 list-none space-y-3 pl-0">
-          {
-            c.taxExempt.links.map((item) => (
-              <li>
-                {item.href ? (
-                  <a href={item.href} class={linkClass(true)}>
+        <section class="mt-0" aria-labelledby="tax-exempt-heading">
+          <h2 id="tax-exempt-heading">{c.taxExempt.heading}</h2>
+          <p>{c.taxExempt.body}</p>
+          <p>EIN: {site.ein || ''}</p>
+          <ul class="mt-6 list-none space-y-3 pl-0">
+            {
+              c.taxExempt.links.map((item) => (
+                <li>
+                  <a
+                    href={item.href}
+                    class="transparency-doc-link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {item.label}
-                    <span aria-hidden="true"> →</span>
                   </a>
-                ) : (
-                  <span class={linkClass(false)}>
-                    {item.label}
-                    <span aria-hidden="true"> →</span>
-                  </span>
-                )}
-              </li>
-            ))
-          }
-        </ul>
-      </section>
+                  {item.label === 'IRS Tax-Exempt Organization Record' ? (
+                    <p class="mt-1 font-sans text-sm italic text-ink-muted">
+                      {c.taxExempt.source.prefix}{' '}
+                      <a
+                        href={c.taxExempt.source.href}
+                        class="transparency-source-link"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {c.taxExempt.source.label}
+                      </a>
+                    </p>
+                  ) : null}
+                </li>
+              ))
+            }
+          </ul>
+        </section>
 
-      <section class="mt-12" aria-labelledby="governance-heading">
-        <h2 id="governance-heading">{c.governance.heading}</h2>
-        <ul class="mt-6 list-none space-y-3 pl-0">
-          {
-            c.governance.links.map((item) => (
-              <li>
-                {item.href ? (
-                  <a href={item.href} class={linkClass(true)}>
+        <section class="mt-12" aria-labelledby="governance-heading">
+          <h2 id="governance-heading">{c.governance.heading}</h2>
+          <ul class="mt-6 list-none space-y-3 pl-0">
+            {
+              c.governance.links.map((item) => (
+                <li>
+                  <a
+                    href={item.href}
+                    class="transparency-doc-link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {item.label}
-                    <span aria-hidden="true"> →</span>
                   </a>
-                ) : (
-                  <span class={linkClass(false)}>
-                    {item.label}
-                    <span aria-hidden="true"> →</span>
-                  </span>
-                )}
-              </li>
-            ))
-          }
-        </ul>
-      </section>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
 
-      <section class="mt-12" aria-labelledby="financial-heading">
-        <h2 id="financial-heading">{c.financial.heading}</h2>
-        <h3>{c.financial.year}</h3>
-        <ul class="mt-4 list-none space-y-3 pl-0">
-          {
-            c.financial.links.map((item) => (
-              <li>
-                {item.href ? (
-                  <a href={item.href} class={linkClass(true)}>
+        <section class="mt-12" aria-labelledby="financial-heading">
+          <h2 id="financial-heading">{c.financial.heading}</h2>
+          <h3>{c.financial.year}</h3>
+          <ul class="mt-4 list-none space-y-3 pl-0">
+            {
+              c.financial.links.map((item) => (
+                <li>
+                  <a
+                    href={item.href}
+                    class="transparency-doc-link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {item.label}
-                    <span aria-hidden="true"> →</span>
                   </a>
-                ) : (
-                  <span class={linkClass(false)}>
-                    {item.label}
-                    <span aria-hidden="true"> →</span>
-                  </span>
-                )}
-              </li>
-            ))
-          }
-        </ul>
-      </section>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
       </div>
     </div>
   </article>
