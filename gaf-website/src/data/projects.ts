@@ -47,7 +47,7 @@ export const projects: Project[] = [
     layout: 'bibliographic',
     image: {
       src: '/assets/lost-stories.jpg',
-      alt: 'Historic photographs and printed materials associated with cultural recovery research',
+      alt: 'Antique books on dark wooden shelves in an old library',
     },
   },
   {
