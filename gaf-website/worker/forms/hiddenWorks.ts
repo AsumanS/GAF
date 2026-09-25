@@ -246,6 +246,23 @@ const FILE_FIELD_SPECS: Record<string, AllowedFileSpec> = {
   additional_documents: ADDITIONAL_DOCUMENTS_SPEC,
 };
 
+/** File inputs are never text fields. Derived from the upload specs above. */
+const HIDDEN_WORKS_FILE_FIELD_NAMES = new Set<string>(Object.keys(FILE_FIELD_SPECS));
+
+const INVALID_FILE_FIELD_MESSAGE =
+  'This file field is invalid. Please choose the file again.';
+
+/**
+ * Some runtimes represent an unselected multipart file input as an empty string.
+ * Ignore that case. A non-empty string is malformed and must not pass as text.
+ * Returns true when the entry was an empty known file field and should be skipped.
+ */
+function consumeKnownFileFieldString(key: string, value: string): boolean {
+  if (!HIDDEN_WORKS_FILE_FIELD_NAMES.has(key)) return false;
+  if (value === '') return true;
+  fieldFail(key, INVALID_FILE_FIELD_MESSAGE);
+}
+
 export type TeamMemberPayload = {
   legal_first_name: string;
   legal_middle_name: string;
@@ -351,6 +368,7 @@ export function collectHiddenWorksTextFields(formData: FormData): {
     if (key === 'cf-turnstile-response' || key === 'submission_idempotency_key') {
       continue;
     }
+    if (consumeKnownFileFieldString(key, value)) continue;
     if (!isAllowedTextFieldName(key)) {
       fieldFail(
         '__form__',
@@ -773,7 +791,10 @@ export function validateHiddenWorksFiles(formData: FormData): ValidatedUpload[] 
   let totalBytes = 0;
 
   for (const [key, value] of formData.entries()) {
-    if (typeof value === 'string') continue;
+    if (typeof value === 'string') {
+      consumeKnownFileFieldString(key, value);
+      continue;
+    }
     if (!(value instanceof File) || !FILE_FIELD_SPECS[key]) {
       fieldFail(
         '__form__',

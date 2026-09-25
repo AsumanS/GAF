@@ -39,6 +39,30 @@ function agreements(): Record<string, string> {
   };
 }
 
+const OPTIONAL_FILE_FIELDS = [
+  'supporting_evidence',
+  'supporting_rights_documentation',
+  'supporting_search_records',
+  'additional_documents',
+] as const;
+
+function formDataWithTextFields(
+  extra: Record<string, string | File> = {},
+): FormData {
+  const fd = new FormData();
+  for (const [key, value] of Object.entries(baseFields())) {
+    if (Array.isArray(value)) {
+      for (const item of value) fd.append(key, item);
+    } else {
+      fd.set(key, value);
+    }
+  }
+  for (const [key, value] of Object.entries(extra)) {
+    fd.set(key, value);
+  }
+  return fd;
+}
+
 function expectFieldError(
   fn: () => unknown,
   field: string,
@@ -646,6 +670,46 @@ describe('hidden works files', () => {
     );
   });
 
+  it('accepts a valid supporting file and ignores unselected optional uploads', () => {
+    const pdf = new File([new Uint8Array(32)], 'evidence.pdf', {
+      type: 'application/pdf',
+    });
+    const fd = new FormData();
+    fd.set('supporting_evidence', pdf);
+    fd.set('supporting_rights_documentation', new File([], ''));
+    fd.set('supporting_search_records', '');
+    fd.set('additional_documents', '');
+
+    const uploads = validateHiddenWorksFiles(fd);
+    expect(uploads).toHaveLength(1);
+    expect(uploads[0]?.fieldName).toBe('supporting_evidence');
+    expect(uploads[0]?.validatedExtension).toBe('pdf');
+    expect(uploads[0]?.sizeBytes).toBe(32);
+  });
+
+  it('returns no uploads when every optional file control is unselected', () => {
+    const emptyStrings = new FormData();
+    const blankFiles = new FormData();
+    for (const name of OPTIONAL_FILE_FIELDS) {
+      emptyStrings.set(name, '');
+      blankFiles.set(name, new File([], ''));
+    }
+    expect(validateHiddenWorksFiles(emptyStrings)).toEqual([]);
+    expect(validateHiddenWorksFiles(blankFiles)).toEqual([]);
+  });
+
+  it('rejects a non-empty string for each known file field', () => {
+    for (const name of OPTIONAL_FILE_FIELDS) {
+      const fd = new FormData();
+      fd.set(name, 'not-a-file');
+      expectFieldError(
+        () => validateHiddenWorksFiles(fd),
+        name,
+        'This file field is invalid',
+      );
+    }
+  });
+
   it('never puts original filenames into R2 object keys', () => {
     const original = 'My Secret Evidence.PDF';
     const key = buildHiddenWorksObjectKey(
@@ -729,6 +793,38 @@ describe('turnstile and idempotency helpers', () => {
 });
 
 describe('unexpected fields', () => {
+  it('ignores empty-string representations of optional file fields', () => {
+    const extra: Record<string, string> = {};
+    for (const name of OPTIONAL_FILE_FIELDS) extra[name] = '';
+    const { fields } = collectHiddenWorksTextFields(formDataWithTextFields(extra));
+    expect(fields.work_title).toBe('Example Work');
+    expect(fields.email).toBe('ada@example.com');
+    for (const name of OPTIONAL_FILE_FIELDS) {
+      expect(fields).not.toHaveProperty(name);
+    }
+  });
+
+  it('rejects a non-empty string stored in supporting_evidence', () => {
+    expectFieldError(
+      () =>
+        collectHiddenWorksTextFields(
+          formDataWithTextFields({ supporting_evidence: 'not-a-file' }),
+        ),
+      'supporting_evidence',
+      'This file field is invalid',
+    );
+  });
+
+  it('rejects a non-empty string for every known file field', () => {
+    for (const name of OPTIONAL_FILE_FIELDS) {
+      expectFieldError(
+        () => collectHiddenWorksTextFields(formDataWithTextFields({ [name]: 'bypass' })),
+        name,
+        'This file field is invalid',
+      );
+    }
+  });
+
   it('rejects unexpected non-file field names', () => {
     const fd = new FormData();
     fd.set('evil_field', 'nope');
