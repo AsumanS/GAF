@@ -381,6 +381,168 @@
     @apply flex flex-col gap-4;
   }
 
+  .agreement-intro {
+    @apply mt-1 font-sans text-sm text-ink-muted;
+  }
+
+  .agreement-groups {
+    @apply mt-4 border-t border-rule;
+  }
+
+  .agreement-group {
+    @apply border-b border-rule;
+  }
+
+  .agreement-group-summary {
+    @apply cursor-pointer list-none py-2.5 font-sans text-sm font-semibold text-ink;
+  }
+
+  .agreement-group-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .agreement-group-summary-title::before {
+    content: '▸ ';
+    @apply mr-1 inline-block text-ink-muted;
+  }
+
+  .agreement-group[open] .agreement-group-summary-title::before {
+    content: '▾ ';
+  }
+
+  .agreement-group-summary:hover {
+    @apply text-accent;
+  }
+
+  .agreement-group-summary:focus-visible {
+    @apply outline-none ring-2 ring-accent;
+  }
+
+  .agreement-group-accepted {
+    @apply font-medium text-ink;
+  }
+
+  .agreement-group-body {
+    @apply pb-3;
+  }
+
+  .agreement-clause-list {
+    @apply flex flex-col gap-2;
+  }
+
+  .agreement-clause {
+    @apply m-0 font-sans text-[0.925rem] leading-[1.6] text-ink;
+  }
+
+  .agreement-clause-title {
+    @apply font-semibold;
+  }
+
+  .agreement-group-accept {
+    @apply mt-3 border-t border-rule pt-3;
+  }
+
+  .agreement-final-cert {
+    @apply mt-6 border-t border-rule pt-4;
+  }
+
+  .agreement-final-cert-title {
+    @apply font-display text-xl;
+  }
+
+  .agreement-final-cert-intro {
+    @apply mt-1 font-sans text-sm text-ink-muted;
+  }
+
+  .agreement-final-cert-fields {
+    @apply mt-4;
+  }
+
+  .hidden-works-form-actions {
+    @apply mt-6 items-stretch sm:items-end;
+  }
+
+  .hw-eligibility-card {
+    @apply border border-rule bg-white p-5 sm:p-6;
+  }
+
+  .hw-eligibility-facts {
+    @apply mt-4 grid gap-x-8 gap-y-3 border-t border-rule pt-4 sm:grid-cols-2;
+  }
+
+  .hw-eligibility-fact dt {
+    @apply font-sans text-xs font-semibold tracking-wide text-ink-muted uppercase;
+  }
+
+  .hw-eligibility-fact dd {
+    @apply m-0 mt-0.5 font-sans text-sm leading-snug text-ink;
+  }
+
+  .hw-rules-intro {
+    @apply mt-2 font-sans text-sm text-ink-muted;
+  }
+
+  .hw-rules-controls {
+    @apply mt-3 flex flex-wrap gap-2;
+  }
+
+  .hw-rules-control {
+    @apply border border-rule bg-transparent px-3 py-1.5 font-sans text-sm font-medium text-ink;
+  }
+
+  .hw-rules-control:hover {
+    @apply bg-white;
+  }
+
+  .hw-rules-control:focus-visible {
+    @apply outline-none ring-2 ring-accent;
+  }
+
+  .hw-rules-list {
+    @apply mt-4 border-t border-rule;
+  }
+
+  .hw-rule {
+    @apply border-b border-rule;
+  }
+
+  .hw-rule-summary {
+    @apply cursor-pointer list-none py-2.5 font-sans text-sm font-semibold text-ink;
+  }
+
+  .hw-rule-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .hw-rule-summary-text::before {
+    content: '▶ ';
+    @apply mr-1 inline-block text-[0.65rem] text-ink-muted;
+  }
+
+  .hw-rule[open] > .hw-rule-summary .hw-rule-summary-text::before {
+    content: '▼ ';
+  }
+
+  .hw-rule-body {
+    @apply pb-3 font-sans text-[0.925rem] leading-[1.6] text-ink;
+  }
+
+  .hw-rule-body p {
+    @apply my-2;
+  }
+
+  .hw-rule-body ul {
+    @apply my-2 list-disc space-y-1 pl-5;
+  }
+
+  .hw-rule-subsection {
+    @apply mt-3;
+  }
+
+  .hw-rule-subsection-title {
+    @apply font-display text-base font-semibold;
+  }
+
   .volunteer-form-actions {
     @apply mt-10 flex flex-col items-start gap-3;
   }

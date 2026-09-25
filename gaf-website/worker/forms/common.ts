@@ -33,6 +33,10 @@ export type ApiSuccessBody = {
 export type ApiErrorBody = {
   success: false;
   error: ApiErrorCode;
+  /** Optional public field name for expected validation failures. */
+  field?: string;
+  /** Optional safe public validation message. Never include internals. */
+  message?: string;
 };
 
 export function jsonResponse(
@@ -192,6 +196,19 @@ export class ValidationError extends Error {
   constructor() {
     super('invalid_submission');
     this.name = 'ValidationError';
+  }
+}
+
+/** Expected public validation failure with a safe message and field name. */
+export class FieldValidationError extends ValidationError {
+  readonly field: string;
+  readonly publicMessage: string;
+
+  constructor(field: string, publicMessage: string) {
+    super();
+    this.name = 'FieldValidationError';
+    this.field = field;
+    this.publicMessage = publicMessage;
   }
 }
 

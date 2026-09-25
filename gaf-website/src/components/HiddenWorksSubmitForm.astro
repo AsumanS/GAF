@@ -4,21 +4,21 @@ import { countryOptions } from '../content/volunteerForm';
 import {
   hiddenWorksSubmitContent as c,
   workTypeOptions,
-  type AgreementItem,
+  type AgreementClause,
 } from '../content/projects/hidden-works-submit';
 
 const formAction = site.hiddenWorksSubmitFormAction.trim();
 const turnstileSiteKey = (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '').trim();
 const canSubmit = Boolean(formAction && turnstileSiteKey);
 
-function agreementLabel(item: AgreementItem) {
-  if (!item.link?.text) return item.label;
-  const parts = item.label.split(item.link.text);
+function clauseLabelParts(clause: AgreementClause) {
+  if (!clause.link?.text) return null;
+  const parts = clause.label.split(clause.link.text);
   return {
     before: parts[0] ?? '',
-    linkText: item.link.text,
+    linkText: clause.link.text,
     after: parts[1] ?? '',
-    href: item.link.href,
+    href: clause.link.href,
   };
 }
 ---
@@ -542,7 +542,8 @@ function agreementLabel(item: AgreementItem) {
         Reader-Facing Case for Recovery <span class="req" aria-hidden="true">*</span>
       </label>
       <p class="field-hint"><strong>{c.readerCaseHint}</strong></p>
-      <textarea id="reader-case" name="reader_facing_case" rows="10" required></textarea>
+      <textarea id="reader-case" name="reader_facing_case" rows="10" required data-reader-case></textarea>
+      <p class="field-hint mt-2" data-reader-word-count aria-live="polite">0 words</p>
       <p class="field-hint mt-2">
         Describe the work, why it matters, and why it deserves renewed attention from general
         readers in the United States. Your response should address its literary, cultural,
@@ -733,61 +734,93 @@ function agreementLabel(item: AgreementItem) {
   <!-- Submission Agreement -->
   <section class="volunteer-form-section" aria-labelledby="agreement-heading">
     <h2 id="agreement-heading" class="volunteer-form-section-title">Submission Agreement</h2>
-    <p class="body-copy">{c.agreementIntro}</p>
-    <div class="declaration-list mt-6">
+    <p class="agreement-intro">{c.agreementIntro}</p>
+    <div class="agreement-groups" data-agreement-groups>
       {
-        c.agreements.map((item) => {
-          const linked = agreementLabel(item);
-          return (
-            <label class="choice choice-block">
-              <input type="checkbox" name={item.name} value="yes" required />
-              <span>
-                <strong>{item.title}</strong>
-                <br />
-                {typeof linked === 'string' ? (
-                  linked
-                ) : (
-                  <>
-                    {linked.before}
-                    {linked.href ? (
-                      <a href={linked.href}>{linked.linkText}</a>
-                    ) : (
-                      <strong>{linked.linkText}</strong>
-                    )}
-                    {linked.after}
-                  </>
-                )}
-                <span class="req" aria-hidden="true">
-                  {' '}
-                  *
-                </span>
+        c.agreementGroups.map((group) => (
+          <details class="agreement-group" data-agreement-group>
+            <summary class="agreement-group-summary">
+              <span class="agreement-group-summary-title">{group.title}</span>
+              <span class="agreement-group-accepted" data-agreement-accepted hidden>
+                {' '}
+                — Accepted
               </span>
-            </label>
-          );
-        })
+            </summary>
+            <div class="agreement-group-body">
+              <div class="agreement-clause-list">
+                {group.clauses.map((clause) => {
+                  const linked = clauseLabelParts(clause);
+                  return (
+                    <p class="agreement-clause">
+                      <strong class="agreement-clause-title">{clause.title}</strong>
+                      <span class="agreement-clause-sep" aria-hidden="true">
+                        {' '}
+                        —{' '}
+                      </span>
+                      <span class="agreement-clause-text">
+                        {linked ? (
+                          <>
+                            {linked.before}
+                            <a href={linked.href}>{linked.linkText}</a>
+                            {linked.after}
+                          </>
+                        ) : (
+                          clause.label
+                        )}
+                      </span>
+                    </p>
+                  );
+                })}
+              </div>
+              <label class="choice choice-block agreement-group-accept">
+                <input
+                  type="checkbox"
+                  name={group.name}
+                  value="yes"
+                  required
+                  data-agreement-accept
+                />
+                <span>
+                  {group.acceptanceLabel}
+                  <span class="req" aria-hidden="true">
+                    {' '}
+                    *
+                  </span>
+                </span>
+              </label>
+            </div>
+          </details>
+        ))
       }
     </div>
 
-    <div class="volunteer-form-grid mt-8">
-      <div class="field">
-        <label for="typed-legal-name">
-          Typed Legal Name <span class="req" aria-hidden="true">*</span>
-        </label>
-        <input id="typed-legal-name" name="typed_legal_name" type="text" required />
-        <p class="field-hint">{c.teamTypedNameNote}</p>
+    <div class="agreement-final-cert" aria-labelledby="final-cert-heading">
+      <h3 id="final-cert-heading" class="agreement-final-cert-title">Final Certification</h3>
+      <p class="agreement-final-cert-intro">
+        By typing your legal name below, you confirm the certifications and agreements accepted
+        above.
+      </p>
+      <div class="volunteer-form-grid agreement-final-cert-fields">
+        <div class="field">
+          <label for="typed-legal-name">
+            Typed Legal Name <span class="req" aria-hidden="true">*</span>
+          </label>
+          <input id="typed-legal-name" name="typed_legal_name" type="text" required />
+          <p class="field-hint">{c.teamTypedNameNote}</p>
+        </div>
+        <div class="field">
+          <label for="submission-date">Date</label>
+          <input id="submission-date" name="submission_date" type="date" readonly />
+          <p class="field-hint">Automatically recorded on submission.</p>
+        </div>
       </div>
-      <div class="field">
-        <label for="submission-date">Date</label>
-        <input id="submission-date" name="submission_date" type="date" readonly />
-        <p class="field-hint">Automatically recorded on submission.</p>
-      </div>
+      <div class="mt-4 space-y-4 hidden" data-team-typed-names hidden></div>
     </div>
-    <div class="mt-4 space-y-4 hidden" data-team-typed-names hidden></div>
   </section>
 
   <div class="volunteer-turnstile" data-turnstile-widget aria-hidden="true"></div>
 
-  <div class="volunteer-form-actions">
+  <div class="volunteer-form-actions hidden-works-form-actions">
     <p
       class="volunteer-submit-status body-copy"
       data-submit-status
@@ -1050,9 +1083,58 @@ function agreementLabel(item: AgreementItem) {
       });
     }
 
+    const agreementGroups = Array.from(form.querySelectorAll('[data-agreement-group]'));
+
+    function syncAgreementAccepted(details) {
+      const checkbox = details.querySelector('[data-agreement-accept]');
+      const accepted = details.querySelector('[data-agreement-accepted]');
+      const isAccepted = Boolean(checkbox && checkbox.checked);
+      if (accepted) accepted.hidden = !isAccepted;
+      details.classList.toggle('is-accepted', isAccepted);
+    }
+
+    agreementGroups.forEach((details) => {
+      const checkbox = details.querySelector('[data-agreement-accept]');
+      syncAgreementAccepted(details);
+
+      details.addEventListener('toggle', () => {
+        if (!details.open) return;
+        agreementGroups.forEach((other) => {
+          if (other !== details) other.open = false;
+        });
+      });
+
+      if (checkbox) {
+        checkbox.addEventListener('change', () => {
+          syncAgreementAccepted(details);
+        });
+      }
+    });
+
     syncEntryType();
     syncPenName();
     syncWorkTypeOther();
+
+    function countWords(text) {
+      const trimmed = (text || '').trim();
+      if (!trimmed) return 0;
+      return trimmed.split(/\s+/).filter(Boolean).length;
+    }
+
+    function updateReaderWordCount() {
+      const reader = form.querySelector('[data-reader-case]');
+      const counter = form.querySelector('[data-reader-word-count]');
+      if (!reader || !counter) return 0;
+      const n = countWords(reader.value);
+      counter.textContent = n + (n === 1 ? ' word' : ' words');
+      return n;
+    }
+
+    const readerCaseInput = form.querySelector('[data-reader-case]');
+    if (readerCaseInput) {
+      readerCaseInput.addEventListener('input', updateReaderWordCount);
+      updateReaderWordCount();
+    }
 
     const formAction = form.getAttribute('data-form-action') || '';
     const sitekey = form.getAttribute('data-turnstile-sitekey') || '';
@@ -1081,7 +1163,26 @@ function agreementLabel(item: AgreementItem) {
       statusEl.textContent = message || '';
     }
 
-    function errorMessageForResponse(status, errorCode) {
+    function focusNamedField(name) {
+      if (!name) return;
+      const matches = form.querySelectorAll('[name="' + name + '"]');
+      if (!matches.length) return;
+      const el = matches[0];
+      try {
+        el.focus();
+      } catch (_err) {
+        // ignore
+      }
+      if (typeof el.scrollIntoView === 'function') {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function errorMessageForResponse(status, data) {
+      const errorCode = data && data.error;
+      if (status === 400 && data && data.message) {
+        return data.message;
+      }
       if (status === 413 || errorCode === 'submission_too_large') {
         return 'This submission is too large. Please reduce the size or number of supporting files and try again.';
       }
@@ -1173,8 +1274,39 @@ function agreementLabel(item: AgreementItem) {
       if (submitting) return;
 
       if (!form.checkValidity()) {
+        const firstInvalid = form.querySelector(':invalid');
+        if (firstInvalid && firstInvalid.hasAttribute('data-agreement-accept')) {
+          const panel = firstInvalid.closest('[data-agreement-group]');
+          if (panel) panel.open = true;
+          try {
+            firstInvalid.focus();
+          } catch (_err) {
+            // ignore
+          }
+        }
         form.reportValidity();
         return;
+      }
+
+      const readerWords = updateReaderWordCount();
+      if (readerCaseInput) {
+        if (readerWords < 500) {
+          readerCaseInput.setCustomValidity(
+            'The Reader-Facing Case must be at least 500 words.',
+          );
+          readerCaseInput.reportValidity();
+          focusNamedField('reader_facing_case');
+          return;
+        }
+        if (readerWords > 1000) {
+          readerCaseInput.setCustomValidity(
+            'The Reader-Facing Case must be at most 1,000 words.',
+          );
+          readerCaseInput.reportValidity();
+          focusNamedField('reader_facing_case');
+          return;
+        }
+        readerCaseInput.setCustomValidity('');
       }
 
       submitting = true;
@@ -1215,7 +1347,10 @@ function agreementLabel(item: AgreementItem) {
           return;
         }
 
-        setStatus(errorMessageForResponse(response.status, data && data.error));
+        setStatus(errorMessageForResponse(response.status, data));
+        if (data && data.field) {
+          focusNamedField(data.field);
+        }
         if (window.turnstile && widgetId !== null) {
           window.turnstile.reset(widgetId);
         }

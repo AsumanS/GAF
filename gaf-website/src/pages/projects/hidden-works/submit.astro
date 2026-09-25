@@ -23,71 +23,124 @@ function isHtml(value: Rich): value is { html: string } {
 
   <article class="section-pad">
     <div class="site-shell">
-      <div class="prose-editorial measure-wide">
-        {c.intro.map((p) => <p>{p}</p>)}
-        <p set:html={c.submissionsOpenHtml} />
-        <p set:html={c.submissionPeriodHtml} />
-        <p>{c.orderNote}</p>
-        <p set:html={c.noFeeHtml} />
+      <div class="measure-wide">
+        <div class="prose-editorial">
+          {c.intro.map((p) => <p>{p}</p>)}
+          <p set:html={c.submissionsOpenHtml} />
+          <p set:html={c.submissionPeriodHtml} />
+          <p>{c.orderNote}</p>
+          <p set:html={c.noFeeHtml} />
+        </div>
 
-        <h2>{c.eligibility.heading}</h2>
-        <ul>
-          {
-            c.eligibility.items.map((item) =>
-              isHtml(item) ? <li set:html={item.html} /> : <li>{item}</li>,
-            )
-          }
-        </ul>
+        <section class="hw-eligibility-card mt-10" aria-labelledby="eligibility-glance-heading">
+          <h2 id="eligibility-glance-heading" class="font-display text-2xl sm:text-3xl">
+            {c.eligibility.heading}
+          </h2>
+          <dl class="hw-eligibility-facts">
+            {
+              c.eligibility.facts.map((fact) => (
+                <div class="hw-eligibility-fact">
+                  <dt>{fact.label}</dt>
+                  <dd>{fact.value}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </section>
 
-        <h2>{c.rules.heading}</h2>
-        {
-          c.rules.sections.map((section) => (
-            <section class="mt-8" aria-labelledby={`rule-${section.heading}`}>
-              <h3 id={`rule-${section.heading}`}>{section.heading}</h3>
-              {'intro' in section && section.intro ? <p>{section.intro}</p> : null}
-              {'paragraphs' in section && section.paragraphs
-                ? section.paragraphs.map((p: Rich) =>
-                    isHtml(p) ? <p set:html={p.html} /> : <p>{p}</p>,
-                  )
-                : null}
-              {'items' in section && section.items ? (
-                <ul>
-                  {section.items.map((item: Rich) =>
-                    isHtml(item) ? <li set:html={item.html} /> : <li>{item}</li>,
-                  )}
-                </ul>
-              ) : null}
-              {'after' in section && section.after
-                ? section.after.map((p: string) => <p>{p}</p>)
-                : null}
-              {'subsections' in section && section.subsections
-                ? section.subsections.map((sub) => (
-                    <div class="mt-6">
-                      <h4 class="font-display text-lg">{sub.heading}</h4>
-                      {sub.paragraphs?.map((p: Rich) =>
-                        isHtml(p) ? <p set:html={p.html} /> : <p>{p}</p>,
-                      )}
-                      {'items' in sub && sub.items ? (
-                        <ul>
-                          {sub.items.map((item: string) => (
-                            <li>{item}</li>
-                          ))}
-                        </ul>
-                      ) : null}
-                      {'after' in sub && sub.after
-                        ? sub.after.map((p: string) => <p>{p}</p>)
-                        : null}
-                    </div>
-                  ))
-                : null}
-            </section>
-          ))
-        }
+        <div class="hw-rules mt-10" data-hw-rules>
+          <div class="hw-rules-header">
+            <h2 class="font-display text-2xl sm:text-3xl">{c.rules.heading}</h2>
+            <p class="hw-rules-intro">{c.rules.intro}</p>
+            <div class="hw-rules-controls">
+              <button type="button" class="hw-rules-control" data-hw-rules-expand>
+                Expand all
+              </button>
+              <button type="button" class="hw-rules-control" data-hw-rules-collapse>
+                Collapse all
+              </button>
+            </div>
+          </div>
+
+          <div class="hw-rules-list">
+            {
+              c.rules.sections.map((section) => (
+                <details class="hw-rule">
+                  <summary class="hw-rule-summary">
+                    <span class="hw-rule-summary-text">{section.heading}</span>
+                  </summary>
+                  <div class="hw-rule-body">
+                    {'intro' in section && section.intro ? <p>{section.intro}</p> : null}
+                    {'paragraphs' in section && section.paragraphs
+                      ? section.paragraphs.map((p: Rich) =>
+                          isHtml(p) ? <p set:html={p.html} /> : <p>{p}</p>,
+                        )
+                      : null}
+                    {'items' in section && section.items ? (
+                      <ul>
+                        {section.items.map((item: Rich) =>
+                          isHtml(item) ? <li set:html={item.html} /> : <li>{item}</li>,
+                        )}
+                      </ul>
+                    ) : null}
+                    {'after' in section && section.after
+                      ? section.after.map((p: string) => <p>{p}</p>)
+                      : null}
+                    {'subsections' in section && section.subsections
+                      ? section.subsections.map((sub) => (
+                          <div class="hw-rule-subsection">
+                            <h3 class="hw-rule-subsection-title">{sub.heading}</h3>
+                            {sub.paragraphs?.map((p: Rich) =>
+                              isHtml(p) ? <p set:html={p.html} /> : <p>{p}</p>,
+                            )}
+                            {'items' in sub && sub.items ? (
+                              <ul>
+                                {sub.items.map((item: string) => (
+                                  <li>{item}</li>
+                                ))}
+                              </ul>
+                            ) : null}
+                            {'after' in sub && sub.after
+                              ? sub.after.map((p: string) => <p>{p}</p>)
+                              : null}
+                          </div>
+                        ))
+                      : null}
+                  </div>
+                </details>
+              ))
+            }
+          </div>
+        </div>
       </div>
 
-      <div class="mt-4 max-w-4xl">
+      <div class="mt-10 max-w-4xl">
         <HiddenWorksSubmitForm />
       </div>
     </div>
   </article>
 </BaseLayout>
+
+<script is:inline>
+  (function () {
+    const root = document.querySelector('[data-hw-rules]');
+    if (!root) return;
+    const details = root.querySelectorAll('details.hw-rule');
+    const expand = root.querySelector('[data-hw-rules-expand]');
+    const collapse = root.querySelector('[data-hw-rules-collapse]');
+    if (expand) {
+      expand.addEventListener('click', function () {
+        details.forEach(function (el) {
+          el.open = true;
+        });
+      });
+    }
+    if (collapse) {
+      collapse.addEventListener('click', function () {
+        details.forEach(function (el) {
+          el.open = false;
+        });
+      });
+    }
+  })();
+</script>

@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { ValidationError, isTurnstileAccepted } from '../worker/forms/common';
 import {
+  FieldValidationError,
+  ValidationError,
+  isTurnstileAccepted,
+} from '../worker/forms/common';
+import {
+  HIDDEN_WORKS_AGREEMENT_VERSION,
+  HIDDEN_WORKS_AGREEMENTS,
   HIDDEN_WORKS_DEADLINE_UTC,
   HIDDEN_WORKS_ELIGIBLE_CAP,
   HIDDEN_WORKS_MAX_FILE_COUNT,
@@ -24,35 +30,29 @@ function words(n: number): string {
 
 function agreements(): Record<string, string> {
   return {
-    agree_age_identity: 'yes',
-    agree_entrant_eligibility: 'yes',
-    agree_entry_limit: 'yes',
-    agree_accuracy: 'yes',
-    agree_eligibility_verification: 'yes',
-    agree_submission_limit: 'yes',
-    agree_identity_age_verification: 'yes',
-    agree_legal_pen_name: 'yes',
-    agree_public_domain: 'yes',
-    agree_third_party_rights: 'yes',
-    agree_source_access: 'yes',
-    agree_original_submission: 'yes',
-    agree_no_ownership_claim: 'yes',
-    agree_use_of_materials: 'yes',
-    agree_ownership_original: 'yes',
-    agree_not_returned: 'yes',
-    agree_no_confidentiality: 'yes',
-    agree_additional_info: 'yes',
-    agree_selection_not_guaranteed: 'yes',
-    agree_disqualification: 'yes',
-    agree_selected_works: 'yes',
-    agree_public_credit: 'yes',
-    agree_publication: 'yes',
-    agree_no_cash_prize: 'yes',
-    agree_notification: 'yes',
-    agree_no_fee: 'yes',
-    agree_privacy: 'yes',
-    agree_official_rules: 'yes',
+    agree_eligibility_accuracy: 'yes',
+    agree_rights_materials: 'yes',
+    agree_contest_administration: 'yes',
+    agree_rules_privacy: 'yes',
   };
+}
+
+function expectFieldError(
+  fn: () => unknown,
+  field: string,
+  messageIncludes?: string,
+): void {
+  try {
+    fn();
+    expect.fail('expected FieldValidationError');
+  } catch (error) {
+    expect(error).toBeInstanceOf(FieldValidationError);
+    const err = error as FieldValidationError;
+    expect(err.field).toBe(field);
+    if (messageIncludes) {
+      expect(err.publicMessage).toContain(messageIncludes);
+    }
+  }
 }
 
 function baseFields(
@@ -140,33 +140,55 @@ describe('hidden works ids and contest gates', () => {
 
 describe('hidden works text validation', () => {
   it('rejects a missing required field', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(baseFields({ work_title: '' }), 'idem-1', now),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () => validateHiddenWorksTextFields(baseFields({ work_title: '' }), 'idem-1', now),
+      'work_title',
+      'required',
+    );
   });
 
   it('rejects lead age radio No', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(baseFields({ age_18_or_older: 'No' }), 'idem-1', now),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(baseFields({ age_18_or_older: 'No' }), 'idem-1', now),
+      'age_18_or_older',
+      '18 years',
+    );
   });
 
   it('rejects DOB under age 18', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(baseFields({ date_of_birth: '2015-01-01' }), 'idem-1', now),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(
+          baseFields({ date_of_birth: '2015-01-01' }),
+          'idem-1',
+          now,
+        ),
+      'date_of_birth',
+      '18 years',
+    );
   });
 
   it('rejects invalid DOB', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(baseFields({ date_of_birth: '1990-13-40' }), 'idem-1', now),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(
+          baseFields({ date_of_birth: '1990-13-40' }),
+          'idem-1',
+          now,
+        ),
+      'date_of_birth',
+      'valid date',
+    );
   });
 
   it('rejects malformed lead email', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(baseFields({ email: 'not-an-email' }), 'idem-1', now),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(baseFields({ email: 'not-an-email' }), 'idem-1', now),
+      'email',
+      'valid email',
+    );
   });
 
   it('rejects malformed team email', () => {
@@ -367,48 +389,68 @@ describe('hidden works text validation', () => {
   });
 
   it('rejects missing any agreement', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(baseFields({ agree_accuracy: 'no' }), 'idem-1', now),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(
+          baseFields({ agree_eligibility_accuracy: 'no' }),
+          'idem-1',
+          now,
+        ),
+      'agree_eligibility_accuracy',
+      'accept this agreement',
+    );
   });
 
   it('rejects reader_facing_case below 500 words', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(
-        baseFields({ reader_facing_case: words(499) }),
-        'idem-1',
-        now,
-      ),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(
+          baseFields({ reader_facing_case: words(499) }),
+          'idem-1',
+          now,
+        ),
+      'reader_facing_case',
+      'at least 500',
+    );
   });
 
   it('rejects reader_facing_case above 1000 words', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(
-        baseFields({ reader_facing_case: words(1001) }),
-        'idem-1',
-        now,
-      ),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(
+          baseFields({ reader_facing_case: words(1001) }),
+          'idem-1',
+          now,
+        ),
+      'reader_facing_case',
+      'at most 1,000',
+    );
   });
 
   it('rejects invalid URL scheme', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(
-        baseFields({ primary_bibliographic_source: 'javascript:alert(1)' }),
-        'idem-1',
-        now,
-      ),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(
+          baseFields({ primary_bibliographic_source: 'javascript:alert(1)' }),
+          'idem-1',
+          now,
+        ),
+      'primary_bibliographic_source',
+      'http or https',
+    );
   });
 
   it('rejects invalid word_count', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(baseFields({ word_count: '0' }), 'idem-1', now),
-    ).toThrow(ValidationError);
-    expect(() =>
-      validateHiddenWorksTextFields(baseFields({ word_count: '12.5' }), 'idem-1', now),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () => validateHiddenWorksTextFields(baseFields({ word_count: '0' }), 'idem-1', now),
+      'word_count',
+      'greater than zero',
+    );
+    expectFieldError(
+      () => validateHiddenWorksTextFields(baseFields({ word_count: '12.5' }), 'idem-1', now),
+      'word_count',
+      'greater than zero',
+    );
   });
 
   it('normalizes team_members and participant_emails', () => {
@@ -604,6 +646,118 @@ describe('unexpected fields', () => {
     const fd = new FormData();
     fd.set('evil_field', 'nope');
     expect(() => collectHiddenWorksTextFields(fd)).toThrow(ValidationError);
+  });
+});
+
+describe('hidden works agreement version and consolidated checkboxes', () => {
+  it('uses v2 agreement version and exactly four agreement names', () => {
+    expect(HIDDEN_WORKS_AGREEMENT_VERSION).toBe('hidden-works-2026-09-25-v2');
+    expect([...HIDDEN_WORKS_AGREEMENTS]).toEqual([
+      'agree_eligibility_accuracy',
+      'agree_rights_materials',
+      'agree_contest_administration',
+      'agree_rules_privacy',
+    ]);
+  });
+
+  it('accepts all four agreement checkboxes set to yes', () => {
+    const result = validateHiddenWorksTextFields(baseFields(), 'idem-1', now);
+    for (const name of HIDDEN_WORKS_AGREEMENTS) {
+      expect(result.payload[name]).toBe('yes');
+    }
+    expect(result.payload).not.toHaveProperty('agree_age_identity');
+    expect(result.payload).not.toHaveProperty('agree_official_rules');
+  });
+
+  it('rejects omitting any one of the four agreements', () => {
+    for (const name of HIDDEN_WORKS_AGREEMENTS) {
+      expectFieldError(
+        () =>
+          validateHiddenWorksTextFields(baseFields({ [name]: '' }), 'idem-1', now),
+        name,
+        'accept this agreement',
+      );
+    }
+  });
+
+  it('does not accept retired individual agreement fields as substitutes', () => {
+    const fd = new FormData();
+    fd.set('agree_age_identity', 'yes');
+    expect(() => collectHiddenWorksTextFields(fd)).toThrow(ValidationError);
+
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(
+          baseFields({
+            agree_eligibility_accuracy: '',
+            agree_age_identity: 'yes',
+          }),
+          'idem-1',
+          now,
+        ),
+      'agree_eligibility_accuracy',
+      'accept this agreement',
+    );
+  });
+
+  it('preserves all 28 clause titles in agreementGroups with Privacy Policy link', async () => {
+    const { hiddenWorksSubmitContent } = await import(
+      '../src/content/projects/hidden-works-submit'
+    );
+    const groups = hiddenWorksSubmitContent.agreementGroups;
+    expect(groups).toHaveLength(4);
+    expect(groups.map((g) => g.name)).toEqual([...HIDDEN_WORKS_AGREEMENTS]);
+
+    const titles = groups.flatMap((g) => g.clauses.map((c) => c.title));
+    expect(titles).toHaveLength(28);
+    expect(titles).toEqual([
+      'Age and Legal Identity',
+      'Entrant Eligibility',
+      'Entry Limit',
+      'Accuracy of Submission',
+      'Eligibility Verification',
+      'Initial Eligibility Review and Submission Limit',
+      'Identity and Age Verification',
+      'Legal Name and Pen Name',
+      'Source and Access Disclosures',
+      'Original Submission',
+      'Public-Domain Requirement',
+      'Third-Party Rights',
+      'No Ownership Claim in the Historical Work',
+      'Use of Submission Materials',
+      'Ownership of My Original Submission Material',
+      'Submitted Materials Will Not Be Returned',
+      'No Confidentiality',
+      'Additional Information and Documentation',
+      'Selection Is Not Guaranteed',
+      'Disqualification',
+      'Selected Works',
+      'Public Credit',
+      'Publication and Editorial Development',
+      'No Cash Prize or Automatic Financial Interest',
+      'Notification Requirement',
+      'No Entry Fee or Purchase Requirement',
+      'Privacy Policy',
+      'Official Contest Rules and Submission Agreement',
+    ]);
+
+    const privacy = groups
+      .flatMap((g) => g.clauses)
+      .find((c) => c.title === 'Privacy Policy');
+    expect(privacy?.link).toEqual({ text: 'Privacy Policy', href: '/privacy' });
+  });
+
+  it('requires conditional pen_name with a field message', () => {
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(
+          baseFields({ public_credit: 'pen_name', pen_name: '' }),
+          'idem-1',
+          now,
+        ),
+      'pen_name',
+      'pen name',
+    );
   });
 });
 

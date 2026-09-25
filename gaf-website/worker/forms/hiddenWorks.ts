@@ -7,6 +7,7 @@ import {
   MAX_PHONE_CHARS,
   TextTooLargeError,
   ValidationError,
+  FieldValidationError,
   chicagoCalendarDate,
   contentLengthTooLarge,
   countWhitespaceSeparatedWords,
@@ -26,7 +27,7 @@ import {
   type ValidatedUpload,
 } from './common';
 
-export const HIDDEN_WORKS_AGREEMENT_VERSION = 'hidden-works-2026-09-25-v1';
+export const HIDDEN_WORKS_AGREEMENT_VERSION = 'hidden-works-2026-09-25-v2';
 export const HIDDEN_WORKS_TURNSTILE_ACTION = 'hidden_works_submit';
 export const HIDDEN_WORKS_FORM_TYPE = 'hidden_works';
 export const HIDDEN_WORKS_MAX_REQUEST_BYTES = 42 * 1024 * 1024;
@@ -42,35 +43,15 @@ export const HIDDEN_WORKS_RECEIVED_EVENT_SQL = `INSERT INTO submission_events (
         ) VALUES (?, 'received', 'system', NULL, 'received', NULL)`;
 
 export const HIDDEN_WORKS_AGREEMENTS = [
-  'agree_age_identity',
-  'agree_entrant_eligibility',
-  'agree_entry_limit',
-  'agree_accuracy',
-  'agree_eligibility_verification',
-  'agree_submission_limit',
-  'agree_identity_age_verification',
-  'agree_legal_pen_name',
-  'agree_public_domain',
-  'agree_third_party_rights',
-  'agree_source_access',
-  'agree_original_submission',
-  'agree_no_ownership_claim',
-  'agree_use_of_materials',
-  'agree_ownership_original',
-  'agree_not_returned',
-  'agree_no_confidentiality',
-  'agree_additional_info',
-  'agree_selection_not_guaranteed',
-  'agree_disqualification',
-  'agree_selected_works',
-  'agree_public_credit',
-  'agree_publication',
-  'agree_no_cash_prize',
-  'agree_notification',
-  'agree_no_fee',
-  'agree_privacy',
-  'agree_official_rules',
+  'agree_eligibility_accuracy',
+  'agree_rights_materials',
+  'agree_contest_administration',
+  'agree_rules_privacy',
 ] as const;
+
+function fieldFail(field: string, message: string): never {
+  throw new FieldValidationError(field, message);
+}
 
 const TEAM_ARRAY_FIELDS = [
   'team_first_name[]',
@@ -392,13 +373,49 @@ export function collectHiddenWorksTextFields(formData: FormData): {
   return { fields, totalTextBytes };
 }
 
-function requireHttpUrl(value: string, required: boolean): string | undefined {
+function requireHttpUrl(value: string, field: string, required: boolean): string | undefined {
   if (!value) {
-    if (required) throw new ValidationError();
+    if (required) fieldFail(field, 'This field is required.');
     return undefined;
   }
-  if (!isHttpOrHttpsUrl(value)) throw new ValidationError();
+  if (!isHttpOrHttpsUrl(value)) {
+    fieldFail(field, 'Enter a valid http or https URL.');
+  }
   return value;
+}
+
+function assertValidAdultDateOfBirth(dateOfBirth: string, onDate: Date): void {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateOfBirth.trim());
+  if (!match) {
+    fieldFail('date_of_birth', 'Enter a valid date of birth.');
+  }
+  const year = Number(match![1]);
+  const month = Number(match![2]);
+  const day = Number(match![3]);
+  const probe = new Date(Date.UTC(year, month - 1, day));
+  if (
+    probe.getUTCFullYear() !== year ||
+    probe.getUTCMonth() !== month - 1 ||
+    probe.getUTCDate() !== day
+  ) {
+    fieldFail('date_of_birth', 'Enter a valid date of birth.');
+  }
+
+  const today = chicagoCalendarDate(onDate);
+  const todayMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(today);
+  if (!todayMatch) {
+    fieldFail('date_of_birth', 'Enter a valid date of birth.');
+  }
+  const ty = Number(todayMatch![1]);
+  const tm = Number(todayMatch![2]);
+  const td = Number(todayMatch![3]);
+  if (year > ty || (year === ty && month > tm) || (year === ty && month === tm && day > td)) {
+    fieldFail('date_of_birth', 'Enter a valid date of birth.');
+  }
+
+  if (!isAtLeastAgeOnChicagoDate(dateOfBirth, onDate, 18)) {
+    fieldFail('date_of_birth', 'You must be at least 18 years old to enter.');
+  }
 }
 
 function normalizeTeamMembers(
@@ -449,10 +466,18 @@ function normalizeTeamMembers(
     const typed = (typedNames[i] ?? '').trim();
     const age = single(fields, `team_age_${i}`);
 
-    if (!first || !last || !email || !country || !typed) throw new ValidationError();
-    if (!isValidEmail(email)) throw new ValidationError();
-    if (age !== 'Yes') throw new ValidationError();
-    if (seen.has(email)) throw new ValidationError();
+    if (!first || !last || !email || !country || !typed) {
+      fieldFail('entry_type', 'Please complete all required team member fields.');
+    }
+    if (!isValidEmail(email)) {
+      fieldFail('team_email[]', 'Enter a valid email address.');
+    }
+    if (age !== 'Yes') {
+      fieldFail(`team_age_${i}`, 'Each team member must be at least 18 years old.');
+    }
+    if (seen.has(email)) {
+      fieldFail('team_email[]', 'Each participant email may appear only once in a submission.');
+    }
     seen.add(email);
 
     teamMembers.push({
@@ -480,49 +505,56 @@ export function validateHiddenWorksTextFields(
   now: Date = new Date(),
 ): HiddenWorksValidated {
   const idempotencyKey = (idempotencyKeyRaw ?? '').trim();
-  if (!idempotencyKey) throw new ValidationError();
+  if (!idempotencyKey) {
+    fieldFail('submission_idempotency_key', 'This field is required.');
+  }
 
   for (const key of REQUIRED_LEAD_FIELDS) {
-    if (!single(fields, key)) throw new ValidationError();
+    if (!single(fields, key)) {
+      fieldFail(key, 'This field is required.');
+    }
   }
 
   const entryType = single(fields, 'entry_type');
   if (entryType !== 'Individual' && entryType !== 'Team') {
-    throw new ValidationError();
+    fieldFail('entry_type', 'This field is required.');
   }
 
-  if (single(fields, 'age_18_or_older') !== 'Yes') throw new ValidationError();
-
-  const dob = single(fields, 'date_of_birth');
-  if (!isAtLeastAgeOnChicagoDate(dob, now, 18)) {
-    throw new ValidationError();
+  if (single(fields, 'age_18_or_older') !== 'Yes') {
+    fieldFail('age_18_or_older', 'You must be at least 18 years old to enter.');
   }
+
+  assertValidAdultDateOfBirth(single(fields, 'date_of_birth'), now);
 
   const email = single(fields, 'email').toLowerCase();
-  if (!isValidEmail(email)) throw new ValidationError();
+  if (!isValidEmail(email)) {
+    fieldFail('email', 'Enter a valid email address.');
+  }
 
   const phone = single(fields, 'phone');
-  if (!phone || phone.length > MAX_PHONE_CHARS) throw new ValidationError();
+  if (!phone || phone.length > MAX_PHONE_CHARS) {
+    fieldFail('phone', 'This field is required.');
+  }
 
   const publicCredit = single(fields, 'public_credit');
   if (publicCredit !== 'legal_name' && publicCredit !== 'pen_name') {
-    throw new ValidationError();
+    fieldFail('public_credit', 'This field is required.');
   }
   if (publicCredit === 'pen_name' && !single(fields, 'pen_name')) {
-    throw new ValidationError();
+    fieldFail('pen_name', 'Please provide a pen name.');
   }
 
   const typeOfWork = single(fields, 'type_of_work');
   if (!(workTypeOptions as readonly string[]).includes(typeOfWork)) {
-    throw new ValidationError();
+    fieldFail('type_of_work', 'This field is required.');
   }
   if (typeOfWork === 'Other' && !single(fields, 'type_of_work_other')) {
-    throw new ValidationError();
+    fieldFail('type_of_work_other', 'Please describe the type of work.');
   }
 
   const category = single(fields, 'competition_category');
   if (category !== 'Untranslated Discovery' && category !== 'General Reader Recovery') {
-    throw new ValidationError();
+    fieldFail('competition_category', 'This field is required.');
   }
 
   const sourceAccessible = single(fields, 'source_accessible');
@@ -532,28 +564,31 @@ export function validateHiddenWorksTextFields(
     sourceAccessible !== 'Access requires permission or payment' &&
     sourceAccessible !== 'I am not sure'
   ) {
-    throw new ValidationError();
+    fieldFail('source_accessible', 'This field is required.');
   }
 
   const largerWork = single(fields, 'larger_work');
   if (largerWork !== 'Yes' && largerWork !== 'No' && largerWork !== 'I am not sure') {
-    throw new ValidationError();
+    fieldFail('larger_work', 'This field is required.');
   }
   if (largerWork === 'Yes' && !single(fields, 'larger_work_explain')) {
-    throw new ValidationError();
+    fieldFail('larger_work_explain', 'Please explain the relationship to the larger work.');
   }
 
   const englishAware = single(fields, 'english_translation_aware');
   if (englishAware !== 'Yes' && englishAware !== 'No' && englishAware !== 'I am not sure') {
-    throw new ValidationError();
+    fieldFail('english_translation_aware', 'This field is required.');
   }
   if (englishAware === 'Yes' && !single(fields, 'known_english_translations')) {
-    throw new ValidationError();
+    fieldFail(
+      'known_english_translations',
+      'Please describe the known English translation(s).',
+    );
   }
 
   const englishEdition = single(fields, 'english_edition_us');
   if (englishEdition !== 'Yes' && englishEdition !== 'No' && englishEdition !== 'I am not sure') {
-    throw new ValidationError();
+    fieldFail('english_edition_us', 'This field is required.');
   }
 
   const specialComponents = single(fields, 'special_components');
@@ -562,10 +597,10 @@ export function validateHiddenWorksTextFields(
     specialComponents !== 'No' &&
     specialComponents !== 'I am not sure'
   ) {
-    throw new ValidationError();
+    fieldFail('special_components', 'This field is required.');
   }
   if (specialComponents === 'Yes' && !single(fields, 'special_components_explain')) {
-    throw new ValidationError();
+    fieldFail('special_components_explain', 'Please explain the special components.');
   }
 
   const publicationLimitations = single(fields, 'publication_limitations');
@@ -574,62 +609,103 @@ export function validateHiddenWorksTextFields(
     publicationLimitations !== 'No' &&
     publicationLimitations !== 'I am not sure'
   ) {
-    throw new ValidationError();
+    fieldFail('publication_limitations', 'This field is required.');
   }
   if (publicationLimitations === 'Yes' && !single(fields, 'publication_limitations_explain')) {
-    throw new ValidationError();
+    fieldFail(
+      'publication_limitations_explain',
+      'Please explain the publication limitations.',
+    );
   }
 
   const conflicts = single(fields, 'conflicts');
-  if (conflicts !== 'Yes' && conflicts !== 'No') throw new ValidationError();
+  if (conflicts !== 'Yes' && conflicts !== 'No') {
+    fieldFail('conflicts', 'This field is required.');
+  }
   if (conflicts === 'Yes' && !single(fields, 'conflicts_describe')) {
-    throw new ValidationError();
+    fieldFail('conflicts_describe', 'Please describe the conflict or relationship.');
   }
 
   const outsideAssistance = single(fields, 'outside_assistance');
   if (outsideAssistance !== 'Yes' && outsideAssistance !== 'No') {
-    throw new ValidationError();
+    fieldFail('outside_assistance', 'This field is required.');
   }
   if (outsideAssistance === 'Yes' && !single(fields, 'outside_assistance_describe')) {
-    throw new ValidationError();
+    fieldFail(
+      'outside_assistance_describe',
+      'Please describe the outside assistance provided.',
+    );
   }
 
   for (const key of HIDDEN_WORKS_AGREEMENTS) {
-    if (single(fields, key) !== 'yes') throw new ValidationError();
+    if (single(fields, key) !== 'yes') {
+      fieldFail(key, 'You must accept this agreement to continue.');
+    }
   }
 
   const wordCountRaw = single(fields, 'word_count');
-  if (!/^\d+$/.test(wordCountRaw)) throw new ValidationError();
+  if (!/^\d+$/.test(wordCountRaw)) {
+    fieldFail('word_count', 'Enter a whole number greater than zero.');
+  }
   const wordCount = Number(wordCountRaw);
-  if (!Number.isInteger(wordCount) || wordCount <= 0) throw new ValidationError();
+  if (!Number.isInteger(wordCount) || wordCount <= 0) {
+    fieldFail('word_count', 'Enter a whole number greater than zero.');
+  }
 
   const pageCountRaw = single(fields, 'page_count');
   if (pageCountRaw) {
-    if (!/^\d+$/.test(pageCountRaw)) throw new ValidationError();
+    if (!/^\d+$/.test(pageCountRaw)) {
+      fieldFail('page_count', 'Enter a whole number of zero or greater.');
+    }
     const pageCount = Number(pageCountRaw);
-    if (!Number.isInteger(pageCount) || pageCount < 0) throw new ValidationError();
+    if (!Number.isInteger(pageCount) || pageCount < 0) {
+      fieldFail('page_count', 'Enter a whole number of zero or greater.');
+    }
   }
 
   const readerCase = single(fields, 'reader_facing_case');
   const readerWords = countWhitespaceSeparatedWords(readerCase);
-  if (readerWords < 500 || readerWords > 1000) throw new ValidationError();
+  if (readerWords < 500) {
+    fieldFail(
+      'reader_facing_case',
+      'The Reader-Facing Case must be at least 500 words.',
+    );
+  }
+  if (readerWords > 1000) {
+    fieldFail(
+      'reader_facing_case',
+      'The Reader-Facing Case must be at most 1,000 words.',
+    );
+  }
 
-  requireHttpUrl(single(fields, 'primary_bibliographic_source'), true);
+  requireHttpUrl(single(fields, 'primary_bibliographic_source'), 'primary_bibliographic_source', true);
   for (const key of [
     'additional_supporting_source',
     'source_url',
     'public_domain_source',
     'public_domain_edition',
   ] as const) {
-    requireHttpUrl(single(fields, key), false);
+    requireHttpUrl(single(fields, key), key, false);
   }
 
   const additionalLinks = allValues(fields, 'additional_links').filter(Boolean);
   for (const link of additionalLinks) {
-    if (!isHttpOrHttpsUrl(link)) throw new ValidationError();
+    if (!isHttpOrHttpsUrl(link)) {
+      fieldFail('additional_links', 'Enter a valid http or https URL.');
+    }
   }
 
-  const { teamMembers, participantEmails } = normalizeTeamMembers(fields, email);
+  let teamMembers: TeamMemberPayload[];
+  let participantEmails: string[];
+  try {
+    ({ teamMembers, participantEmails } = normalizeTeamMembers(fields, email));
+  } catch (error) {
+    if (error instanceof FieldValidationError) throw error;
+    if (error instanceof ValidationError) {
+      fieldFail('entry_type', 'Please complete the team member information.');
+    }
+    throw error;
+  }
 
   const firstName = single(fields, 'legal_first_name');
   const middleName = single(fields, 'legal_middle_name');
@@ -909,6 +985,14 @@ export async function handleHiddenWorksSubmit(
   } catch (error) {
     if (error instanceof TextTooLargeError) {
       return jsonResponse(413, { success: false, error: 'submission_too_large' });
+    }
+    if (error instanceof FieldValidationError) {
+      return jsonResponse(400, {
+        success: false,
+        error: 'invalid_submission',
+        field: error.field,
+        message: error.publicMessage,
+      });
     }
     if (error instanceof ValidationError) {
       return jsonResponse(400, { success: false, error: 'invalid_submission' });

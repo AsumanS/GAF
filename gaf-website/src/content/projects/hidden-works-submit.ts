@@ -13,11 +13,17 @@ export const workTypeOptions = [
   'Other',
 ] as const;
 
-export type AgreementItem = {
-  name: string;
+export type AgreementClause = {
   title: string;
   label: string;
   link?: { text: string; href: string };
+};
+
+export type AgreementGroup = {
+  name: string;
+  title: string;
+  clauses: AgreementClause[];
+  acceptanceLabel: string;
 };
 
 export const hiddenWorksSubmitContent = {
@@ -36,6 +42,42 @@ export const hiddenWorksSubmitContent = {
   noFeeHtml: '<strong>No purchase, donation, or entry fee is required.</strong>',
   eligibility: {
     heading: 'Eligibility at a Glance',
+    /** Compact key facts for the submission page header. Detailed rules remain in Official Contest Rules. */
+    facts: [
+      { label: 'Eligible participants', value: 'Worldwide, age 18+' },
+      { label: 'Entry limit', value: 'Maximum 2 works per entrant or team' },
+      {
+        label: 'Historical cutoff',
+        value:
+          'First published or first made available in book form on or before May 31, 1777',
+      },
+      {
+        label: 'Public-domain requirement',
+        value: 'Underlying historical work must be in the U.S. public domain',
+      },
+      {
+        label: 'Source',
+        value: 'A complete and reasonably obtainable source must exist',
+      },
+      {
+        label: 'Scope',
+        value:
+          'Approximately 20,000–100,000 source-language words, or equivalent editorial scope where appropriate',
+      },
+      {
+        label: 'Competition category',
+        value: 'Untranslated Discovery or General Reader Recovery',
+      },
+      {
+        label: 'Submission deadline',
+        value: 'May 31, 2027 at 11:59 p.m. Central Time',
+      },
+      {
+        label: 'Submission cap',
+        value: '100 eligible submissions accepted for review',
+      },
+      { label: 'Entry fee', value: 'None' },
+    ],
     items: [
       'The contest is open to eligible participants worldwide.',
       'Entrants must be at least 18 years old.',
@@ -60,6 +102,8 @@ export const hiddenWorksSubmitContent = {
   },
   rules: {
     heading: 'Official Contest Rules',
+    intro:
+      'Review the rules governing eligibility, evidence, evaluation, verification, selection, and participation.',
     sections: [
       {
         heading: 'Organizer',
@@ -407,180 +451,184 @@ export const hiddenWorksSubmitContent = {
   conflictsNote:
     'This may include a relationship with Golden Archive Foundation staff, board members, reviewers, jurors, translators, publishers, donors, rights holders, archives, or other persons or organizations materially connected to the submission.',
   readerCaseHint: '500–1,000 words',
-  agreementIntro:
-    'Each item below must be individually accepted before the submission can be completed.',
+  agreementIntro: 'Please review and accept each section before submitting.',
   teamTypedNameNote:
     'For a team submission, each team member must provide a typed legal name confirming the certifications above.',
-  agreements: [
+  agreementGroups: [
     {
-      name: 'agree_age_identity',
-      title: 'Age and Legal Identity',
-      label:
-        'I confirm that I am at least 18 years old and that I am entering the Hidden Works Discovery Contest under my true legal identity.',
+      name: 'agree_eligibility_accuracy',
+      title: 'Eligibility, Identity & Accuracy',
+      acceptanceLabel:
+        'I have read and agree to the Eligibility, Identity & Accuracy terms above.',
+      clauses: [
+        {
+          title: 'Age and Legal Identity',
+          label:
+            'I confirm that I am at least 18 years old and that I am entering the Hidden Works Discovery Contest under my true legal identity.',
+        },
+        {
+          title: 'Entrant Eligibility',
+          label:
+            'I confirm that I am not prohibited from entering under the Official Contest Rules, including the exclusions relating to Golden Archive Foundation board members, officers, contest personnel, reviewers, jurors, decision-makers, and other persons whose participation would create a prohibited conflict.',
+        },
+        {
+          title: 'Entry Limit',
+          label:
+            'I understand that I may submit no more than two works during this contest cycle.',
+        },
+        {
+          title: 'Accuracy of Submission',
+          label:
+            'I certify that the information I have provided is accurate and complete to the best of my knowledge after reasonable research and that I have not knowingly submitted false, misleading, altered, or fabricated evidence.',
+        },
+        {
+          title: 'Eligibility Verification',
+          label:
+            'I understand that Golden Archive Foundation may independently investigate and verify the work’s publication history, public-domain status, English-language availability, source completeness, source availability, length, attribution, and compliance with the contest requirements.',
+        },
+        {
+          title: 'Initial Eligibility Review and Submission Limit',
+          label:
+            'I understand that my submission does not count toward the limit of 100 accepted submissions until Golden Archive Foundation determines that it has passed an initial eligibility review and that submissions may therefore close before May 31, 2027.',
+        },
+        {
+          title: 'Identity and Age Verification',
+          label:
+            'I understand that Golden Archive Foundation may request reasonable proof of my identity and age if my submission passes initial eligibility review, advances in the contest, or is selected. Failure to provide requested verification may result in disqualification.',
+        },
+        {
+          title: 'Legal Name and Pen Name',
+          label:
+            'I understand that I must enter under my true legal identity. If my submission is selected, I may choose to be publicly credited under my legal name or a pen name. Golden Archive Foundation may retain my legal identity in its internal administrative and legal records.',
+        },
+        {
+          title: 'Source and Access Disclosures',
+          label:
+            'I have disclosed known source restrictions, archive conditions, access requirements, costs, cultural protocols, rights issues, and other material limitations relevant to the work.',
+        },
+        {
+          title: 'Original Submission',
+          label:
+            'I confirm that the submission dossier was prepared by me or by the identified members of my team and that any substantial outside assistance has been disclosed.',
+        },
+      ],
     },
     {
-      name: 'agree_entrant_eligibility',
-      title: 'Entrant Eligibility',
-      label:
-        'I confirm that I am not prohibited from entering under the Official Contest Rules, including the exclusions relating to Golden Archive Foundation board members, officers, contest personnel, reviewers, jurors, decision-makers, and other persons whose participation would create a prohibited conflict.',
+      name: 'agree_rights_materials',
+      title: 'Rights, Ownership & Submitted Materials',
+      acceptanceLabel:
+        'I have read and agree to the Rights, Ownership & Submitted Materials terms above.',
+      clauses: [
+        {
+          title: 'Public-Domain Requirement',
+          label:
+            'I understand that the underlying historical work must satisfy the contest’s U.S. public-domain requirement and that submission or initial acceptance of an entry does not constitute a final legal determination that the work is in the public domain.',
+        },
+        {
+          title: 'Third-Party Rights',
+          label:
+            'I confirm that I have the right to provide the files, scans, photographs, translations, annotations, research materials, or other content included with my submission. I understand that public-domain status of the underlying historical work does not necessarily apply to modern editions, translations, annotations, photographs, scans, transcriptions, or other derivative material.',
+        },
+        {
+          title: 'No Ownership Claim in the Historical Work',
+          label:
+            'I understand that discovering, researching, or submitting a public-domain historical work does not give me ownership of the underlying work.',
+        },
+        {
+          title: 'Use of Submission Materials',
+          label:
+            'I grant Golden Archive Foundation a non-exclusive, worldwide, royalty-free license to reproduce, store, copy, review, research, analyze, internally distribute to authorized reviewers and advisors, quote, excerpt, and otherwise use the materials I submit as reasonably necessary to administer and evaluate the contest, verify eligibility, maintain contest records, and carry out the Hidden Works project if the submission is selected.',
+        },
+        {
+          title: 'Ownership of My Original Submission Material',
+          label:
+            'I understand that submitting an entry does not transfer ownership of my original research, writing, or other original submission material to Golden Archive Foundation except for the rights expressly granted in this Submission Agreement or in any later written agreement that I choose to enter into.',
+        },
+        {
+          title: 'Submitted Materials Will Not Be Returned',
+          label:
+            'I understand that materials submitted through the contest will not be returned. I will not submit the sole copy of any original, unique, valuable, or irreplaceable material.',
+        },
+        {
+          title: 'No Confidentiality',
+          label:
+            'I understand that my submission is not being received under an obligation of confidentiality and that I should not submit confidential, proprietary, privileged, or sensitive information that I am not authorized to disclose.',
+        },
+      ],
     },
     {
-      name: 'agree_entry_limit',
-      title: 'Entry Limit',
-      label: 'I understand that I may submit no more than two works during this contest cycle.',
+      name: 'agree_contest_administration',
+      title: 'Contest Administration, Selection & Publication',
+      acceptanceLabel:
+        'I have read and agree to the Contest Administration, Selection & Publication terms above.',
+      clauses: [
+        {
+          title: 'Additional Information and Documentation',
+          label:
+            'I understand that Golden Archive Foundation may contact me for clarification, additional sources, supporting documents, source files, identity verification, or other information reasonably necessary to evaluate or verify my submission.',
+        },
+        {
+          title: 'Selection Is Not Guaranteed',
+          label:
+            'I understand that submitting an entry, receiving a confirmation, passing initial eligibility review, being shortlisted, or being asked for additional information does not mean that my submission has been selected.',
+        },
+        {
+          title: 'Disqualification',
+          label:
+            'I understand that Golden Archive Foundation may reject or disqualify an entry that is incomplete, unverifiable, ineligible, materially misleading, fraudulent, unlawful, submitted using materials the entrant is not entitled to provide, or otherwise fails to comply with the Official Contest Rules.',
+        },
+        {
+          title: 'Selected Works',
+          label:
+            'I understand that the contest is intended to select three qualifying works and that ties for a winning position may result in more than three works being selected.',
+        },
+        {
+          title: 'Public Credit',
+          label:
+            'If my submission is selected, I authorize Golden Archive Foundation to identify and credit me using the public credit name I selected in this form in contest announcements, project materials, the resulting edition, and on the book cover.',
+        },
+        {
+          title: 'Publication and Editorial Development',
+          label:
+            'If my submission is selected, I understand that Golden Archive Foundation will determine the translation, editing, design, production, publication, distribution, and presentation of the Foundation edition.',
+        },
+        {
+          title: 'No Cash Prize or Automatic Financial Interest',
+          label:
+            'I understand that entry and selection do not create a cash prize, finder’s fee, royalty, ownership interest, or other financial entitlement unless Golden Archive Foundation and I later enter into a separate written agreement providing otherwise.',
+        },
+        {
+          title: 'Notification Requirement',
+          label:
+            'I understand that if my submission is selected, I must respond to the selection notice within 14 calendar days after it is sent or Golden Archive Foundation may treat the selection as declined.',
+        },
+      ],
     },
     {
-      name: 'agree_accuracy',
-      title: 'Accuracy of Submission',
-      label:
-        'I certify that the information I have provided is accurate and complete to the best of my knowledge after reasonable research and that I have not knowingly submitted false, misleading, altered, or fabricated evidence.',
+      name: 'agree_rules_privacy',
+      title: 'Participation Terms, Rules & Privacy',
+      acceptanceLabel:
+        'I have read and agree to the Participation Terms, Official Contest Rules, Submission Agreement, and Privacy Policy above.',
+      clauses: [
+        {
+          title: 'No Entry Fee or Purchase Requirement',
+          label:
+            'I understand that no purchase, donation, payment, or entry fee is required to participate.',
+        },
+        {
+          title: 'Privacy Policy',
+          label:
+            'I have read the Golden Archive Foundation Privacy Policy and understand how information submitted through this form may be collected, used, retained, and disclosed.',
+          link: { text: 'Privacy Policy', href: '/privacy' },
+        },
+        {
+          title: 'Official Contest Rules and Submission Agreement',
+          label:
+            'I have read, understand, and agree to the Official Contest Rules and Submission Agreement presented on this page.',
+        },
+      ],
     },
-    {
-      name: 'agree_eligibility_verification',
-      title: 'Eligibility Verification',
-      label:
-        'I understand that Golden Archive Foundation may independently investigate and verify the work’s publication history, public-domain status, English-language availability, source completeness, source availability, length, attribution, and compliance with the contest requirements.',
-    },
-    {
-      name: 'agree_submission_limit',
-      title: 'Initial Eligibility Review and Submission Limit',
-      label:
-        'I understand that my submission does not count toward the limit of 100 accepted submissions until Golden Archive Foundation determines that it has passed an initial eligibility review and that submissions may therefore close before May 31, 2027.',
-    },
-    {
-      name: 'agree_identity_age_verification',
-      title: 'Identity and Age Verification',
-      label:
-        'I understand that Golden Archive Foundation may request reasonable proof of my identity and age if my submission passes initial eligibility review, advances in the contest, or is selected. Failure to provide requested verification may result in disqualification.',
-    },
-    {
-      name: 'agree_legal_pen_name',
-      title: 'Legal Name and Pen Name',
-      label:
-        'I understand that I must enter under my true legal identity. If my submission is selected, I may choose to be publicly credited under my legal name or a pen name. Golden Archive Foundation may retain my legal identity in its internal administrative and legal records.',
-    },
-    {
-      name: 'agree_public_domain',
-      title: 'Public-Domain Requirement',
-      label:
-        'I understand that the underlying historical work must satisfy the contest’s U.S. public-domain requirement and that submission or initial acceptance of an entry does not constitute a final legal determination that the work is in the public domain.',
-    },
-    {
-      name: 'agree_third_party_rights',
-      title: 'Third-Party Rights',
-      label:
-        'I confirm that I have the right to provide the files, scans, photographs, translations, annotations, research materials, or other content included with my submission. I understand that public-domain status of the underlying historical work does not necessarily apply to modern editions, translations, annotations, photographs, scans, transcriptions, or other derivative material.',
-    },
-    {
-      name: 'agree_source_access',
-      title: 'Source and Access Disclosures',
-      label:
-        'I have disclosed known source restrictions, archive conditions, access requirements, costs, cultural protocols, rights issues, and other material limitations relevant to the work.',
-    },
-    {
-      name: 'agree_original_submission',
-      title: 'Original Submission',
-      label:
-        'I confirm that the submission dossier was prepared by me or by the identified members of my team and that any substantial outside assistance has been disclosed.',
-    },
-    {
-      name: 'agree_no_ownership_claim',
-      title: 'No Ownership Claim in the Historical Work',
-      label:
-        'I understand that discovering, researching, or submitting a public-domain historical work does not give me ownership of the underlying work.',
-    },
-    {
-      name: 'agree_use_of_materials',
-      title: 'Use of Submission Materials',
-      label:
-        'I grant Golden Archive Foundation a non-exclusive, worldwide, royalty-free license to reproduce, store, copy, review, research, analyze, internally distribute to authorized reviewers and advisors, quote, excerpt, and otherwise use the materials I submit as reasonably necessary to administer and evaluate the contest, verify eligibility, maintain contest records, and carry out the Hidden Works project if the submission is selected.',
-    },
-    {
-      name: 'agree_ownership_original',
-      title: 'Ownership of My Original Submission Material',
-      label:
-        'I understand that submitting an entry does not transfer ownership of my original research, writing, or other original submission material to Golden Archive Foundation except for the rights expressly granted in this Submission Agreement or in any later written agreement that I choose to enter into.',
-    },
-    {
-      name: 'agree_not_returned',
-      title: 'Submitted Materials Will Not Be Returned',
-      label:
-        'I understand that materials submitted through the contest will not be returned. I will not submit the sole copy of any original, unique, valuable, or irreplaceable material.',
-    },
-    {
-      name: 'agree_no_confidentiality',
-      title: 'No Confidentiality',
-      label:
-        'I understand that my submission is not being received under an obligation of confidentiality and that I should not submit confidential, proprietary, privileged, or sensitive information that I am not authorized to disclose.',
-    },
-    {
-      name: 'agree_additional_info',
-      title: 'Additional Information and Documentation',
-      label:
-        'I understand that Golden Archive Foundation may contact me for clarification, additional sources, supporting documents, source files, identity verification, or other information reasonably necessary to evaluate or verify my submission.',
-    },
-    {
-      name: 'agree_selection_not_guaranteed',
-      title: 'Selection Is Not Guaranteed',
-      label:
-        'I understand that submitting an entry, receiving a confirmation, passing initial eligibility review, being shortlisted, or being asked for additional information does not mean that my submission has been selected.',
-    },
-    {
-      name: 'agree_disqualification',
-      title: 'Disqualification',
-      label:
-        'I understand that Golden Archive Foundation may reject or disqualify an entry that is incomplete, unverifiable, ineligible, materially misleading, fraudulent, unlawful, submitted using materials the entrant is not entitled to provide, or otherwise fails to comply with the Official Contest Rules.',
-    },
-    {
-      name: 'agree_selected_works',
-      title: 'Selected Works',
-      label:
-        'I understand that the contest is intended to select three qualifying works and that ties for a winning position may result in more than three works being selected.',
-    },
-    {
-      name: 'agree_public_credit',
-      title: 'Public Credit',
-      label:
-        'If my submission is selected, I authorize Golden Archive Foundation to identify and credit me using the public credit name I selected in this form in contest announcements, project materials, the resulting edition, and on the book cover.',
-    },
-    {
-      name: 'agree_publication',
-      title: 'Publication and Editorial Development',
-      label:
-        'If my submission is selected, I understand that Golden Archive Foundation will determine the translation, editing, design, production, publication, distribution, and presentation of the Foundation edition.',
-    },
-    {
-      name: 'agree_no_cash_prize',
-      title: 'No Cash Prize or Automatic Financial Interest',
-      label:
-        'I understand that entry and selection do not create a cash prize, finder’s fee, royalty, ownership interest, or other financial entitlement unless Golden Archive Foundation and I later enter into a separate written agreement providing otherwise.',
-    },
-    {
-      name: 'agree_notification',
-      title: 'Notification Requirement',
-      label:
-        'I understand that if my submission is selected, I must respond to the selection notice within 14 calendar days after it is sent or Golden Archive Foundation may treat the selection as declined.',
-    },
-    {
-      name: 'agree_no_fee',
-      title: 'No Entry Fee or Purchase Requirement',
-      label:
-        'I understand that no purchase, donation, payment, or entry fee is required to participate.',
-    },
-    {
-      name: 'agree_privacy',
-      title: 'Privacy Policy',
-      label:
-        'I have read the Golden Archive Foundation Privacy Policy and understand how information submitted through this form may be collected, used, retained, and disclosed.',
-      link: { text: 'Privacy Policy', href: '/privacy' },
-    },
-    {
-      name: 'agree_official_rules',
-      title: 'Official Contest Rules and Submission Agreement',
-      label:
-        'I have read, understand, and agree to the Official Contest Rules and Submission Agreement presented on this page.',
-    },
-  ] satisfies AgreementItem[],
+  ] satisfies AgreementGroup[],
 };
 
 export type RichText = string | { html: string };
