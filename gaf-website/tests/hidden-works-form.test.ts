@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   FieldValidationError,
+  MAX_STRING_CHARS,
   ValidationError,
   isTurnstileAccepted,
 } from '../worker/forms/common';
@@ -17,6 +18,7 @@ import {
   collectHiddenWorksTextFields,
   existingHiddenWorksSubmissionResponse,
   hasReachedEntryLimit,
+  hiddenWorksValidationErrorResponse,
   isEligibleCapReached,
   isHiddenWorksContestClosed,
   newHiddenWorksSubmissionId,
@@ -192,24 +194,27 @@ describe('hidden works text validation', () => {
   });
 
   it('rejects malformed team email', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(
-        baseFields({
-          entry_type: 'Team',
-          'team_first_name[]': ['Bo'],
-          'team_middle_name[]': [''],
-          'team_last_name[]': ['Team'],
-          'team_email[]': ['bad-email'],
-          'team_country[]': ['United States'],
-          'team_affiliation[]': [''],
-          'team_public_credit[]': [''],
-          'team_typed_legal_name[]': ['Bo Team'],
-          team_age_0: 'Yes',
-        }),
-        'idem-1',
-        now,
-      ),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(
+          baseFields({
+            entry_type: 'Team',
+            'team_first_name[]': ['Bo'],
+            'team_middle_name[]': [''],
+            'team_last_name[]': ['Team'],
+            'team_email[]': ['bad-email'],
+            'team_country[]': ['United States'],
+            'team_affiliation[]': [''],
+            'team_public_credit[]': [''],
+            'team_typed_legal_name[]': ['Bo Team'],
+            team_age_0: 'Yes',
+          }),
+          'idem-1',
+          now,
+        ),
+      'team_email[]',
+      'valid email',
+    );
   });
 
   it('Individual ignores malicious stray team fields', () => {
@@ -234,158 +239,190 @@ describe('hidden works text validation', () => {
   });
 
   it('Team requires at least one member', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(baseFields({ entry_type: 'Team' }), 'idem-1', now),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () => validateHiddenWorksTextFields(baseFields({ entry_type: 'Team' }), 'idem-1', now),
+      'entry_type',
+      'Add at least one team member',
+    );
   });
 
   it('rejects mismatched team arrays', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(
-        baseFields({
-          entry_type: 'Team',
-          'team_first_name[]': ['Bo', 'Cy'],
-          'team_middle_name[]': [''],
-          'team_last_name[]': ['Team'],
-          'team_email[]': ['bo@example.com'],
-          'team_country[]': ['United States'],
-          'team_affiliation[]': [''],
-          'team_public_credit[]': [''],
-          'team_typed_legal_name[]': ['Bo Team'],
-          team_age_0: 'Yes',
-        }),
-        'idem-1',
-        now,
-      ),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(
+          baseFields({
+            entry_type: 'Team',
+            'team_first_name[]': ['Bo', 'Cy'],
+            'team_middle_name[]': [''],
+            'team_last_name[]': ['Team'],
+            'team_email[]': ['bo@example.com'],
+            'team_country[]': ['United States'],
+            'team_affiliation[]': [''],
+            'team_public_credit[]': [''],
+            'team_typed_legal_name[]': ['Bo Team'],
+            team_age_0: 'Yes',
+          }),
+          'idem-1',
+          now,
+        ),
+      '__form__',
+      'incomplete or inconsistent',
+    );
   });
 
   it('rejects team age No', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(
-        baseFields({
-          entry_type: 'Team',
-          'team_first_name[]': ['Bo'],
-          'team_middle_name[]': [''],
-          'team_last_name[]': ['Team'],
-          'team_email[]': ['bo@example.com'],
-          'team_country[]': ['United States'],
-          'team_affiliation[]': [''],
-          'team_public_credit[]': [''],
-          'team_typed_legal_name[]': ['Bo Team'],
-          team_age_0: 'No',
-        }),
-        'idem-1',
-        now,
-      ),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(
+          baseFields({
+            entry_type: 'Team',
+            'team_first_name[]': ['Bo'],
+            'team_middle_name[]': [''],
+            'team_last_name[]': ['Team'],
+            'team_email[]': ['bo@example.com'],
+            'team_country[]': ['United States'],
+            'team_affiliation[]': [''],
+            'team_public_credit[]': [''],
+            'team_typed_legal_name[]': ['Bo Team'],
+            team_age_0: 'No',
+          }),
+          'idem-1',
+          now,
+        ),
+      'team_age_0',
+      'at least 18',
+    );
   });
 
   it('rejects duplicate participant email in the same submission', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(
-        baseFields({
-          entry_type: 'Team',
-          'team_first_name[]': ['Bo'],
-          'team_middle_name[]': [''],
-          'team_last_name[]': ['Team'],
-          'team_email[]': ['ada@example.com'],
-          'team_country[]': ['United States'],
-          'team_affiliation[]': [''],
-          'team_public_credit[]': [''],
-          'team_typed_legal_name[]': ['Bo Team'],
-          team_age_0: 'Yes',
-        }),
-        'idem-1',
-        now,
-      ),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(
+          baseFields({
+            entry_type: 'Team',
+            'team_first_name[]': ['Bo'],
+            'team_middle_name[]': [''],
+            'team_last_name[]': ['Team'],
+            'team_email[]': ['ada@example.com'],
+            'team_country[]': ['United States'],
+            'team_affiliation[]': [''],
+            'team_public_credit[]': [''],
+            'team_typed_legal_name[]': ['Bo Team'],
+            team_age_0: 'Yes',
+          }),
+          'idem-1',
+          now,
+        ),
+      'team_email[]',
+      'only once',
+    );
   });
 
   it('requires pen name when public_credit is pen_name', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(
-        baseFields({ public_credit: 'pen_name', pen_name: '' }),
-        'idem-1',
-        now,
-      ),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(
+          baseFields({ public_credit: 'pen_name', pen_name: '' }),
+          'idem-1',
+          now,
+        ),
+      'pen_name',
+      'pen name',
+    );
   });
 
   it('requires type_of_work_other when type is Other', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(
-        baseFields({ type_of_work: 'Other', type_of_work_other: '' }),
-        'idem-1',
-        now,
-      ),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(
+          baseFields({ type_of_work: 'Other', type_of_work_other: '' }),
+          'idem-1',
+          now,
+        ),
+      'type_of_work_other',
+      'type of work',
+    );
   });
 
   it('requires larger_work_explain when larger_work is Yes', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(
-        baseFields({ larger_work: 'Yes', larger_work_explain: '' }),
-        'idem-1',
-        now,
-      ),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(
+          baseFields({ larger_work: 'Yes', larger_work_explain: '' }),
+          'idem-1',
+          now,
+        ),
+      'larger_work_explain',
+      'larger work',
+    );
   });
 
   it('requires known English translations when aware = Yes', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(
-        baseFields({
-          english_translation_aware: 'Yes',
-          known_english_translations: '',
-        }),
-        'idem-1',
-        now,
-      ),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(
+          baseFields({
+            english_translation_aware: 'Yes',
+            known_english_translations: '',
+          }),
+          'idem-1',
+          now,
+        ),
+      'known_english_translations',
+    );
   });
 
   it('requires special_components_explain when Yes', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(
-        baseFields({ special_components: 'Yes', special_components_explain: '' }),
-        'idem-1',
-        now,
-      ),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(
+          baseFields({ special_components: 'Yes', special_components_explain: '' }),
+          'idem-1',
+          now,
+        ),
+      'special_components_explain',
+      'special components',
+    );
   });
 
   it('requires publication_limitations_explain when Yes', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(
-        baseFields({
-          publication_limitations: 'Yes',
-          publication_limitations_explain: '',
-        }),
-        'idem-1',
-        now,
-      ),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(
+          baseFields({
+            publication_limitations: 'Yes',
+            publication_limitations_explain: '',
+          }),
+          'idem-1',
+          now,
+        ),
+      'publication_limitations_explain',
+    );
   });
 
   it('requires conflicts_describe when conflicts Yes', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(
-        baseFields({ conflicts: 'Yes', conflicts_describe: '' }),
-        'idem-1',
-        now,
-      ),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(
+          baseFields({ conflicts: 'Yes', conflicts_describe: '' }),
+          'idem-1',
+          now,
+        ),
+      'conflicts_describe',
+      'conflict',
+    );
   });
 
   it('requires outside_assistance_describe when Yes', () => {
-    expect(() =>
-      validateHiddenWorksTextFields(
-        baseFields({ outside_assistance: 'Yes', outside_assistance_describe: '' }),
-        'idem-1',
-        now,
-      ),
-    ).toThrow(ValidationError);
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(
+          baseFields({ outside_assistance: 'Yes', outside_assistance_describe: '' }),
+          'idem-1',
+          now,
+        ),
+      'outside_assistance_describe',
+    );
   });
 
   it('rejects missing any agreement', () => {
@@ -512,7 +549,24 @@ describe('hidden works files', () => {
   it('rejects unsupported file field', () => {
     const fd = new FormData();
     fd.set('full_book', new File([new Uint8Array(10)], 'book.pdf', { type: 'application/pdf' }));
-    expect(() => validateHiddenWorksFiles(fd)).toThrow(ValidationError);
+    expectFieldError(
+      () => validateHiddenWorksFiles(fd),
+      '__form__',
+      'unexpected file field',
+    );
+  });
+
+  it('rejects empty selected file', () => {
+    const fd = new FormData();
+    fd.set(
+      'supporting_evidence',
+      new File([], 'empty.pdf', { type: 'application/pdf' }),
+    );
+    expectFieldError(
+      () => validateHiddenWorksFiles(fd),
+      'supporting_evidence',
+      'empty',
+    );
   });
 
   it('rejects unsupported file type', () => {
@@ -521,7 +575,11 @@ describe('hidden works files', () => {
       'supporting_evidence',
       new File([new Uint8Array(10)], 'notes.txt', { type: 'text/plain' }),
     );
-    expect(() => validateHiddenWorksFiles(fd)).toThrow(ValidationError);
+    expectFieldError(
+      () => validateHiddenWorksFiles(fd),
+      'supporting_evidence',
+      'not supported',
+    );
   });
 
   it('rejects file over 10 MiB', () => {
@@ -532,7 +590,28 @@ describe('hidden works files', () => {
         type: 'application/pdf',
       }),
     );
-    expect(() => validateHiddenWorksFiles(fd)).toThrow(ValidationError);
+    expectFieldError(
+      () => validateHiddenWorksFiles(fd),
+      'supporting_evidence',
+      '10 MB or smaller',
+    );
+  });
+
+  it('rejects multiple supporting_rights_documentation files', () => {
+    const fd = new FormData();
+    fd.append(
+      'supporting_rights_documentation',
+      new File([new Uint8Array(8)], 'a.pdf', { type: 'application/pdf' }),
+    );
+    fd.append(
+      'supporting_rights_documentation',
+      new File([new Uint8Array(8)], 'b.pdf', { type: 'application/pdf' }),
+    );
+    expectFieldError(
+      () => validateHiddenWorksFiles(fd),
+      'supporting_rights_documentation',
+      'only one supporting rights document',
+    );
   });
 
   it('rejects total files over 40 MiB', () => {
@@ -545,7 +624,11 @@ describe('hidden works files', () => {
       );
     }
     expect(HIDDEN_WORKS_MAX_TOTAL_FILE_BYTES).toBe(40 * 1024 * 1024);
-    expect(() => validateHiddenWorksFiles(fd)).toThrow(ValidationError);
+    expectFieldError(
+      () => validateHiddenWorksFiles(fd),
+      '__form__',
+      '40 MB in total',
+    );
   });
 
   it('rejects more than 20 files', () => {
@@ -556,7 +639,11 @@ describe('hidden works files', () => {
         new File([new Uint8Array(8)], `d${i}.pdf`, { type: 'application/pdf' }),
       );
     }
-    expect(() => validateHiddenWorksFiles(fd)).toThrow(ValidationError);
+    expectFieldError(
+      () => validateHiddenWorksFiles(fd),
+      '__form__',
+      'no more than 20',
+    );
   });
 
   it('never puts original filenames into R2 object keys', () => {
@@ -645,7 +732,51 @@ describe('unexpected fields', () => {
   it('rejects unexpected non-file field names', () => {
     const fd = new FormData();
     fd.set('evil_field', 'nope');
-    expect(() => collectHiddenWorksTextFields(fd)).toThrow(ValidationError);
+    expectFieldError(
+      () => collectHiddenWorksTextFields(fd),
+      '__form__',
+      'unexpected form field',
+    );
+  });
+
+  it('rejects overlong text field with field-specific message', () => {
+    const fd = new FormData();
+    fd.set('work_title', 'x'.repeat(MAX_STRING_CHARS + 1));
+    expectFieldError(() => collectHiddenWorksTextFields(fd), 'work_title', 'too long');
+  });
+});
+
+describe('hidden works validation error mapping', () => {
+  it('maps FieldValidationError to 400 with field and message', async () => {
+    const response = hiddenWorksValidationErrorResponse(
+      new FieldValidationError('work_title', 'This field is required.'),
+    );
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body).toEqual({
+      success: false,
+      error: 'invalid_submission',
+      field: 'work_title',
+      message: 'This field is required.',
+    });
+  });
+
+  it('maps unexpected internal exceptions to HTTP 500 submission_failed', async () => {
+    const response = hiddenWorksValidationErrorResponse(new Error('boom'));
+    expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body).toEqual({ success: false, error: 'submission_failed' });
+    expect(body).not.toHaveProperty('message');
+    expect(JSON.stringify(body)).not.toContain('boom');
+  });
+
+  it('maps retained ValidationError to generic 400 invalid_submission', async () => {
+    const response = hiddenWorksValidationErrorResponse(new ValidationError());
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: 'invalid_submission',
+    });
   });
 });
 
@@ -683,7 +814,11 @@ describe('hidden works agreement version and consolidated checkboxes', () => {
   it('does not accept retired individual agreement fields as substitutes', () => {
     const fd = new FormData();
     fd.set('agree_age_identity', 'yes');
-    expect(() => collectHiddenWorksTextFields(fd)).toThrow(ValidationError);
+    expectFieldError(
+      () => collectHiddenWorksTextFields(fd),
+      '__form__',
+      'unexpected form field',
+    );
 
     expectFieldError(
       () =>

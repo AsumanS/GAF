@@ -352,10 +352,13 @@ export function collectHiddenWorksTextFields(formData: FormData): {
       continue;
     }
     if (!isAllowedTextFieldName(key)) {
-      throw new ValidationError();
+      fieldFail(
+        '__form__',
+        'The submission contains an unexpected form field. Please refresh the page and try again.',
+      );
     }
     if (value.length > MAX_STRING_CHARS) {
-      throw new ValidationError();
+      fieldFail(key, 'This field is too long.');
     }
     const trimmed = value.trim();
     totalTextBytes += new TextEncoder().encode(trimmed).byteLength;
@@ -427,7 +430,7 @@ function normalizeTeamMembers(
     return { teamMembers: [], participantEmails: [leadEmail] };
   }
   if (entryType !== 'Team') {
-    throw new ValidationError();
+    fieldFail('entry_type', 'This field is required.');
   }
 
   const firstNames = allValues(fields, 'team_first_name[]');
@@ -440,7 +443,9 @@ function normalizeTeamMembers(
   const typedNames = allValues(fields, 'team_typed_legal_name[]');
 
   const count = firstNames.length;
-  if (count < 1) throw new ValidationError();
+  if (count < 1) {
+    fieldFail('entry_type', 'Add at least one team member.');
+  }
 
   if (
     firstNames.length !== count ||
@@ -452,7 +457,10 @@ function normalizeTeamMembers(
     publicCredits.length !== count ||
     typedNames.length !== count
   ) {
-    throw new ValidationError();
+    fieldFail(
+      '__form__',
+      'The team member information is incomplete or inconsistent. Please review the team section.',
+    );
   }
 
   const teamMembers: TeamMemberPayload[] = [];
@@ -697,15 +705,7 @@ export function validateHiddenWorksTextFields(
 
   let teamMembers: TeamMemberPayload[];
   let participantEmails: string[];
-  try {
-    ({ teamMembers, participantEmails } = normalizeTeamMembers(fields, email));
-  } catch (error) {
-    if (error instanceof FieldValidationError) throw error;
-    if (error instanceof ValidationError) {
-      fieldFail('entry_type', 'Please complete the team member information.');
-    }
-    throw error;
-  }
+  ({ teamMembers, participantEmails } = normalizeTeamMembers(fields, email));
 
   const firstName = single(fields, 'legal_first_name');
   const middleName = single(fields, 'legal_middle_name');
@@ -751,38 +751,84 @@ export function validateHiddenWorksTextFields(
   };
 }
 
+function validateHiddenWorksUploadedFile(file: File, spec: AllowedFileSpec): ValidatedUpload {
+  if (file.size <= 0) {
+    fieldFail(spec.fieldName, 'The selected file is empty. Choose a valid file.');
+  }
+  if (file.size > spec.maxBytes) {
+    fieldFail(spec.fieldName, 'Each uploaded file must be 10 MB or smaller.');
+  }
+  try {
+    return validateUploadedFile(file, spec);
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      fieldFail(spec.fieldName, 'This file type is not supported.');
+    }
+    throw error;
+  }
+}
+
 export function validateHiddenWorksFiles(formData: FormData): ValidatedUpload[] {
   const uploads: ValidatedUpload[] = [];
   let totalBytes = 0;
 
-  const seenNames = new Set<string>();
   for (const [key, value] of formData.entries()) {
     if (typeof value === 'string') continue;
-    if (!(value instanceof File)) throw new ValidationError();
-    if (!FILE_FIELD_SPECS[key]) throw new ValidationError();
-    seenNames.add(key);
+    if (!(value instanceof File) || !FILE_FIELD_SPECS[key]) {
+      fieldFail(
+        '__form__',
+        'The submission contains an unexpected file field. Please refresh the page and try again.',
+      );
+    }
   }
 
   for (const [fieldName, spec] of Object.entries(FILE_FIELD_SPECS)) {
     const entries = formData.getAll(fieldName).filter((item): item is File => item instanceof File);
-    const nonempty = entries.filter((file) => file.size > 0);
+    const selected = entries.filter((file) => file.size > 0 || Boolean(file.name));
 
-    if (fieldName === 'supporting_rights_documentation' && nonempty.length > 1) {
-      throw new ValidationError();
+    if (fieldName === 'supporting_rights_documentation') {
+      const nonempty = selected.filter((file) => file.size > 0);
+      if (nonempty.length > 1) {
+        fieldFail(
+          'supporting_rights_documentation',
+          'Upload only one supporting rights document.',
+        );
+      }
     }
 
-    for (const file of nonempty) {
-      const validated = validateUploadedFile(file, spec);
+    for (const file of selected) {
+      const validated = validateHiddenWorksUploadedFile(file, spec);
       totalBytes += validated.sizeBytes;
       uploads.push(validated);
     }
   }
 
-  if (uploads.length > HIDDEN_WORKS_MAX_FILE_COUNT) throw new ValidationError();
-  if (totalBytes > HIDDEN_WORKS_MAX_TOTAL_FILE_BYTES) throw new ValidationError();
+  if (uploads.length > HIDDEN_WORKS_MAX_FILE_COUNT) {
+    fieldFail('__form__', 'You may upload no more than 20 supporting files.');
+  }
+  if (totalBytes > HIDDEN_WORKS_MAX_TOTAL_FILE_BYTES) {
+    fieldFail('__form__', 'Supporting files may not exceed 40 MB in total.');
+  }
 
-  void seenNames;
   return uploads;
+}
+
+export function hiddenWorksValidationErrorResponse(error: unknown): Response {
+  if (error instanceof TextTooLargeError) {
+    return jsonResponse(413, { success: false, error: 'submission_too_large' });
+  }
+  if (error instanceof FieldValidationError) {
+    return jsonResponse(400, {
+      success: false,
+      error: 'invalid_submission',
+      field: error.field,
+      message: error.publicMessage,
+    });
+  }
+  if (error instanceof ValidationError) {
+    return jsonResponse(400, { success: false, error: 'invalid_submission' });
+  }
+  return jsonResponse(500, { success: false, error: 'submission_failed' });
 }
 
 export type ExistingHiddenWorksRow = {
@@ -983,21 +1029,7 @@ export async function handleHiddenWorksSubmit(
     validated = validateHiddenWorksTextFields(fields, idempotencyKey, now);
     uploads = validateHiddenWorksFiles(formData);
   } catch (error) {
-    if (error instanceof TextTooLargeError) {
-      return jsonResponse(413, { success: false, error: 'submission_too_large' });
-    }
-    if (error instanceof FieldValidationError) {
-      return jsonResponse(400, {
-        success: false,
-        error: 'invalid_submission',
-        field: error.field,
-        message: error.publicMessage,
-      });
-    }
-    if (error instanceof ValidationError) {
-      return jsonResponse(400, { success: false, error: 'invalid_submission' });
-    }
-    return jsonResponse(400, { success: false, error: 'invalid_submission' });
+    return hiddenWorksValidationErrorResponse(error);
   }
 
   if (isHiddenWorksContestClosed(now)) {

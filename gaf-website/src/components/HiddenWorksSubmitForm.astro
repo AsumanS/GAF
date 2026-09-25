@@ -1165,9 +1165,45 @@ function clauseLabelParts(clause: AgreementClause) {
 
     function focusNamedField(name) {
       if (!name) return;
+      if (name === '__form__') {
+        if (typeof statusEl.scrollIntoView === 'function') {
+          statusEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+      }
+
+      syncEntryType();
+      syncPenName();
+      syncWorkTypeOther();
+      syncYes('english_translation_aware', 'data-english-yes');
+      (function syncLarger() {
+        const yes = form.querySelector('input[name="larger_work"][value="Yes"]');
+        const wrap = form.querySelector('[data-larger-work-yes]');
+        const on = yes && yes.checked;
+        show(wrap, on);
+      })();
+      syncYes('special_components', 'data-special-components-yes');
+      syncYes('publication_limitations', 'data-pub-limits-yes');
+      (function syncConflicts() {
+        const yes = form.querySelector('input[name="conflicts"][value="Yes"]');
+        const wrap = form.querySelector('[data-conflicts-yes]');
+        const on = yes && yes.checked;
+        show(wrap, on);
+      })();
+      (function syncAssistance() {
+        const yes = form.querySelector('input[name="outside_assistance"][value="Yes"]');
+        const wrap = form.querySelector('[data-assistance-yes]');
+        const on = yes && yes.checked;
+        show(wrap, on);
+      })();
+
       const matches = form.querySelectorAll('[name="' + name + '"]');
       if (!matches.length) return;
       const el = matches[0];
+
+      const agreement = el.closest('[data-agreement-group]');
+      if (agreement) agreement.open = true;
+
       try {
         el.focus();
       } catch (_err) {
