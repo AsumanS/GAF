@@ -20,7 +20,9 @@ export type ApiErrorCode =
   | 'invalid_submission'
   | 'verification_failed'
   | 'submission_too_large'
-  | 'submission_failed';
+  | 'submission_failed'
+  | 'entry_limit_reached'
+  | 'contest_closed';
 
 export type ApiSuccessBody = {
   success: true;
@@ -86,6 +88,9 @@ export function extensionForMime(contentType: string, originalName: string): str
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
     'image/jpeg': 'jpg',
     'image/png': 'png',
+    'text/csv': 'csv',
+    'application/csv': 'csv',
+    'text/plain': 'txt',
   };
 
   if (lowerType in map) return map[lowerType];
@@ -97,6 +102,8 @@ export function extensionForMime(contentType: string, originalName: string): str
     jpg: 'jpg',
     jpeg: 'jpg',
     png: 'png',
+    csv: 'csv',
+    txt: 'txt',
   };
   if (fromName in extMap) return extMap[fromName];
   return null;
@@ -372,7 +379,9 @@ export function validateUploadedFile(file: File, spec: AllowedFileSpec): Validat
     mime && mimeOk
       ? mime === 'image/jpg'
         ? 'image/jpeg'
-        : mime
+        : mime === 'application/csv'
+          ? 'text/csv'
+          : mime
       : ext === 'pdf'
         ? 'application/pdf'
         : ext === 'doc'
@@ -381,7 +390,11 @@ export function validateUploadedFile(file: File, spec: AllowedFileSpec): Validat
             ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
             : ext === 'png'
               ? 'image/png'
-              : 'image/jpeg';
+              : ext === 'csv'
+                ? 'text/csv'
+                : ext === 'txt'
+                  ? 'text/plain'
+                  : 'image/jpeg';
 
   const validatedExtension = ext === 'jpeg' ? 'jpg' : ext;
 
@@ -430,11 +443,117 @@ export function isMultipartFormData(contentType: string | null): boolean {
   return contentType.toLowerCase().includes('multipart/form-data');
 }
 
-export function contentLengthTooLarge(contentLengthHeader: string | null): boolean {
+export function contentLengthTooLarge(
+  contentLengthHeader: string | null,
+  maxBytes: number = MAX_REQUEST_BYTES,
+): boolean {
   if (contentLengthHeader === null || contentLengthHeader === '') return false;
   const length = Number(contentLengthHeader);
   if (!Number.isFinite(length) || length < 0) return true;
-  return length > MAX_REQUEST_BYTES;
+  return length > maxBytes;
+}
+
+export async function verifyTurnstileToken(
+  token: string,
+  secret: string,
+  remoteIp: string | null,
+  expectedAction: string,
+  expectedHostname: string,
+): Promise<boolean> {
+  const body = new URLSearchParams();
+  body.set('secret', secret);
+  body.set('response', token);
+  if (remoteIp) {
+    body.set('remoteip', remoteIp);
+  }
+
+  const response = await fetch(
+    'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+    {
+      method: 'POST',
+      body,
+    },
+  );
+
+  if (!response.ok) {
+    return false;
+  }
+
+  const result = (await response.json()) as TurnstileSiteverifyResult;
+  return isTurnstileAccepted(result, expectedAction, expectedHostname);
+}
+
+/** Calendar date YYYY-MM-DD in America/Chicago. */
+export function chicagoCalendarDate(now: Date = new Date()): string {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Chicago',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(now);
+  const year = parts.find((part) => part.type === 'year')?.value;
+  const month = parts.find((part) => part.type === 'month')?.value;
+  const day = parts.find((part) => part.type === 'day')?.value;
+  if (!year || !month || !day) {
+    throw new ValidationError();
+  }
+  return `${year}-${month}-${day}`;
+}
+
+export function isHttpOrHttpsUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+export function countWhitespaceSeparatedWords(text: string): number {
+  const trimmed = text.trim();
+  if (!trimmed) return 0;
+  return trimmed.split(/\s+/).filter(Boolean).length;
+}
+
+/**
+ * Returns true when DOB (YYYY-MM-DD) is a real past date and the person is at least
+ * minAge on the America/Chicago calendar date of `onDate`.
+ */
+export function isAtLeastAgeOnChicagoDate(
+  dateOfBirth: string,
+  onDate: Date,
+  minAge: number,
+): boolean {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateOfBirth.trim());
+  if (!match) return false;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const probe = new Date(Date.UTC(year, month - 1, day));
+  if (
+    probe.getUTCFullYear() !== year ||
+    probe.getUTCMonth() !== month - 1 ||
+    probe.getUTCDate() !== day
+  ) {
+    return false;
+  }
+
+  const today = chicagoCalendarDate(onDate);
+  const todayMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(today);
+  if (!todayMatch) return false;
+  const ty = Number(todayMatch[1]);
+  const tm = Number(todayMatch[2]);
+  const td = Number(todayMatch[3]);
+
+  if (year > ty || (year === ty && month > tm) || (year === ty && month === tm && day > td)) {
+    return false;
+  }
+
+  let age = ty - year;
+  if (tm < month || (tm === month && td < day)) {
+    age -= 1;
+  }
+  return age >= minAge;
 }
 
 export function existingVolunteerSubmissionResponse(submissionId: string): {

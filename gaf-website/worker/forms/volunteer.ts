@@ -9,7 +9,6 @@ import {
   contentLengthTooLarge,
   existingVolunteerSubmissionResponse,
   isMultipartFormData,
-  isTurnstileAccepted,
   jsonResponse,
   methodNotAllowed,
   newEntityId,
@@ -18,38 +17,9 @@ import {
   requireSameOrigin,
   validateVolunteerFiles,
   validateVolunteerTextFields,
-  type TurnstileSiteverifyResult,
+  verifyTurnstileToken,
   type ValidatedUpload,
 } from './common';
-
-async function verifyTurnstile(
-  token: string,
-  secret: string,
-  remoteIp: string | null,
-  expectedHostname: string,
-): Promise<boolean> {
-  const body = new URLSearchParams();
-  body.set('secret', secret);
-  body.set('response', token);
-  if (remoteIp) {
-    body.set('remoteip', remoteIp);
-  }
-
-  const response = await fetch(
-    'https://challenges.cloudflare.com/turnstile/v0/siteverify',
-    {
-      method: 'POST',
-      body,
-    },
-  );
-
-  if (!response.ok) {
-    return false;
-  }
-
-  const result = (await response.json()) as TurnstileSiteverifyResult;
-  return isTurnstileAccepted(result, VOLUNTEER_TURNSTILE_ACTION, expectedHostname);
-}
 
 async function rollbackSubmission(
   env: Env,
@@ -157,10 +127,11 @@ export async function handleVolunteerSubmit(
   const remoteIp = request.headers.get('CF-Connecting-IP');
   let turnstileOk = false;
   try {
-    turnstileOk = await verifyTurnstile(
+    turnstileOk = await verifyTurnstileToken(
       turnstileToken,
       env.TURNSTILE_SECRET_KEY,
       remoteIp,
+      VOLUNTEER_TURNSTILE_ACTION,
       hostname,
     );
   } catch {

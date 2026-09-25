@@ -1,4 +1,5 @@
 import type { Env } from './env';
+import { handleHiddenWorksSubmit } from './forms/hiddenWorks';
 import { handleVolunteerSubmit } from './forms/volunteer';
 import { jsonResponse } from './forms/common';
 
@@ -11,6 +12,9 @@ export default {
     if (url.pathname.startsWith('/api/')) {
       if (url.pathname === '/api/forms/volunteer') {
         return handleVolunteerSubmit(request, env);
+      }
+      if (url.pathname === '/api/forms/hidden-works') {
+        return handleHiddenWorksSubmit(request, env);
       }
 
       return jsonResponse(404, {

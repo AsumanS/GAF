@@ -8,7 +8,8 @@ import {
 } from '../content/projects/hidden-works-submit';
 
 const formAction = site.hiddenWorksSubmitFormAction.trim();
-const canSubmit = Boolean(formAction);
+const turnstileSiteKey = (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '').trim();
+const canSubmit = Boolean(formAction && turnstileSiteKey);
 
 function agreementLabel(item: AgreementItem) {
   if (!item.link?.text) return item.label;
@@ -28,7 +29,10 @@ function agreementLabel(item: AgreementItem) {
   enctype="multipart/form-data"
   action={canSubmit ? formAction : undefined}
   data-submit-form
+  data-form-action={canSubmit ? formAction : ''}
+  data-turnstile-sitekey={canSubmit ? turnstileSiteKey : ''}
 >
+  <input type="hidden" name="submission_idempotency_key" value="" autocomplete="off" />
   <!-- Participant Information -->
   <section class="volunteer-form-section" aria-labelledby="participant-heading">
     <h2 id="participant-heading" class="volunteer-form-section-title">Participant Information</h2>
@@ -285,7 +289,7 @@ function agreementLabel(item: AgreementItem) {
         accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
         multiple
       />
-      <p class="field-hint">Accepted file types: PDF, JPG, PNG</p>
+      <p class="field-hint">Optional. PDF, JPG, or PNG. Multiple files allowed. Max 10 MB each.</p>
     </div>
   </section>
 
@@ -412,8 +416,15 @@ function agreementLabel(item: AgreementItem) {
     </div>
     <div class="field mt-5">
       <label for="rights-docs">Supporting Rights Documentation</label>
-      <input id="rights-docs" name="supporting_rights_documentation" type="file" />
-      <p class="field-hint">{c.publicDomainNote}</p>
+      <input
+        id="rights-docs"
+        name="supporting_rights_documentation"
+        type="file"
+        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png"
+      />
+      <p class="field-hint">
+        Optional. Single file. PDF, Word, JPG, or PNG. Max 10 MB. {c.publicDomainNote}
+      </p>
     </div>
   </section>
 
@@ -510,7 +521,16 @@ function agreementLabel(item: AgreementItem) {
     </div>
     <div class="field mt-5">
       <label for="search-records">Supporting Search Records</label>
-      <input id="search-records" name="supporting_search_records" type="file" multiple />
+      <input
+        id="search-records"
+        name="supporting_search_records"
+        type="file"
+        multiple
+        accept=".pdf,.doc,.docx,.csv,.txt,.jpg,.jpeg,.png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/jpeg,image/png"
+      />
+      <p class="field-hint">
+        Optional. PDF, Word, CSV, TXT, JPG, or PNG. Multiple files allowed. Max 10 MB each.
+      </p>
     </div>
   </section>
 
@@ -685,7 +705,17 @@ function agreementLabel(item: AgreementItem) {
     </div>
     <div class="field mt-5">
       <label for="additional-documents">Additional Supporting Documents</label>
-      <input id="additional-documents" name="additional_documents" type="file" multiple />
+      <input
+        id="additional-documents"
+        name="additional_documents"
+        type="file"
+        multiple
+        accept=".pdf,.doc,.docx,.csv,.txt,.jpg,.jpeg,.png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/jpeg,image/png"
+      />
+      <p class="field-hint">
+        Optional. PDF, Word, CSV, TXT, JPG, or PNG. Multiple files allowed. Max 10 MB each. Total
+        supporting files for one submission may not exceed 20 files or 40 MB.
+      </p>
     </div>
   </section>
 
@@ -755,14 +785,32 @@ function agreementLabel(item: AgreementItem) {
     <div class="mt-4 space-y-4 hidden" data-team-typed-names hidden></div>
   </section>
 
+  <div class="volunteer-turnstile" data-turnstile-widget aria-hidden="true"></div>
+
   <div class="volunteer-form-actions">
-    <button type="submit" class="project-involve-cta" disabled={!canSubmit}>
+    <p
+      class="volunteer-submit-status body-copy"
+      data-submit-status
+      aria-live="polite"
+      aria-atomic="true"
+    ></p>
+    <button type="submit" class="project-involve-cta" data-submit-button disabled={!canSubmit}>
       Submit a Hidden Work
       <span aria-hidden="true">→</span>
     </button>
   </div>
 </form>
 
+{
+  canSubmit ? (
+    <script
+      is:inline
+      src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+      async
+      defer
+    ></script>
+  ) : null
+}
 <template id="team-member-template">
   <div class="border border-rule p-5" data-team-member>
     <div class="volunteer-form-grid">
@@ -1005,5 +1053,182 @@ function agreementLabel(item: AgreementItem) {
     syncEntryType();
     syncPenName();
     syncWorkTypeOther();
+
+    const formAction = form.getAttribute('data-form-action') || '';
+    const sitekey = form.getAttribute('data-turnstile-sitekey') || '';
+    const submitButton = form.querySelector('[data-submit-button]');
+    const statusEl = form.querySelector('[data-submit-status]');
+    const widgetHost = form.querySelector('[data-turnstile-widget]');
+    const idempotencyInput = form.querySelector('input[name="submission_idempotency_key"]');
+
+    if (idempotencyInput && !idempotencyInput.value) {
+      idempotencyInput.value =
+        typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : String(Date.now()) + '-' + Math.random().toString(16).slice(2);
+    }
+
+    if (!formAction || !sitekey || !submitButton || !statusEl || !widgetHost) {
+      return;
+    }
+
+    let widgetId = null;
+    let submitting = false;
+    let tokenResolver = null;
+    let tokenRejecter = null;
+
+    function setStatus(message) {
+      statusEl.textContent = message || '';
+    }
+
+    function errorMessageForResponse(status, errorCode) {
+      if (status === 413 || errorCode === 'submission_too_large') {
+        return 'This submission is too large. Please reduce the size or number of supporting files and try again.';
+      }
+      if (status === 403 || errorCode === 'verification_failed') {
+        return 'Verification failed. Please try again.';
+      }
+      if (status === 409 && errorCode === 'entry_limit_reached') {
+        return 'The two-entry limit for this contest cycle has been reached for one or more participants in this submission.';
+      }
+      if (status === 409 && errorCode === 'contest_closed') {
+        return 'The submission period for this contest is closed.';
+      }
+      if (status === 400 || errorCode === 'invalid_submission') {
+        return 'Please check the form and correct any missing or invalid information.';
+      }
+      return 'Something went wrong. Please try again.';
+    }
+
+    function ensureTurnstileTokenInput(token) {
+      let input = form.querySelector('input[name="cf-turnstile-response"]');
+      if (!input) {
+        input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'cf-turnstile-response';
+        form.appendChild(input);
+      }
+      input.value = token;
+    }
+
+    function executeTurnstile() {
+      return new Promise((resolve, reject) => {
+        tokenResolver = resolve;
+        tokenRejecter = reject;
+        if (widgetId === null || !window.turnstile) {
+          reject(new Error('turnstile_unavailable'));
+          return;
+        }
+        window.turnstile.execute(widgetId);
+      });
+    }
+
+    function renderWidget() {
+      if (!window.turnstile || widgetId !== null) return;
+      widgetId = window.turnstile.render(widgetHost, {
+        sitekey: sitekey,
+        execution: 'execute',
+        appearance: 'interaction-only',
+        action: 'hidden_works_submit',
+        callback: function (token) {
+          if (tokenResolver) {
+            tokenResolver(token);
+            tokenResolver = null;
+            tokenRejecter = null;
+          }
+        },
+        'error-callback': function () {
+          if (tokenRejecter) {
+            tokenRejecter(new Error('turnstile_error'));
+            tokenResolver = null;
+            tokenRejecter = null;
+          }
+          return true;
+        },
+        'expired-callback': function () {
+          if (tokenRejecter) {
+            tokenRejecter(new Error('turnstile_expired'));
+            tokenResolver = null;
+            tokenRejecter = null;
+          }
+        },
+      });
+    }
+
+    function waitForTurnstile(attempt) {
+      if (window.turnstile) {
+        renderWidget();
+        return;
+      }
+      if (attempt > 200) return;
+      setTimeout(function () {
+        waitForTurnstile(attempt + 1);
+      }, 50);
+    }
+
+    waitForTurnstile(0);
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (submitting) return;
+
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      submitting = true;
+      submitButton.disabled = true;
+      setStatus('Verifying…');
+
+      try {
+        if (widgetId === null) {
+          renderWidget();
+        }
+        const token = await executeTurnstile();
+        ensureTurnstileTokenInput(token);
+
+        setStatus('Submitting your entry…');
+        const body = new FormData(form);
+        const response = await fetch(formAction, {
+          method: 'POST',
+          body: body,
+          credentials: 'same-origin',
+        });
+
+        let data = null;
+        try {
+          data = await response.json();
+        } catch (_err) {
+          data = null;
+        }
+
+        if (response.ok && data && data.success && data.submission_id) {
+          setStatus(
+            'Your Hidden Works submission has been received.\n\nSubmission reference: ' +
+              data.submission_id +
+              '\n\nThis confirmation means that your submission was received. It does not mean that the submission has passed initial eligibility review or been counted toward the 100 eligible submissions accepted for review.',
+          );
+          form.querySelectorAll('input, textarea, select, button').forEach((el) => {
+            el.disabled = true;
+          });
+          return;
+        }
+
+        setStatus(errorMessageForResponse(response.status, data && data.error));
+        if (window.turnstile && widgetId !== null) {
+          window.turnstile.reset(widgetId);
+        }
+        submitButton.disabled = false;
+        submitting = false;
+      } catch (_err) {
+        setStatus('Something went wrong. Please try again.');
+        if (window.turnstile && widgetId !== null) {
+          window.turnstile.reset(widgetId);
+        }
+        submitButton.disabled = false;
+        submitting = false;
+      }
+    });
   })();
 </script>

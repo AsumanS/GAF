@@ -121,7 +121,7 @@ export const site: SiteConfig = {
   submissionsOpen: false,
   volunteerApplicationsOpen: false,
   volunteerFormAction: '/api/forms/volunteer',
-  hiddenWorksSubmitFormAction: '',
+  hiddenWorksSubmitFormAction: '/api/forms/hidden-works',
   defaultOgImage: '/images/foundation/og-default.png',
   tagline: 'Stories from the Past. Service for the Future.',
   description:
