@@ -20,5 +20,8 @@
       "binding": "SUBMISSION_FILES",
       "bucket_name": "gaf-submission-files"
     }
-  ]
+  ],
+  "secrets": {
+    "required": ["TURNSTILE_SECRET_KEY"]
+    } 
 }
