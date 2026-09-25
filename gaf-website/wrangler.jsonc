@@ -14,5 +14,11 @@
       "database_name": "gaf-submissions",
       "database_id": "73d52a84-d3cd-4a09-9cc7-4c99e08202c6"
     }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "SUBMISSION_FILES",
+      "bucket_name": "gaf-submission-files"
+    }
   ]
 }
