@@ -312,6 +312,19 @@ export async function buildSubmissionEmail(
   return { subject, body, rfc2822 };
 }
 
+export function buildPlainTextNotificationRfc2822(subject: string, body: string): string {
+  return [
+    `From: Golden Archive Foundation <${NOTIFICATION_MAILBOX}>`,
+    `To: ${NOTIFICATION_MAILBOX}`,
+    `Subject: ${encodeRfc2047(sanitizeHeader(subject))}`,
+    'MIME-Version: 1.0',
+    'Content-Type: text/plain; charset=UTF-8',
+    'Content-Transfer-Encoding: base64',
+    '',
+    wrapBase64(bytesToBase64(new TextEncoder().encode(body))),
+  ].join('\r\n');
+}
+
 export async function deliverGmailMessage(env: Env, rfc2822: string): Promise<void> {
   const tokenResponse = await fetch(buildGmailRefreshTokenRequest(credentialsFromEnv(env)));
   if (!tokenResponse.ok) {
@@ -365,11 +378,18 @@ export function scheduleSubmissionNotification(
   ctx: ExecutionContext | undefined,
   env: Env,
   submissionId: string,
+  formType?: string,
 ): void {
   if (!ctx) return;
   ctx.waitUntil(
     sendSubmissionNotification(env, submissionId).catch(() => {
-      // Best-effort. Do not log PII, payloads, or credentials.
+      console.error(
+        JSON.stringify({
+          marker: 'submission_notification_email_failed',
+          submission_id: submissionId,
+          form_type: formType ?? 'unknown',
+        }),
+      );
     }),
   );
 }

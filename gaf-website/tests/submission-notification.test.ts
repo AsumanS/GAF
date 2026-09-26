@@ -731,7 +731,7 @@ describe('notification scheduling', () => {
   });
 
   it('does not schedule a notification when volunteer file persistence fails', async () => {
-    installFetch(VOLUNTEER_TURNSTILE_ACTION, 'example.com', {
+    const calls = installFetch(VOLUNTEER_TURNSTILE_ACTION, 'example.com', {
       fail: false,
       gate: Promise.resolve(),
     });
@@ -742,11 +742,30 @@ describe('notification scheduling', () => {
     const { ctx, tasks } = createCtx();
     const response = await handleVolunteerSubmit(volunteerRequest(), env, ctx);
     expect(response.status).toBe(500);
-    expect(tasks).toHaveLength(0);
+    const body = (await response.json()) as { error?: string; incident_id?: string };
+    expect(body).toEqual({ success: false, error: 'submission_failed' });
+    expect(JSON.stringify(body)).not.toContain('incident_id');
+    // Internal error report may be scheduled; submission notification must not.
+    expect(tasks).toHaveLength(1);
+    await Promise.allSettled(tasks);
+    const sendBodies = calls
+      .filter((call) => call.url === GMAIL_SEND_URL)
+      .map((call) => {
+        const parsed = JSON.parse(call.body) as { raw?: string };
+        const raw = parsed.raw ?? '';
+        const padded =
+          raw.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (raw.length % 4)) % 4);
+        const binary = atob(padded);
+        return new TextDecoder().decode(Uint8Array.from(binary, (c) => c.charCodeAt(0)));
+      });
+    expect(sendBodies).toHaveLength(1);
+    expect(decodeRfc2047(headerValue(sendBodies[0]!, 'Subject'))).toContain('[GAF ERROR]');
+    expect(headerValue(sendBodies[0]!, 'Reply-To')).toBe('');
+    expect(decodeMimeBody(sendBodies[0]!)).not.toContain('ada@example.com');
   });
 
   it('does not schedule a notification when hidden works file persistence fails', async () => {
-    installFetch(HIDDEN_WORKS_TURNSTILE_ACTION, 'example.com', {
+    const calls = installFetch(HIDDEN_WORKS_TURNSTILE_ACTION, 'example.com', {
       fail: false,
       gate: Promise.resolve(),
     });
@@ -761,7 +780,27 @@ describe('notification scheduling', () => {
     );
     expect(response.status).toBe(500);
     expect(bucket.putCount).toBe(1);
-    expect(tasks).toHaveLength(0);
+    const body = (await response.json()) as { success?: boolean; error?: string };
+    expect(body).toEqual({ success: false, error: 'submission_failed' });
+    expect(JSON.stringify(body)).not.toContain('incident_id');
+    expect(tasks).toHaveLength(1);
+    await Promise.allSettled(tasks);
+    const sendBodies = calls
+      .filter((call) => call.url === GMAIL_SEND_URL)
+      .map((call) => {
+        const parsed = JSON.parse(call.body) as { raw?: string };
+        const raw = parsed.raw ?? '';
+        const padded =
+          raw.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (raw.length % 4)) % 4);
+        const binary = atob(padded);
+        return new TextDecoder().decode(Uint8Array.from(binary, (c) => c.charCodeAt(0)));
+      });
+    expect(sendBodies).toHaveLength(1);
+    expect(decodeRfc2047(headerValue(sendBodies[0]!, 'Subject'))).toContain(
+      '[GAF ERROR] Hidden Works — file_persist',
+    );
+    expect(headerValue(sendBodies[0]!, 'Reply-To')).toBe('');
+    expect(decodeMimeBody(sendBodies[0]!)).not.toContain('Example Work');
   });
 
   it('does not schedule a second notification for an idempotent replay', async () => {

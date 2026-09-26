@@ -1,5 +1,7 @@
-import { workTypeOptions } from '../../src/content/projects/hidden-works-submit';
 import type { Env } from '../env';
+import { internalFailureResponse, scheduleInternalErrorReport } from '../errorNotification';
+import { createRequestTimer } from '../requestTiming';
+import { scheduleSubmissionNotification } from '../submissionEmail';
 import {
   MAX_SINGLE_FILE_BYTES,
   MAX_STRING_CHARS,
@@ -26,7 +28,7 @@ import {
   type ApiSuccessBody,
   type ValidatedUpload,
 } from './common';
-import { scheduleSubmissionNotification } from '../submissionEmail';
+import { workTypeOptions } from '../../src/content/projects/hidden-works-submit';
 
 export const HIDDEN_WORKS_AGREEMENT_VERSION = 'hidden-works-2026-09-25-v2';
 export const HIDDEN_WORKS_TURNSTILE_ACTION = 'hidden_works_submit';
@@ -927,9 +929,9 @@ async function persistFiles(
         )
         .run();
     }
-  } catch {
+  } catch (error) {
     await rollbackSubmission(env, submissionId, uploadedKeys);
-    throw new Error('file_persist_failed');
+    throw new Error('file_persist_failed', { cause: error });
   }
 }
 
@@ -963,137 +965,211 @@ export async function handleHiddenWorksSubmit(
     return jsonResponse(413, { success: false, error: 'submission_too_large' });
   }
 
-  let formData: FormData;
+  const timer = createRequestTimer('hidden_works', request);
   try {
-    formData = await request.formData();
-  } catch {
-    return jsonResponse(400, { success: false, error: 'invalid_submission' });
-  }
+    let formData: FormData;
+    let stageStarted = Date.now();
+    try {
+      formData = await request.formData();
+      timer.recordStage('formdata_parse', stageStarted);
+    } catch {
+      timer.recordStage('formdata_parse', stageStarted);
+      return jsonResponse(400, { success: false, error: 'invalid_submission' });
+    }
 
-  const turnstileToken = String(formData.get('cf-turnstile-response') ?? '').trim();
-  if (!turnstileToken) {
-    return jsonResponse(403, { success: false, error: 'verification_failed' });
-  }
+    const turnstileToken = String(formData.get('cf-turnstile-response') ?? '').trim();
+    if (!turnstileToken) {
+      return jsonResponse(403, { success: false, error: 'verification_failed' });
+    }
 
-  const hostname = new URL(request.url).hostname;
-  const remoteIp = request.headers.get('CF-Connecting-IP');
-  let turnstileOk = false;
-  try {
-    turnstileOk = await verifyTurnstileToken(
-      turnstileToken,
-      env.TURNSTILE_SECRET_KEY,
-      remoteIp,
-      HIDDEN_WORKS_TURNSTILE_ACTION,
-      hostname,
-    );
-  } catch {
-    return jsonResponse(403, { success: false, error: 'verification_failed' });
-  }
-  if (!turnstileOk) {
-    return jsonResponse(403, { success: false, error: 'verification_failed' });
-  }
+    const hostname = new URL(request.url).hostname;
+    const remoteIp = request.headers.get('CF-Connecting-IP');
+    let turnstileOk = false;
+    stageStarted = Date.now();
+    try {
+      turnstileOk = await verifyTurnstileToken(
+        turnstileToken,
+        env.TURNSTILE_SECRET_KEY,
+        remoteIp,
+        HIDDEN_WORKS_TURNSTILE_ACTION,
+        hostname,
+      );
+    } catch (error) {
+      timer.recordStage('turnstile_verify', stageStarted);
+      scheduleInternalErrorReport(ctx, env, {
+        formType: 'hidden_works',
+        stage: 'turnstile_verify',
+        request,
+        error,
+      });
+      return jsonResponse(403, { success: false, error: 'verification_failed' });
+    }
+    timer.recordStage('turnstile_verify', stageStarted);
+    if (!turnstileOk) {
+      return jsonResponse(403, { success: false, error: 'verification_failed' });
+    }
 
-  const idempotencyRaw = formData.get('submission_idempotency_key');
-  const idempotencyKey = typeof idempotencyRaw === 'string' ? idempotencyRaw.trim() : '';
-  if (!idempotencyKey) {
-    return jsonResponse(400, { success: false, error: 'invalid_submission' });
-  }
+    const idempotencyRaw = formData.get('submission_idempotency_key');
+    const idempotencyKey = typeof idempotencyRaw === 'string' ? idempotencyRaw.trim() : '';
+    if (!idempotencyKey) {
+      return jsonResponse(400, { success: false, error: 'invalid_submission' });
+    }
 
-  try {
-    const existing = await env.SUBMISSIONS_DB.prepare(
-      `SELECT id FROM submissions
+    stageStarted = Date.now();
+    try {
+      const existing = await env.SUBMISSIONS_DB.prepare(
+        `SELECT id FROM submissions
        WHERE idempotency_key = ? AND form_type = ?
        LIMIT 1`,
-    )
-      .bind(idempotencyKey, HIDDEN_WORKS_FORM_TYPE)
-      .first<{ id: string }>();
+      )
+        .bind(idempotencyKey, HIDDEN_WORKS_FORM_TYPE)
+        .first<{ id: string }>();
 
-    if (existing?.id) {
-      const replay = existingHiddenWorksSubmissionResponse(existing.id);
-      return jsonResponse(replay.status, replay.body);
+      timer.recordStage('idempotency_lookup', stageStarted);
+      if (existing?.id) {
+        const replay = existingHiddenWorksSubmissionResponse(existing.id);
+        return jsonResponse(replay.status, replay.body);
+      }
+    } catch (error) {
+      timer.recordStage('idempotency_lookup', stageStarted);
+      return internalFailureResponse(
+        ctx,
+        env,
+        request,
+        'hidden_works',
+        'idempotency_lookup',
+        error,
+      );
     }
-  } catch {
-    return jsonResponse(500, { success: false, error: 'submission_failed' });
-  }
 
-  let validated: HiddenWorksValidated;
-  let uploads: ValidatedUpload[];
-  try {
-    const { fields } = collectHiddenWorksTextFields(formData);
-    validated = validateHiddenWorksTextFields(fields, idempotencyKey, now);
-    uploads = validateHiddenWorksFiles(formData);
-  } catch (error) {
-    return hiddenWorksValidationErrorResponse(error);
-  }
+    let validated: HiddenWorksValidated;
+    let uploads: ValidatedUpload[];
+    stageStarted = Date.now();
+    try {
+      const { fields } = collectHiddenWorksTextFields(formData);
+      validated = validateHiddenWorksTextFields(fields, idempotencyKey, now);
+      uploads = validateHiddenWorksFiles(formData);
+      timer.recordStage('validation', stageStarted);
+    } catch (error) {
+      timer.recordStage('validation', stageStarted);
+      return hiddenWorksValidationErrorResponse(error);
+    }
 
-  if (isHiddenWorksContestClosed(now)) {
-    return jsonResponse(409, { success: false, error: 'contest_closed' });
-  }
+    if (isHiddenWorksContestClosed(now)) {
+      return jsonResponse(409, { success: false, error: 'contest_closed' });
+    }
 
-  try {
-    const eligible = await env.SUBMISSIONS_DB.prepare(
-      `SELECT COUNT(DISTINCT se.submission_id) AS cnt
+    stageStarted = Date.now();
+    try {
+      const eligible = await env.SUBMISSIONS_DB.prepare(
+        `SELECT COUNT(DISTINCT se.submission_id) AS cnt
        FROM submission_events se
        INNER JOIN submissions s ON s.id = se.submission_id
        WHERE s.form_type = ? AND se.event_type = 'eligible'`,
-    )
-      .bind(HIDDEN_WORKS_FORM_TYPE)
-      .first<{ cnt: number }>();
+      )
+        .bind(HIDDEN_WORKS_FORM_TYPE)
+        .first<{ cnt: number }>();
 
-    if (isEligibleCapReached(Number(eligible?.cnt ?? 0))) {
-      return jsonResponse(409, { success: false, error: 'contest_closed' });
+      timer.recordStage('eligible_cap_query', stageStarted);
+      if (isEligibleCapReached(Number(eligible?.cnt ?? 0))) {
+        return jsonResponse(409, { success: false, error: 'contest_closed' });
+      }
+    } catch (error) {
+      timer.recordStage('eligible_cap_query', stageStarted);
+      return internalFailureResponse(
+        ctx,
+        env,
+        request,
+        'hidden_works',
+        'eligible_cap_query',
+        error,
+      );
     }
-  } catch {
-    return jsonResponse(500, { success: false, error: 'submission_failed' });
-  }
 
-  try {
-    const existingRows = await env.SUBMISSIONS_DB.prepare(
-      `SELECT email, payload_json FROM submissions WHERE form_type = ?`,
-    )
-      .bind(HIDDEN_WORKS_FORM_TYPE)
-      .all<ExistingHiddenWorksRow>();
+    stageStarted = Date.now();
+    try {
+      const existingRows = await env.SUBMISSIONS_DB.prepare(
+        `SELECT email, payload_json FROM submissions WHERE form_type = ?`,
+      )
+        .bind(HIDDEN_WORKS_FORM_TYPE)
+        .all<ExistingHiddenWorksRow>();
 
-    if (hasReachedEntryLimit(validated.participantEmails, existingRows.results ?? [])) {
-      return jsonResponse(409, { success: false, error: 'entry_limit_reached' });
+      timer.recordStage('entry_limit_query', stageStarted);
+      if (hasReachedEntryLimit(validated.participantEmails, existingRows.results ?? [])) {
+        return jsonResponse(409, { success: false, error: 'entry_limit_reached' });
+      }
+    } catch (error) {
+      timer.recordStage('entry_limit_query', stageStarted);
+      return internalFailureResponse(
+        ctx,
+        env,
+        request,
+        'hidden_works',
+        'entry_limit_query',
+        error,
+      );
     }
-  } catch {
-    return jsonResponse(500, { success: false, error: 'submission_failed' });
-  }
 
-  const submissionId = newHiddenWorksSubmissionId();
+    const submissionId = newHiddenWorksSubmissionId();
+    timer.setSubmissionId(submissionId);
 
-  try {
-    await env.SUBMISSIONS_DB.batch([
-      env.SUBMISSIONS_DB.prepare(
-        `INSERT INTO submissions (
+    stageStarted = Date.now();
+    try {
+      await env.SUBMISSIONS_DB.batch([
+        env.SUBMISSIONS_DB.prepare(
+          `INSERT INTO submissions (
           id, form_type, status, legal_name, email, payload_json, idempotency_key, agreement_version
         ) VALUES (?, ?, 'received', ?, ?, ?, ?, ?)`,
-      ).bind(
+        ).bind(
+          submissionId,
+          HIDDEN_WORKS_FORM_TYPE,
+          validated.legalName,
+          validated.email,
+          validated.payloadJson,
+          validated.idempotencyKey,
+          HIDDEN_WORKS_AGREEMENT_VERSION,
+        ),
+        env.SUBMISSIONS_DB.prepare(HIDDEN_WORKS_RECEIVED_EVENT_SQL).bind(submissionId),
+      ]);
+      timer.recordStage('submission_persist', stageStarted);
+    } catch (error) {
+      timer.recordStage('submission_persist', stageStarted);
+      return internalFailureResponse(
+        ctx,
+        env,
+        request,
+        'hidden_works',
+        'submission_persist',
+        error,
         submissionId,
-        HIDDEN_WORKS_FORM_TYPE,
-        validated.legalName,
-        validated.email,
-        validated.payloadJson,
-        validated.idempotencyKey,
-        HIDDEN_WORKS_AGREEMENT_VERSION,
-      ),
-      env.SUBMISSIONS_DB.prepare(HIDDEN_WORKS_RECEIVED_EVENT_SQL).bind(submissionId),
-    ]);
-  } catch {
-    return jsonResponse(500, { success: false, error: 'submission_failed' });
+      );
+    }
+
+    stageStarted = Date.now();
+    try {
+      await persistFiles(env, submissionId, uploads);
+      timer.recordStage('file_persist', stageStarted);
+    } catch (error) {
+      timer.recordStage('file_persist', stageStarted);
+      return internalFailureResponse(
+        ctx,
+        env,
+        request,
+        'hidden_works',
+        'file_persist',
+        error,
+        submissionId,
+      );
+    }
+
+    // total_request stops here — Gmail notification is waitUntil background work.
+    scheduleSubmissionNotification(ctx, env, submissionId, HIDDEN_WORKS_FORM_TYPE);
+
+    const created = newHiddenWorksSubmissionResponse(submissionId);
+    return jsonResponse(created.status, created.body);
+  } finally {
+    timer.finishTotal();
   }
-
-  try {
-    await persistFiles(env, submissionId, uploads);
-  } catch {
-    return jsonResponse(500, { success: false, error: 'submission_failed' });
-  }
-
-  scheduleSubmissionNotification(ctx, env, submissionId);
-
-  const created = newHiddenWorksSubmissionResponse(submissionId);
-  return jsonResponse(created.status, created.body);
 }
 
 // Re-export for tests that assert filename sanitization utilities stay shared.
