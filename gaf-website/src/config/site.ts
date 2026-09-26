@@ -122,7 +122,7 @@ export const site: SiteConfig = {
   volunteerApplicationsOpen: false,
   volunteerFormAction: '/api/forms/volunteer',
   hiddenWorksSubmitFormAction: '/api/forms/hidden-works',
-  defaultOgImage: '/images/foundation/og-default.png',
+  defaultOgImage: '/images/foundation/logo.png',
   tagline: 'Stories from the Past. Service for the Future.',
   description:
     'Bringing ancient stories, cultural memory, and creative service to modern audiences.',
