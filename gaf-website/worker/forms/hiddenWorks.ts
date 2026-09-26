@@ -26,6 +26,7 @@ import {
   type ApiSuccessBody,
   type ValidatedUpload,
 } from './common';
+import { scheduleSubmissionNotification } from '../submissionEmail';
 
 export const HIDDEN_WORKS_AGREEMENT_VERSION = 'hidden-works-2026-09-25-v2';
 export const HIDDEN_WORKS_TURNSTILE_ACTION = 'hidden_works_submit';
@@ -188,11 +189,7 @@ const REQUIRED_LEAD_FIELDS = [
   'typed_legal_name',
 ] as const;
 
-const PDF_IMAGE_MIME = new Set([
-  'application/pdf',
-  'image/jpeg',
-  'image/png',
-]);
+const PDF_IMAGE_MIME = new Set(['application/pdf', 'image/jpeg', 'image/png']);
 const DOC_PDF_IMAGE_MIME = new Set([
   'application/pdf',
   'application/msword',
@@ -249,8 +246,7 @@ const FILE_FIELD_SPECS: Record<string, AllowedFileSpec> = {
 /** File inputs are never text fields. Derived from the upload specs above. */
 const HIDDEN_WORKS_FILE_FIELD_NAMES = new Set<string>(Object.keys(FILE_FIELD_SPECS));
 
-const INVALID_FILE_FIELD_MESSAGE =
-  'This file field is invalid. Please choose the file again.';
+const INVALID_FILE_FIELD_MESSAGE = 'This file field is invalid. Please choose the file again.';
 
 /**
  * Some runtimes represent an unselected multipart file input as an empty string.
@@ -284,19 +280,13 @@ export type HiddenWorksValidated = {
   participantEmails: string[];
 };
 
-function single(
-  fields: Record<string, string | string[]>,
-  key: string,
-): string {
+function single(fields: Record<string, string | string[]>, key: string): string {
   const value = fields[key];
   if (Array.isArray(value)) return value[0] ?? '';
   return value ?? '';
 }
 
-function allValues(
-  fields: Record<string, string | string[]>,
-  key: string,
-): string[] {
+function allValues(fields: Record<string, string | string[]>, key: string): string[] {
   const value = fields[key];
   if (value === undefined) return [];
   return Array.isArray(value) ? value : [value];
@@ -606,10 +596,7 @@ export function validateHiddenWorksTextFields(
     fieldFail('english_translation_aware', 'This field is required.');
   }
   if (englishAware === 'Yes' && !single(fields, 'known_english_translations')) {
-    fieldFail(
-      'known_english_translations',
-      'Please describe the known English translation(s).',
-    );
+    fieldFail('known_english_translations', 'Please describe the known English translation(s).');
   }
 
   const englishEdition = single(fields, 'english_edition_us');
@@ -638,10 +625,7 @@ export function validateHiddenWorksTextFields(
     fieldFail('publication_limitations', 'This field is required.');
   }
   if (publicationLimitations === 'Yes' && !single(fields, 'publication_limitations_explain')) {
-    fieldFail(
-      'publication_limitations_explain',
-      'Please explain the publication limitations.',
-    );
+    fieldFail('publication_limitations_explain', 'Please explain the publication limitations.');
   }
 
   const conflicts = single(fields, 'conflicts');
@@ -657,10 +641,7 @@ export function validateHiddenWorksTextFields(
     fieldFail('outside_assistance', 'This field is required.');
   }
   if (outsideAssistance === 'Yes' && !single(fields, 'outside_assistance_describe')) {
-    fieldFail(
-      'outside_assistance_describe',
-      'Please describe the outside assistance provided.',
-    );
+    fieldFail('outside_assistance_describe', 'Please describe the outside assistance provided.');
   }
 
   for (const key of HIDDEN_WORKS_AGREEMENTS) {
@@ -692,19 +673,17 @@ export function validateHiddenWorksTextFields(
   const readerCase = single(fields, 'reader_facing_case');
   const readerWords = countWhitespaceSeparatedWords(readerCase);
   if (readerWords < 500) {
-    fieldFail(
-      'reader_facing_case',
-      'The Reader-Facing Case must be at least 500 words.',
-    );
+    fieldFail('reader_facing_case', 'The Reader-Facing Case must be at least 500 words.');
   }
   if (readerWords > 1000) {
-    fieldFail(
-      'reader_facing_case',
-      'The Reader-Facing Case must be at most 1,000 words.',
-    );
+    fieldFail('reader_facing_case', 'The Reader-Facing Case must be at most 1,000 words.');
   }
 
-  requireHttpUrl(single(fields, 'primary_bibliographic_source'), 'primary_bibliographic_source', true);
+  requireHttpUrl(
+    single(fields, 'primary_bibliographic_source'),
+    'primary_bibliographic_source',
+    true,
+  );
   for (const key of [
     'additional_supporting_source',
     'source_url',
@@ -810,10 +789,7 @@ export function validateHiddenWorksFiles(formData: FormData): ValidatedUpload[] 
     if (fieldName === 'supporting_rights_documentation') {
       const nonempty = selected.filter((file) => file.size > 0);
       if (nonempty.length > 1) {
-        fieldFail(
-          'supporting_rights_documentation',
-          'Upload only one supporting rights document.',
-        );
+        fieldFail('supporting_rights_documentation', 'Upload only one supporting rights document.');
       }
     }
 
@@ -965,6 +941,7 @@ export async function handleHiddenWorksSubmit(
   request: Request,
   env: Env,
   options: HandleHiddenWorksOptions = {},
+  ctx?: ExecutionContext,
 ): Promise<Response> {
   const now = options.now ?? new Date();
 
@@ -981,10 +958,7 @@ export async function handleHiddenWorksSubmit(
   }
 
   if (
-    contentLengthTooLarge(
-      request.headers.get('Content-Length'),
-      HIDDEN_WORKS_MAX_REQUEST_BYTES,
-    )
+    contentLengthTooLarge(request.headers.get('Content-Length'), HIDDEN_WORKS_MAX_REQUEST_BYTES)
   ) {
     return jsonResponse(413, { success: false, error: 'submission_too_large' });
   }
@@ -1020,8 +994,7 @@ export async function handleHiddenWorksSubmit(
   }
 
   const idempotencyRaw = formData.get('submission_idempotency_key');
-  const idempotencyKey =
-    typeof idempotencyRaw === 'string' ? idempotencyRaw.trim() : '';
+  const idempotencyKey = typeof idempotencyRaw === 'string' ? idempotencyRaw.trim() : '';
   if (!idempotencyKey) {
     return jsonResponse(400, { success: false, error: 'invalid_submission' });
   }
@@ -1116,6 +1089,8 @@ export async function handleHiddenWorksSubmit(
   } catch {
     return jsonResponse(500, { success: false, error: 'submission_failed' });
   }
+
+  scheduleSubmissionNotification(ctx, env, submissionId);
 
   const created = newHiddenWorksSubmissionResponse(submissionId);
   return jsonResponse(created.status, created.body);

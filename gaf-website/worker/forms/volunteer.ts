@@ -20,6 +20,7 @@ import {
   verifyTurnstileToken,
   type ValidatedUpload,
 } from './common';
+import { scheduleSubmissionNotification } from '../submissionEmail';
 
 async function rollbackSubmission(
   env: Env,
@@ -53,11 +54,7 @@ async function persistFiles(
   try {
     for (const upload of uploads) {
       const fileId = newEntityId();
-      const objectKey = buildVolunteerObjectKey(
-        submissionId,
-        fileId,
-        upload.validatedExtension,
-      );
+      const objectKey = buildVolunteerObjectKey(submissionId, fileId, upload.validatedExtension);
 
       await env.SUBMISSION_FILES.put(objectKey, upload.file.stream(), {
         httpMetadata: {
@@ -93,6 +90,7 @@ async function persistFiles(
 export async function handleVolunteerSubmit(
   request: Request,
   env: Env,
+  ctx?: ExecutionContext,
 ): Promise<Response> {
   if (request.method !== 'POST') {
     return methodNotAllowed('POST');
@@ -209,6 +207,8 @@ export async function handleVolunteerSubmit(
   } catch {
     return jsonResponse(500, { success: false, error: 'submission_failed' });
   }
+
+  scheduleSubmissionNotification(ctx, env, submissionId);
 
   const created = newVolunteerSubmissionResponse(submissionId);
   return jsonResponse(created.status, created.body);

@@ -6,22 +6,28 @@
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
-    "run_worker_first": ["/api/*"]
+    "run_worker_first": ["/api/*"],
   },
   "d1_databases": [
     {
       "binding": "SUBMISSIONS_DB",
       "database_name": "gaf-submissions",
-      "database_id": "73d52a84-d3cd-4a09-9cc7-4c99e08202c6"
-    }
+      "database_id": "73d52a84-d3cd-4a09-9cc7-4c99e08202c6",
+    },
   ],
   "r2_buckets": [
     {
       "binding": "SUBMISSION_FILES",
-      "bucket_name": "gaf-submission-files"
-    }
+      "bucket_name": "gaf-submission-files",
+    },
   ],
   "secrets": {
-    "required": ["TURNSTILE_SECRET_KEY"]
-    } 
+    "required": [
+      "TURNSTILE_SECRET_KEY",
+      "GMAIL_CLIENT_ID",
+      "GMAIL_CLIENT_SECRET",
+      "GMAIL_REFRESH_TOKEN",
+      "SUBMISSION_FILE_LINK_SECRET",
+    ],
+  },
 }
