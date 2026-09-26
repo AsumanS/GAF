@@ -1372,14 +1372,11 @@ function clauseLabelParts(clause: AgreementClause) {
         }
 
         if (response.ok && data && data.success && data.submission_id) {
-          setStatus(
-            'Your Hidden Works submission has been received.\n\nSubmission reference: ' +
-              data.submission_id +
-              '\n\nThis confirmation means that your submission was received. It does not mean that the submission has passed initial eligibility review or been counted toward the 100 eligible submissions accepted for review.',
-          );
+          setStatus('Your Hidden Works submission has been received.');
           form.querySelectorAll('input, textarea, select, button').forEach((el) => {
             el.disabled = true;
           });
+          submitButton.hidden = true;
           return;
         }
 
