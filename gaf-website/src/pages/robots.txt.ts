@@ -4,7 +4,7 @@ import { absoluteUrl, site } from '../config/site';
 export const GET: APIRoute = () => {
   const sitemapLine = site.siteUrl
     ? `Sitemap: ${absoluteUrl('/sitemap.xml')}`
-    : 'Sitemap: /sitemap.xml';
+    : 'Sitemap: https://goldenarchivefoundation.org/sitemap.xml';
 
   const body = `User-agent: *
 Allow: /

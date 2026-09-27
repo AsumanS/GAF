@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
-import { absoluteUrl, site } from '../config/site';
+import { absoluteUrl } from '../config/site';
 
-const routes = [
+const paths = [
   '/',
   '/about',
   '/projects',
@@ -18,11 +18,13 @@ const routes = [
 ];
 
 export const GET: APIRoute = () => {
-  const urls = routes
-    .map((path) => {
-      const loc = site.siteUrl ? absoluteUrl(path) : path;
-      return `  <url>\n    <loc>${loc}</loc>\n    <changefreq>monthly</changefreq>\n  </url>`;
-    })
+  const urls = paths
+    .map(
+      (path) => `  <url>
+    <loc>${absoluteUrl(path)}</loc>
+    <changefreq>monthly</changefreq>
+  </url>`,
+    )
     .join('\n');
 
   const body = `<?xml version="1.0" encoding="UTF-8"?>
