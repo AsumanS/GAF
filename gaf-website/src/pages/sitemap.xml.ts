@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
-import { absoluteUrl } from '../config/site';
+
+const BASE_URL = 'https://goldenarchivefoundation.org';
 
 const paths = [
   '/',
@@ -21,7 +22,7 @@ export const GET: APIRoute = () => {
   const urls = paths
     .map(
       (path) => `  <url>
-    <loc>${absoluteUrl(path)}</loc>
+    <loc>${BASE_URL}${path}</loc>
     <changefreq>monthly</changefreq>
   </url>`,
     )
