@@ -28,6 +28,13 @@ import { privacyContent as c } from '../content/privacy';
           {c.howWeUse.items.map((item) => <li>{item}</li>)}
         </ul>
 
+        <h2>{c.legalBases.heading}</h2>
+        <p>{c.legalBases.intro}</p>
+        <ul>
+          {c.legalBases.items.map((item) => <li>{item}</li>)}
+        </ul>
+        <p>{c.legalBases.after}</p>
+
         <h2>{c.volunteerApplications.heading}</h2>
         {c.volunteerApplications.paragraphs.map((p) => <p>{p}</p>)}
 

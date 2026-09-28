@@ -29,6 +29,18 @@ export const privacyContent = {
       'comply with applicable legal and regulatory obligations.',
     ],
   },
+  legalBases: {
+    heading: 'Legal Bases for Processing',
+    intro:
+      'Where applicable data protection law requires a legal basis for processing personal information, Golden Archive Foundation processes personal information on one or more of the following bases:',
+    items: [
+      'to administer a project, contest, application, or other activity that you have requested to participate in, including taking steps related to your participation;',
+      "the Foundation's legitimate interests in reviewing volunteer applications, operating and improving its programs and website, communicating with participants and supporters, maintaining appropriate organizational records, and protecting the security and integrity of its systems; and",
+      'compliance with legal or regulatory obligations applicable to the Foundation.',
+    ],
+    after:
+      'Where the Foundation relies on consent for a particular processing activity, you may withdraw that consent at any time, subject to applicable law. Withdrawal does not affect the lawfulness of processing that occurred before consent was withdrawn.',
+  },
   volunteerApplications: {
     heading: 'Volunteer Applications',
     paragraphs: [
