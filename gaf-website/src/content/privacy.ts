@@ -1,13 +1,13 @@
 export const privacyContent = {
   metaDescription:
     'Privacy Policy for Golden Archive Foundation — how we collect, use, share, and protect personal information.',
-  lastUpdated: 'September 24, 2026',
+  lastUpdated: 'September 28, 2026',
   intro:
     'Golden Archive Foundation respects the privacy of visitors, volunteers, applicants, donors, contributors, and others who interact with the Foundation through this website.',
   informationWeCollect: {
     heading: 'Information We Collect',
     paragraphs: [
-      'We may collect information that you choose to provide to us, including your name, email address, telephone number, location, professional background, skills, availability, résumé or CV, references, and other information submitted through volunteer applications, project submissions, correspondence, or other forms on this website.',
+      'We may collect information that you choose to provide to us, including your name, email address, location, professional background, skills, availability, résumé or CV, project submission materials, and other information submitted through volunteer applications, project submissions, correspondence, or other forms on this website.',
       'When you contact us by email, we receive the information contained in your message and any attachments you choose to provide.',
     ],
   },
@@ -33,7 +33,6 @@ export const privacyContent = {
     heading: 'Volunteer Applications',
     paragraphs: [
       'Information submitted through a volunteer application may be used to evaluate an applicant’s skills, experience, interests, availability, and suitability for current or future volunteer opportunities.',
-      'References provided in an application may be contacted as part of the volunteer review process.',
       'Application information may be retained for consideration for future opportunities unless deletion is requested where applicable.',
     ],
   },
@@ -60,13 +59,17 @@ export const privacyContent = {
     heading: 'Data Retention',
     body: 'Personal information is retained for as long as reasonably necessary for the purpose for which it was collected, for organizational recordkeeping, or as required by law.',
   },
+  internationalUsers: {
+    heading: 'International Users',
+    body: 'Golden Archive Foundation is based in the United States. If you access this website or submit information from outside the United States, your information may be transferred to, stored in, or processed in the United States or other jurisdictions where the Foundation or its service providers operate. Data protection laws in those jurisdictions may differ from those in your country of residence.',
+  },
   thirdParty: {
     heading: 'Third-Party Websites and Services',
     body: 'This website may contain links to third-party websites and services. Golden Archive Foundation is not responsible for the privacy practices of those third parties. Their own privacy policies govern information submitted directly to them.',
   },
   yourInformation: {
     heading: 'Your Information',
-    body: 'You may contact Golden Archive Foundation to ask a question about personal information you have provided or to request that information be corrected or deleted, subject to applicable legal and recordkeeping requirements.',
+    body: 'You may contact Golden Archive Foundation to ask a question about personal information you have provided or to request access to, correction of, or deletion of that information, subject to applicable law and applicable legal, administrative, and recordkeeping requirements. Depending on where you reside, you may have additional rights regarding your personal information under applicable law.',
   },
   changes: {
     heading: 'Changes to This Policy',
