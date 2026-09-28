@@ -1,0 +1,115 @@
+diff --git a/gaf-website/src/config/site.ts b/gaf-website/src/config/site.ts
+index 540b119..f6679bc 100644
+--- a/gaf-website/src/config/site.ts
++++ b/gaf-website/src/config/site.ts
+@@ -96,7 +96,7 @@ export const site: SiteConfig = {
+   shortName: 'Golden Archive',
+   legalStatus: '501(c)(3) tax-exempt organization',
+   foundationClassification: 'Public charity',
+-  ein: '',
++  ein: '41-2754875',
+   publicEmail: 'goldenarchivefoundation@gmail.com',
+   mailingAddress: '',
+   determinationLetterUrl: '/documents/transparency/IRS_Determination_Letter_Public_Copy.pdf',
+diff --git a/gaf-website/src/content/privacy.ts b/gaf-website/src/content/privacy.ts
+index 663edde..e9a400f 100644
+--- a/gaf-website/src/content/privacy.ts
++++ b/gaf-website/src/content/privacy.ts
+@@ -45,7 +45,7 @@ export const privacyContent = {
+     heading: 'Volunteer Applications',
+     paragraphs: [
+       'Information submitted through a volunteer application may be used to evaluate an applicant’s skills, experience, interests, availability, and suitability for current or future volunteer opportunities.',
+-      'Application information may be retained for consideration for future opportunities unless deletion is requested where applicable.',
++      'Application information may be retained for consideration for future opportunities in accordance with the retention periods described below.',
+     ],
+   },
+   donations: {
+@@ -87,7 +87,10 @@ export const privacyContent = {
+   },
+   internationalUsers: {
+     heading: 'International Users',
+-    body: 'Golden Archive Foundation is based in the United States. If you access this website or submit information from outside the United States, your information may be transferred to, stored in, or processed in the United States or other jurisdictions where the Foundation or its service providers operate. Data protection laws in those jurisdictions may differ from those in your country of residence.',
++    paragraphs: [
++      'Golden Archive Foundation is based in the United States. If you access this website or submit information from outside the United States, your personal information may be transferred to, stored in, or processed in the United States or other jurisdictions where the Foundation or its service providers operate. Data protection laws in those jurisdictions may differ from those in your country of residence.',
++      'Where applicable law requires safeguards for international transfers of personal information, the Foundation relies on appropriate transfer mechanisms provided by applicable law or by its service providers, which may include adequacy decisions, recognized data privacy frameworks, or standard contractual clauses.',
++    ],
+   },
+   thirdParty: {
+     heading: 'Third-Party Websites and Services',
+diff --git a/gaf-website/src/content/transparency.ts b/gaf-website/src/content/transparency.ts
+index b1a2528..5df61a3 100644
+--- a/gaf-website/src/content/transparency.ts
++++ b/gaf-website/src/content/transparency.ts
+@@ -30,6 +30,19 @@ export const transparencyContent = {
+   },
+   governance: {
+     heading: 'Governance',
++    board: {
++      intro:
++        'Golden Archive Foundation is governed by its Board of Directors, which is responsible for the Foundation’s overall policy, strategic direction, and financial oversight.',
++      boardHeading: 'Board of Directors',
++      boardMembers: [
++        'Savas Metin — President and Director',
++        'Asuman Sicakyuz — Secretary and Director',
++        'Yasin Ergul — Treasurer and Director',
++      ],
++      executiveHeading: 'Executive Leadership',
++      executiveMembers: ['Ramazan Sicakyuz — Executive Director'],
++      note: 'The Executive Director is not a member of the Board of Directors.',
++    },
+     links: [
+       {
+         label: 'Certificate / Articles of Formation',
+diff --git a/gaf-website/src/pages/privacy.astro b/gaf-website/src/pages/privacy.astro
+index 04d9383..08ae153 100644
+--- a/gaf-website/src/pages/privacy.astro
++++ b/gaf-website/src/pages/privacy.astro
+@@ -56,7 +56,7 @@ import { privacyContent as c } from '../content/privacy';
+         <p>{c.dataRetention.after}</p>
+ 
+         <h2>{c.internationalUsers.heading}</h2>
+-        <p>{c.internationalUsers.body}</p>
++        {c.internationalUsers.paragraphs.map((p) => <p>{p}</p>)}
+ 
+         <h2>{c.thirdParty.heading}</h2>
+         <p>{c.thirdParty.body}</p>
+diff --git a/gaf-website/src/pages/transparency.astro b/gaf-website/src/pages/transparency.astro
+index 1c957c0..2a583d8 100644
+--- a/gaf-website/src/pages/transparency.astro
++++ b/gaf-website/src/pages/transparency.astro
+@@ -56,6 +56,16 @@ import { transparencyContent as c } from '../content/transparency';
+ 
+         <section class="mt-12" aria-labelledby="governance-heading">
+           <h2 id="governance-heading">{c.governance.heading}</h2>
++          <p>{c.governance.board.intro}</p>
++          <h3>{c.governance.board.boardHeading}</h3>
++          <ul class="governance-roster">
++            {c.governance.board.boardMembers.map((member) => <li>{member}</li>)}
++          </ul>
++          <h3>{c.governance.board.executiveHeading}</h3>
++          <ul class="governance-roster">
++            {c.governance.board.executiveMembers.map((member) => <li>{member}</li>)}
++          </ul>
++          <p>{c.governance.board.note}</p>
+           <ul class="mt-6 list-none space-y-3 pl-0">
+             {
+               c.governance.links.map((item) => (
+diff --git a/gaf-website/src/styles/global.css b/gaf-website/src/styles/global.css
+index 9ab1e40..de904d4 100644
+--- a/gaf-website/src/styles/global.css
++++ b/gaf-website/src/styles/global.css
+@@ -225,6 +225,14 @@
+     @apply italic text-ink-muted underline decoration-ink/25 underline-offset-[0.18em] hover:text-accent hover:decoration-accent/40;
+   }
+ 
++  .prose-editorial .governance-roster {
++    @apply list-none space-y-0 pl-0;
++  }
++
++  .prose-editorial .governance-roster li {
++    @apply leading-snug;
++  }
++
+   .project-involve-cta {
+     @apply inline-flex items-center gap-2 border-2 border-ink bg-transparent px-4 py-2.5 font-sans text-sm font-semibold tracking-wide text-ink no-underline transition-colors hover:bg-ink hover:text-white;
+   }

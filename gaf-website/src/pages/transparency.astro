@@ -56,6 +56,16 @@ import { transparencyContent as c } from '../content/transparency';
 
         <section class="mt-12" aria-labelledby="governance-heading">
           <h2 id="governance-heading">{c.governance.heading}</h2>
+          <p>{c.governance.board.intro}</p>
+          <h3>{c.governance.board.boardHeading}</h3>
+          <ul class="governance-roster">
+            {c.governance.board.boardMembers.map((member) => <li>{member}</li>)}
+          </ul>
+          <h3>{c.governance.board.executiveHeading}</h3>
+          <ul class="governance-roster">
+            {c.governance.board.executiveMembers.map((member) => <li>{member}</li>)}
+          </ul>
+          <p>{c.governance.board.note}</p>
           <ul class="mt-6 list-none space-y-3 pl-0">
             {
               c.governance.links.map((item) => (

@@ -45,7 +45,7 @@ export const privacyContent = {
     heading: 'Volunteer Applications',
     paragraphs: [
       'Information submitted through a volunteer application may be used to evaluate an applicant’s skills, experience, interests, availability, and suitability for current or future volunteer opportunities.',
-      'Application information may be retained for consideration for future opportunities unless deletion is requested where applicable.',
+      'Application information may be retained for consideration for future opportunities in accordance with the retention periods described below.',
     ],
   },
   donations: {
@@ -87,7 +87,10 @@ export const privacyContent = {
   },
   internationalUsers: {
     heading: 'International Users',
-    body: 'Golden Archive Foundation is based in the United States. If you access this website or submit information from outside the United States, your information may be transferred to, stored in, or processed in the United States or other jurisdictions where the Foundation or its service providers operate. Data protection laws in those jurisdictions may differ from those in your country of residence.',
+    paragraphs: [
+      'Golden Archive Foundation is based in the United States. If you access this website or submit information from outside the United States, your personal information may be transferred to, stored in, or processed in the United States or other jurisdictions where the Foundation or its service providers operate. Data protection laws in those jurisdictions may differ from those in your country of residence.',
+      'Where applicable law requires safeguards for international transfers of personal information, the Foundation relies on appropriate transfer mechanisms provided by applicable law or by its service providers, which may include adequacy decisions, recognized data privacy frameworks, or standard contractual clauses.',
+    ],
   },
   thirdParty: {
     heading: 'Third-Party Websites and Services',

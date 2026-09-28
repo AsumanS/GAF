@@ -30,6 +30,19 @@ export const transparencyContent = {
   },
   governance: {
     heading: 'Governance',
+    board: {
+      intro:
+        'Golden Archive Foundation is governed by its Board of Directors, which is responsible for the Foundation’s overall policy, strategic direction, and financial oversight.',
+      boardHeading: 'Board of Directors',
+      boardMembers: [
+        'Savas Metin — President and Director',
+        'Asuman Sicakyuz — Secretary and Director',
+        'Yasin Ergul — Treasurer and Director',
+      ],
+      executiveHeading: 'Executive Leadership',
+      executiveMembers: ['Ramazan Sicakyuz — Executive Director'],
+      note: 'The Executive Director is not a member of the Board of Directors.',
+    },
     links: [
       {
         label: 'Certificate / Articles of Formation',

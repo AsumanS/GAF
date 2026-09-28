@@ -56,7 +56,7 @@ import { privacyContent as c } from '../content/privacy';
         <p>{c.dataRetention.after}</p>
 
         <h2>{c.internationalUsers.heading}</h2>
-        <p>{c.internationalUsers.body}</p>
+        {c.internationalUsers.paragraphs.map((p) => <p>{p}</p>)}
 
         <h2>{c.thirdParty.heading}</h2>
         <p>{c.thirdParty.body}</p>
