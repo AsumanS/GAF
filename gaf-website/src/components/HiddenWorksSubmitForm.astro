@@ -160,7 +160,7 @@ function clauseLabelParts(clause: AgreementClause) {
       </div>
       <div class="field sm:col-span-2">
         <label for="alternate-titles">Alternate Titles / Transliterations / Romanizations</label>
-        <textarea id="alternate-titles" name="alternate_titles" rows="3"></textarea>
+        <textarea id="alternate-titles" name="alternate_titles" rows="3" data-max-words="200"></textarea>
       </div>
       <div class="field">
         <label for="author">Author / Creator / Attribution <span class="req" aria-hidden="true">*</span></label>
@@ -241,7 +241,7 @@ function clauseLabelParts(clause: AgreementClause) {
         Explain why the work qualifies for the selected category.
         <span class="req" aria-hidden="true">*</span>
       </label>
-      <textarea id="category-explain" name="category_explain" rows="4" required></textarea>
+      <textarea id="category-explain" name="category_explain" rows="4" required data-max-words="200"></textarea>
     </div>
   </section>
 
@@ -254,7 +254,7 @@ function clauseLabelParts(clause: AgreementClause) {
         form?
         <span class="req" aria-hidden="true">*</span>
       </label>
-      <textarea id="publication-evidence" name="publication_evidence" rows="4" required></textarea>
+      <textarea id="publication-evidence" name="publication_evidence" rows="4" required data-max-words="200"></textarea>
     </div>
     <div class="field mt-5">
       <label for="primary-source">
@@ -270,7 +270,7 @@ function clauseLabelParts(clause: AgreementClause) {
       <label for="bibliographic-citations">
         Bibliographic Citation(s) <span class="req" aria-hidden="true">*</span>
       </label>
-      <textarea id="bibliographic-citations" name="bibliographic_citations" rows="4" required></textarea>
+      <textarea id="bibliographic-citations" name="bibliographic_citations" rows="4" required data-max-words="200"></textarea>
     </div>
     <div class="field mt-5">
       <label for="supporting-evidence">Supporting Evidence</label>
@@ -293,7 +293,7 @@ function clauseLabelParts(clause: AgreementClause) {
         Where can a complete source of the work be accessed?
         <span class="req" aria-hidden="true">*</span>
       </label>
-      <textarea id="source-access" name="source_access" rows="4" required></textarea>
+      <textarea id="source-access" name="source_access" rows="4" required data-max-words="200"></textarea>
       <p class="field-hint">
         Include the library, archive, digital repository, edition, collection, shelfmark, identifier,
         URL, or other information necessary to locate the source.
@@ -332,7 +332,7 @@ function clauseLabelParts(clause: AgreementClause) {
       <label for="access-restrictions">
         Describe any known access restrictions, costs, permissions, or conditions.
       </label>
-      <textarea id="access-restrictions" name="access_restrictions" rows="3"></textarea>
+      <textarea id="access-restrictions" name="access_restrictions" rows="3" data-max-words="200"></textarea>
     </div>
   </section>
 
@@ -355,7 +355,7 @@ function clauseLabelParts(clause: AgreementClause) {
       <label for="scope-estimate">
         If a reliable word count is unavailable, explain how you estimated the scope.
       </label>
-      <textarea id="scope-estimate" name="scope_estimate" rows="3"></textarea>
+      <textarea id="scope-estimate" name="scope_estimate" rows="3" data-max-words="200"></textarea>
     </div>
     <fieldset class="volunteer-form-choice mt-6">
       <legend>
@@ -383,7 +383,7 @@ function clauseLabelParts(clause: AgreementClause) {
         Explain the relationship of the submitted work to the larger work or collection.
         <span class="req" aria-hidden="true">*</span>
       </label>
-      <textarea id="larger-work-explain" name="larger_work_explain" rows="4"></textarea>
+      <textarea id="larger-work-explain" name="larger_work_explain" rows="4" data-max-words="200"></textarea>
     </div>
   </section>
 
@@ -396,7 +396,7 @@ function clauseLabelParts(clause: AgreementClause) {
         States?
         <span class="req" aria-hidden="true">*</span>
       </label>
-      <textarea id="public-domain-why" name="public_domain_why" rows="4" required></textarea>
+      <textarea id="public-domain-why" name="public_domain_why" rows="4" required data-max-words="200"></textarea>
     </div>
     <div class="field mt-5">
       <label for="public-domain-source">Source Supporting Public-Domain Status</label>
@@ -445,7 +445,7 @@ function clauseLabelParts(clause: AgreementClause) {
     </fieldset>
     <div class="field mt-5 hidden" data-english-yes hidden>
       <label for="known-translations">Known English Translation(s)</label>
-      <textarea id="known-translations" name="known_english_translations" rows="4"></textarea>
+      <textarea id="known-translations" name="known_english_translations" rows="4" data-max-words="200"></textarea>
       <p class="field-hint">{c.englishTranslationNote}</p>
     </div>
     <fieldset class="volunteer-form-choice mt-6">
@@ -465,7 +465,7 @@ function clauseLabelParts(clause: AgreementClause) {
     </fieldset>
     <div class="field mt-5">
       <label for="english-explain">Explain your answer. <span class="req" aria-hidden="true">*</span></label>
-      <textarea id="english-explain" name="english_edition_explain" rows="4" required></textarea>
+      <textarea id="english-explain" name="english_edition_explain" rows="4" required data-max-words="200"></textarea>
     </div>
   </section>
 
@@ -480,7 +480,7 @@ function clauseLabelParts(clause: AgreementClause) {
       <label for="variants-searched">
         Title and author variants searched <span class="req" aria-hidden="true">*</span>
       </label>
-      <textarea id="variants-searched" name="variants_searched" rows="3" required></textarea>
+      <textarea id="variants-searched" name="variants_searched" rows="3" required data-max-words="200"></textarea>
     </div>
     <div class="field mt-5">
       <label for="sources-searched">
@@ -488,13 +488,13 @@ function clauseLabelParts(clause: AgreementClause) {
         searched
         <span class="req" aria-hidden="true">*</span>
       </label>
-      <textarea id="sources-searched" name="sources_searched" rows="3" required></textarea>
+      <textarea id="sources-searched" name="sources_searched" rows="3" required data-max-words="200"></textarea>
     </div>
     <div class="field mt-5">
       <label for="search-dates">
         Search dates and representative search terms <span class="req" aria-hidden="true">*</span>
       </label>
-      <textarea id="search-dates" name="search_dates_terms" rows="3" required></textarea>
+      <textarea id="search-dates" name="search_dates_terms" rows="3" required data-max-words="200"></textarea>
     </div>
     <div class="field mt-5">
       <label for="apparent-matches">
@@ -502,14 +502,14 @@ function clauseLabelParts(clause: AgreementClause) {
         search
         <span class="req" aria-hidden="true">*</span>
       </label>
-      <textarea id="apparent-matches" name="apparent_matches" rows="3" required></textarea>
+      <textarea id="apparent-matches" name="apparent_matches" rows="3" required data-max-words="200"></textarea>
     </div>
     <div class="field mt-5">
       <label for="match-explain">
         Explain why each apparent match does or does not affect the work’s eligibility.
         <span class="req" aria-hidden="true">*</span>
       </label>
-      <textarea id="match-explain" name="match_explain" rows="4" required></textarea>
+      <textarea id="match-explain" name="match_explain" rows="4" required data-max-words="200"></textarea>
     </div>
     <div class="field mt-5">
       <label for="search-records">Supporting Search Records</label>
@@ -548,7 +548,7 @@ function clauseLabelParts(clause: AgreementClause) {
         How did you discover or learn about this work?
         <span class="req" aria-hidden="true">*</span>
       </label>
-      <textarea id="how-discovered" name="how_discovered" rows="4" required></textarea>
+      <textarea id="how-discovered" name="how_discovered" rows="4" required data-max-words="200"></textarea>
     </div>
   </section>
 
@@ -563,7 +563,7 @@ function clauseLabelParts(clause: AgreementClause) {
         challenges associated with this work?
         <span class="req" aria-hidden="true">*</span>
       </label>
-      <textarea id="challenges" name="translation_challenges" rows="4" required></textarea>
+      <textarea id="challenges" name="translation_challenges" rows="4" required data-max-words="200"></textarea>
     </div>
     <fieldset class="volunteer-form-choice mt-6">
       <legend>
@@ -588,7 +588,7 @@ function clauseLabelParts(clause: AgreementClause) {
     </fieldset>
     <div class="field mt-5 hidden" data-special-components-yes hidden>
       <label for="special-components-explain">Please explain.</label>
-      <textarea id="special-components-explain" name="special_components_explain" rows="3"></textarea>
+      <textarea id="special-components-explain" name="special_components_explain" rows="3" data-max-words="200"></textarea>
     </div>
     <fieldset class="volunteer-form-choice mt-6">
       <legend>
@@ -613,7 +613,7 @@ function clauseLabelParts(clause: AgreementClause) {
     </fieldset>
     <div class="field mt-5 hidden" data-pub-limits-yes hidden>
       <label for="pub-limits-explain">Please explain.</label>
-      <textarea id="pub-limits-explain" name="publication_limitations_explain" rows="3"></textarea>
+      <textarea id="pub-limits-explain" name="publication_limitations_explain" rows="3" data-max-words="200"></textarea>
     </div>
   </section>
 
@@ -642,7 +642,7 @@ function clauseLabelParts(clause: AgreementClause) {
       <label for="conflicts-describe">
         Please describe the relationship or interest. <span class="req" aria-hidden="true">*</span>
       </label>
-      <textarea id="conflicts-describe" name="conflicts_describe" rows="4"></textarea>
+      <textarea id="conflicts-describe" name="conflicts_describe" rows="4" data-max-words="200"></textarea>
     </div>
   </section>
 
@@ -671,7 +671,7 @@ function clauseLabelParts(clause: AgreementClause) {
         Identify the person or organization and describe the assistance provided.
         <span class="req" aria-hidden="true">*</span>
       </label>
-      <textarea id="assistance-describe" name="outside_assistance_describe" rows="4"></textarea>
+      <textarea id="assistance-describe" name="outside_assistance_describe" rows="4" data-max-words="200"></textarea>
     </div>
   </section>
 
@@ -685,7 +685,7 @@ function clauseLabelParts(clause: AgreementClause) {
         Key Sources Used in Preparing This Submission
         <span class="req" aria-hidden="true">*</span>
       </label>
-      <textarea id="key-sources" name="key_sources" rows="4" required></textarea>
+      <textarea id="key-sources" name="key_sources" rows="4" required data-max-words="200"></textarea>
     </div>
     <div class="field mt-5">
       <label for="additional-link-1">Additional Links</label>
@@ -719,7 +719,7 @@ function clauseLabelParts(clause: AgreementClause) {
       <label for="anything-else">
         Is there anything else Golden Archive Foundation should know when evaluating this submission?
       </label>
-      <textarea id="anything-else" name="anything_else" rows="4"></textarea>
+      <textarea id="anything-else" name="anything_else" rows="4" data-max-words="200"></textarea>
     </div>
   </section>
 
@@ -1155,6 +1155,158 @@ function clauseLabelParts(clause: AgreementClause) {
       statusEl.textContent = message || '';
     }
 
+    const AGREEMENT_REQUIRED_MESSAGE = 'You must accept this agreement to continue.';
+    const FIELD_REQUIRED_MESSAGE = 'This field is required.';
+    const FREEFORM_MAX_WORDS = 200;
+    const FREEFORM_MAX_MESSAGE = 'This field must be at most 200 words.';
+    const READER_CASE_MIN_MESSAGE = 'The Reader-Facing Case must be at least 500 words.';
+    const READER_CASE_MAX_MESSAGE = 'The Reader-Facing Case must be at most 1,000 words.';
+    const EMAIL_INVALID_MESSAGE = 'Enter a valid email address.';
+    const URL_INVALID_MESSAGE = 'Enter a valid http or https URL.';
+
+    function syncConditionalRequirements() {
+      syncEntryType();
+      syncPenName();
+      syncWorkTypeOther();
+      syncYes('english_translation_aware', 'data-english-yes');
+      (function syncLarger() {
+        const yes = form.querySelector('input[name="larger_work"][value="Yes"]');
+        const wrap = form.querySelector('[data-larger-work-yes]');
+        const input = form.querySelector('#larger-work-explain');
+        const on = yes && yes.checked;
+        show(wrap, on);
+        if (input) {
+          input.required = Boolean(on);
+          if (!on) input.value = '';
+        }
+      })();
+      syncYes('special_components', 'data-special-components-yes');
+      syncYes('publication_limitations', 'data-pub-limits-yes');
+      (function syncConflicts() {
+        const yes = form.querySelector('input[name="conflicts"][value="Yes"]');
+        const wrap = form.querySelector('[data-conflicts-yes]');
+        const input = form.querySelector('#conflicts-describe');
+        const on = yes && yes.checked;
+        show(wrap, on);
+        if (input) {
+          input.required = Boolean(on);
+          if (!on) input.value = '';
+        }
+      })();
+      (function syncAssistance() {
+        const yes = form.querySelector('input[name="outside_assistance"][value="Yes"]');
+        const wrap = form.querySelector('[data-assistance-yes]');
+        const input = form.querySelector('#assistance-describe');
+        const on = yes && yes.checked;
+        show(wrap, on);
+        if (input) {
+          input.required = Boolean(on);
+          if (!on) input.value = '';
+        }
+      })();
+    }
+
+    function messageForInvalidField(el) {
+      if (!el) return FIELD_REQUIRED_MESSAGE;
+      if (el.hasAttribute('data-agreement-accept')) return AGREEMENT_REQUIRED_MESSAGE;
+      if (el.validity && el.validity.valueMissing) return FIELD_REQUIRED_MESSAGE;
+      if (el.validity && el.validity.typeMismatch) {
+        if (el.type === 'email') return EMAIL_INVALID_MESSAGE;
+        if (el.type === 'url') return URL_INVALID_MESSAGE;
+      }
+      return (el.validationMessage && el.validationMessage.trim()) || FIELD_REQUIRED_MESSAGE;
+    }
+
+    function showFieldValidationError(el, message) {
+      if (el && el.hasAttribute('data-agreement-accept')) {
+        showAgreementRequiredError(el);
+        return;
+      }
+      if (el) {
+        el.setAttribute('aria-invalid', 'true');
+      }
+      setStatus(message || messageForInvalidField(el));
+      focusNamedField(el && el.name ? el.name : '');
+    }
+
+    function clearClientValidationStatus() {
+      const current = statusEl.textContent || '';
+      if (
+        current === AGREEMENT_REQUIRED_MESSAGE ||
+        current === FIELD_REQUIRED_MESSAGE ||
+        current === FREEFORM_MAX_MESSAGE ||
+        current === READER_CASE_MIN_MESSAGE ||
+        current === READER_CASE_MAX_MESSAGE ||
+        current === EMAIL_INVALID_MESSAGE ||
+        current === URL_INVALID_MESSAGE
+      ) {
+        setStatus('');
+      }
+      form.querySelectorAll('[aria-invalid="true"]').forEach((input) => {
+        input.removeAttribute('aria-invalid');
+      });
+    }
+
+    function showReaderCaseWordError(message) {
+      if (readerCaseInput) {
+        readerCaseInput.setCustomValidity('');
+        readerCaseInput.setAttribute('aria-invalid', 'true');
+      }
+      setStatus(message);
+      focusNamedField('reader_facing_case');
+    }
+
+    function clearReaderCaseWordError() {
+      if (readerCaseInput) {
+        readerCaseInput.setCustomValidity('');
+        readerCaseInput.removeAttribute('aria-invalid');
+      }
+      const current = statusEl.textContent || '';
+      if (current === READER_CASE_MIN_MESSAGE || current === READER_CASE_MAX_MESSAGE) {
+        setStatus('');
+      }
+    }
+
+    function firstUncheckedAgreement() {
+      return (
+        Array.from(form.querySelectorAll('[data-agreement-accept]')).find(
+          (input) => input instanceof HTMLInputElement && !input.checked,
+        ) || null
+      );
+    }
+
+    function showAgreementRequiredError(checkbox) {
+      if (checkbox) {
+        checkbox.setCustomValidity('');
+        checkbox.setAttribute('aria-invalid', 'true');
+      }
+      setStatus(AGREEMENT_REQUIRED_MESSAGE);
+      focusNamedField(checkbox && checkbox.name ? checkbox.name : '');
+    }
+
+    function clearAgreementRequiredError() {
+      form.querySelectorAll('[data-agreement-accept]').forEach((input) => {
+        if (input instanceof HTMLInputElement) {
+          input.setCustomValidity('');
+          input.removeAttribute('aria-invalid');
+        }
+      });
+      if ((statusEl.textContent || '') === AGREEMENT_REQUIRED_MESSAGE) {
+        setStatus('');
+      }
+    }
+
+    if (readerCaseInput) {
+      readerCaseInput.addEventListener('input', clearReaderCaseWordError);
+    }
+
+    form.querySelectorAll('[data-agreement-accept]').forEach((input) => {
+      input.addEventListener('change', clearAgreementRequiredError);
+    });
+
+    form.addEventListener('input', clearClientValidationStatus);
+    form.addEventListener('change', clearClientValidationStatus);
+
     function focusNamedField(name) {
       if (!name) return;
       if (name === '__form__') {
@@ -1164,30 +1316,7 @@ function clauseLabelParts(clause: AgreementClause) {
         return;
       }
 
-      syncEntryType();
-      syncPenName();
-      syncWorkTypeOther();
-      syncYes('english_translation_aware', 'data-english-yes');
-      (function syncLarger() {
-        const yes = form.querySelector('input[name="larger_work"][value="Yes"]');
-        const wrap = form.querySelector('[data-larger-work-yes]');
-        const on = yes && yes.checked;
-        show(wrap, on);
-      })();
-      syncYes('special_components', 'data-special-components-yes');
-      syncYes('publication_limitations', 'data-pub-limits-yes');
-      (function syncConflicts() {
-        const yes = form.querySelector('input[name="conflicts"][value="Yes"]');
-        const wrap = form.querySelector('[data-conflicts-yes]');
-        const on = yes && yes.checked;
-        show(wrap, on);
-      })();
-      (function syncAssistance() {
-        const yes = form.querySelector('input[name="outside_assistance"][value="Yes"]');
-        const wrap = form.querySelector('[data-assistance-yes]');
-        const on = yes && yes.checked;
-        show(wrap, on);
-      })();
+      syncConditionalRequirements();
 
       const matches = form.querySelectorAll('[name="' + name + '"]');
       if (!matches.length) return;
@@ -1301,40 +1430,43 @@ function clauseLabelParts(clause: AgreementClause) {
       event.preventDefault();
       if (submitting) return;
 
+      syncConditionalRequirements();
+
       if (!form.checkValidity()) {
         const firstInvalid = form.querySelector(':invalid');
-        if (firstInvalid && firstInvalid.hasAttribute('data-agreement-accept')) {
-          const panel = firstInvalid.closest('[data-agreement-group]');
-          if (panel) panel.open = true;
-          try {
-            firstInvalid.focus();
-          } catch (_err) {
-            // ignore
-          }
-        }
-        form.reportValidity();
+        showFieldValidationError(firstInvalid, messageForInvalidField(firstInvalid));
+        return;
+      }
+
+      const uncheckedAgreement = firstUncheckedAgreement();
+      if (uncheckedAgreement) {
+        showAgreementRequiredError(uncheckedAgreement);
         return;
       }
 
       const readerWords = updateReaderWordCount();
       if (readerCaseInput) {
         if (readerWords < 500) {
-          readerCaseInput.setCustomValidity(
-            'The Reader-Facing Case must be at least 500 words.',
-          );
-          readerCaseInput.reportValidity();
-          focusNamedField('reader_facing_case');
+          showReaderCaseWordError(READER_CASE_MIN_MESSAGE);
           return;
         }
         if (readerWords > 1000) {
-          readerCaseInput.setCustomValidity(
-            'The Reader-Facing Case must be at most 1,000 words.',
-          );
-          readerCaseInput.reportValidity();
-          focusNamedField('reader_facing_case');
+          showReaderCaseWordError(READER_CASE_MAX_MESSAGE);
           return;
         }
-        readerCaseInput.setCustomValidity('');
+        clearReaderCaseWordError();
+      }
+
+      const oversizedFreeform = Array.from(
+        form.querySelectorAll('textarea[data-max-words]'),
+      ).find((el) => {
+        if (!(el instanceof HTMLTextAreaElement)) return false;
+        const max = Number(el.getAttribute('data-max-words') || FREEFORM_MAX_WORDS);
+        return countWords(el.value) > max;
+      });
+      if (oversizedFreeform instanceof HTMLTextAreaElement) {
+        showFieldValidationError(oversizedFreeform, FREEFORM_MAX_MESSAGE);
+        return;
       }
 
       submitting = true;

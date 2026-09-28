@@ -36,6 +36,8 @@ export const HIDDEN_WORKS_MAX_TOTAL_FILE_BYTES = 40 * 1024 * 1024;
 export const HIDDEN_WORKS_MAX_FILE_COUNT = 20;
 export const HIDDEN_WORKS_ELIGIBLE_CAP = 100;
 export const HIDDEN_WORKS_ENTRY_LIMIT = 2;
+/** Max words for free-form textareas other than reader_facing_case. */
+export const HIDDEN_WORKS_FREEFORM_MAX_WORDS = 200;
 /** Contest closes at May 31, 2027 11:59 p.m. Central Time. */
 export const HIDDEN_WORKS_DEADLINE_UTC = Date.parse('2027-06-01T05:00:00.000Z');
 
@@ -48,6 +50,34 @@ export const HIDDEN_WORKS_AGREEMENTS = [
   'agree_rights_materials',
   'agree_contest_administration',
   'agree_rules_privacy',
+] as const;
+
+/** Free-form textareas subject to the default max-word limit (excludes reader_facing_case). */
+export const HIDDEN_WORKS_FREEFORM_TEXT_FIELDS = [
+  'alternate_titles',
+  'category_explain',
+  'publication_evidence',
+  'bibliographic_citations',
+  'source_access',
+  'access_restrictions',
+  'scope_estimate',
+  'larger_work_explain',
+  'public_domain_why',
+  'known_english_translations',
+  'english_edition_explain',
+  'variants_searched',
+  'sources_searched',
+  'search_dates_terms',
+  'apparent_matches',
+  'match_explain',
+  'how_discovered',
+  'translation_challenges',
+  'special_components_explain',
+  'publication_limitations_explain',
+  'conflicts_describe',
+  'outside_assistance_describe',
+  'key_sources',
+  'anything_else',
 ] as const;
 
 function fieldFail(field: string, message: string): never {
@@ -632,6 +662,14 @@ export function validateHiddenWorksTextFields(
   }
   if (readerWords > 1000) {
     fieldFail('reader_facing_case', 'The Reader-Facing Case must be at most 1,000 words.');
+  }
+
+  for (const key of HIDDEN_WORKS_FREEFORM_TEXT_FIELDS) {
+    const value = single(fields, key);
+    if (!value) continue;
+    if (countWhitespaceSeparatedWords(value) > HIDDEN_WORKS_FREEFORM_MAX_WORDS) {
+      fieldFail(key, `This field must be at most ${HIDDEN_WORKS_FREEFORM_MAX_WORDS} words.`);
+    }
   }
 
   requireHttpUrl(

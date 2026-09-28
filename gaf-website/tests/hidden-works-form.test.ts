@@ -460,6 +460,29 @@ describe('hidden works text validation', () => {
     );
   });
 
+  it('rejects free-form text over 200 words', () => {
+    expectFieldError(
+      () =>
+        validateHiddenWorksTextFields(
+          baseFields({ category_explain: words(201) }),
+          'idem-1',
+          now,
+        ),
+      'category_explain',
+      'at most 200',
+    );
+  });
+
+  it('allows free-form text at 200 words', () => {
+    expect(() =>
+      validateHiddenWorksTextFields(
+        baseFields({ category_explain: words(200) }),
+        'idem-1',
+        now,
+      ),
+    ).not.toThrow();
+  });
+
   it('rejects invalid URL scheme', () => {
     expectFieldError(
       () =>
