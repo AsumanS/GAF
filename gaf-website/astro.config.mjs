@@ -8,6 +8,10 @@ export default defineConfig({
   site: site.siteUrl || undefined,
   output: 'static',
   trailingSlash: 'never',
+  server: {
+    port: 4321,
+    strictPort: true,
+  },
   redirects: {
     '/projects/lost-stories': '/projects/hidden-works',
   },

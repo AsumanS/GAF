@@ -6,14 +6,12 @@ import {
   MAX_SINGLE_FILE_BYTES,
   MAX_STRING_CHARS,
   MAX_TOTAL_TEXT_BYTES,
-  MAX_PHONE_CHARS,
   TextTooLargeError,
   ValidationError,
   FieldValidationError,
   chicagoCalendarDate,
   contentLengthTooLarge,
   countWhitespaceSeparatedWords,
-  isAtLeastAgeOnChicagoDate,
   isHttpOrHttpsUrl,
   isMultipartFormData,
   isValidEmail,
@@ -73,8 +71,6 @@ const ALLOWED_TEXT_FIELDS = new Set<string>([
   'legal_middle_name',
   'legal_last_name',
   'email',
-  'phone',
-  'date_of_birth',
   'country',
   'state_region',
   'city',
@@ -148,8 +144,6 @@ const REQUIRED_LEAD_FIELDS = [
   'legal_first_name',
   'legal_last_name',
   'email',
-  'phone',
-  'date_of_birth',
   'country',
   'state_region',
   'city',
@@ -397,40 +391,6 @@ function requireHttpUrl(value: string, field: string, required: boolean): string
   return value;
 }
 
-function assertValidAdultDateOfBirth(dateOfBirth: string, onDate: Date): void {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateOfBirth.trim());
-  if (!match) {
-    fieldFail('date_of_birth', 'Enter a valid date of birth.');
-  }
-  const year = Number(match![1]);
-  const month = Number(match![2]);
-  const day = Number(match![3]);
-  const probe = new Date(Date.UTC(year, month - 1, day));
-  if (
-    probe.getUTCFullYear() !== year ||
-    probe.getUTCMonth() !== month - 1 ||
-    probe.getUTCDate() !== day
-  ) {
-    fieldFail('date_of_birth', 'Enter a valid date of birth.');
-  }
-
-  const today = chicagoCalendarDate(onDate);
-  const todayMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(today);
-  if (!todayMatch) {
-    fieldFail('date_of_birth', 'Enter a valid date of birth.');
-  }
-  const ty = Number(todayMatch![1]);
-  const tm = Number(todayMatch![2]);
-  const td = Number(todayMatch![3]);
-  if (year > ty || (year === ty && month > tm) || (year === ty && month === tm && day > td)) {
-    fieldFail('date_of_birth', 'Enter a valid date of birth.');
-  }
-
-  if (!isAtLeastAgeOnChicagoDate(dateOfBirth, onDate, 18)) {
-    fieldFail('date_of_birth', 'You must be at least 18 years old to enter.');
-  }
-}
-
 function normalizeTeamMembers(
   fields: Record<string, string | string[]>,
   leadEmail: string,
@@ -542,16 +502,9 @@ export function validateHiddenWorksTextFields(
     fieldFail('age_18_or_older', 'You must be at least 18 years old to enter.');
   }
 
-  assertValidAdultDateOfBirth(single(fields, 'date_of_birth'), now);
-
   const email = single(fields, 'email').toLowerCase();
   if (!isValidEmail(email)) {
     fieldFail('email', 'Enter a valid email address.');
-  }
-
-  const phone = single(fields, 'phone');
-  if (!phone || phone.length > MAX_PHONE_CHARS) {
-    fieldFail('phone', 'This field is required.');
   }
 
   const publicCredit = single(fields, 'public_credit');

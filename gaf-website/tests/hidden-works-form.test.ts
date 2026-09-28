@@ -89,8 +89,6 @@ function baseFields(
     legal_first_name: 'Ada',
     legal_last_name: 'Lovelace',
     email: 'ada@example.com',
-    phone: '+1 555 0100',
-    date_of_birth: '1990-01-15',
     country: 'United States',
     state_region: 'Texas',
     city: 'Austin',
@@ -179,32 +177,6 @@ describe('hidden works text validation', () => {
         validateHiddenWorksTextFields(baseFields({ age_18_or_older: 'No' }), 'idem-1', now),
       'age_18_or_older',
       '18 years',
-    );
-  });
-
-  it('rejects DOB under age 18', () => {
-    expectFieldError(
-      () =>
-        validateHiddenWorksTextFields(
-          baseFields({ date_of_birth: '2015-01-01' }),
-          'idem-1',
-          now,
-        ),
-      'date_of_birth',
-      '18 years',
-    );
-  });
-
-  it('rejects invalid DOB', () => {
-    expectFieldError(
-      () =>
-        validateHiddenWorksTextFields(
-          baseFields({ date_of_birth: '1990-13-40' }),
-          'idem-1',
-          now,
-        ),
-      'date_of_birth',
-      'valid date',
     );
   });
 

@@ -47,10 +47,6 @@ const canSubmit = Boolean(formAction && turnstileSiteKey);
         <input id="email" name="email" type="email" autocomplete="email" required />
       </div>
       <div class="field">
-        <label for="phone">Phone <span class="req" aria-hidden="true">*</span></label>
-        <input id="phone" name="phone" type="tel" autocomplete="tel" required />
-      </div>
-      <div class="field">
         <label for="city">City <span class="req" aria-hidden="true">*</span></label>
         <input id="city" name="city" type="text" autocomplete="address-level2" required />
       </div>
@@ -234,54 +230,6 @@ const canSubmit = Boolean(formAction && turnstileSiteKey);
     </div>
   </section>
 
-  <section class="volunteer-form-section" aria-labelledby="reference-1-heading">
-    <h3 id="reference-1-heading" class="volunteer-form-section-title">Reference 1</h3>
-    <div class="volunteer-form-grid">
-      <div class="field">
-        <label for="ref1-name">Name <span class="req" aria-hidden="true">*</span></label>
-        <input id="ref1-name" name="reference_1_name" type="text" required />
-      </div>
-      <div class="field">
-        <label for="ref1-relationship">
-          Relationship to you <span class="req" aria-hidden="true">*</span>
-        </label>
-        <input id="ref1-relationship" name="reference_1_relationship" type="text" required />
-      </div>
-      <div class="field">
-        <label for="ref1-email">Email <span class="req" aria-hidden="true">*</span></label>
-        <input id="ref1-email" name="reference_1_email" type="email" required />
-      </div>
-      <div class="field">
-        <label for="ref1-phone">Phone <span class="req" aria-hidden="true">*</span></label>
-        <input id="ref1-phone" name="reference_1_phone" type="tel" required />
-      </div>
-    </div>
-  </section>
-
-  <section class="volunteer-form-section" aria-labelledby="reference-2-heading">
-    <h3 id="reference-2-heading" class="volunteer-form-section-title">Reference 2</h3>
-    <div class="volunteer-form-grid">
-      <div class="field">
-        <label for="ref2-name">Name <span class="req" aria-hidden="true">*</span></label>
-        <input id="ref2-name" name="reference_2_name" type="text" required />
-      </div>
-      <div class="field">
-        <label for="ref2-relationship">
-          Relationship to you <span class="req" aria-hidden="true">*</span>
-        </label>
-        <input id="ref2-relationship" name="reference_2_relationship" type="text" required />
-      </div>
-      <div class="field">
-        <label for="ref2-email">Email <span class="req" aria-hidden="true">*</span></label>
-        <input id="ref2-email" name="reference_2_email" type="email" required />
-      </div>
-      <div class="field">
-        <label for="ref2-phone">Phone <span class="req" aria-hidden="true">*</span></label>
-        <input id="ref2-phone" name="reference_2_phone" type="tel" required />
-      </div>
-    </div>
-  </section>
-
   <section class="volunteer-form-section" aria-labelledby="additional-heading">
     <h3 id="additional-heading" class="volunteer-form-section-title">Additional Information</h3>
     <div class="field">
@@ -293,14 +241,6 @@ const canSubmit = Boolean(formAction && turnstileSiteKey);
   <section class="volunteer-form-section" aria-labelledby="declarations-heading">
     <h3 id="declarations-heading" class="volunteer-form-section-title">Declarations</h3>
     <div class="declaration-list">
-      <label class="choice choice-block">
-        <input type="checkbox" name="declare_references_contact" value="yes" required />
-        <span>
-          I confirm that the references listed above may be contacted by Golden Archive Foundation
-          regarding my volunteer application.
-          <span class="req" aria-hidden="true">*</span>
-        </span>
-      </label>
       <label class="choice choice-block">
         <input type="checkbox" name="declare_accuracy" value="yes" required />
         <span>

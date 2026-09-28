@@ -9,5 +9,6 @@ export const volunteerContent = {
     'Golden Archive Foundation welcomes volunteers who would like to contribute their time, skills, and experience to the work of the Foundation.',
     'Volunteer needs change over time. Opportunities may involve administration, communications, outreach, research, events, digital content, organizational support, or other work that helps the Foundation operate and grow.',
     'You do not need to fit a predefined role. Tell us about your background, interests, skills, availability, and the kind of contribution you would like to make. If there is a current or upcoming need that matches your experience, we will be in touch.',
+    "Volunteer opportunities are open to applicants in the United States and internationally, subject to applicable law and any legal or operational restrictions affecting the Foundation's ability to engage volunteers in particular jurisdictions.",
   ],
 };

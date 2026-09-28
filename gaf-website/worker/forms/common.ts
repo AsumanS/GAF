@@ -5,7 +5,6 @@ export const MAX_TOTAL_FILE_BYTES = 20 * 1024 * 1024;
 export const MAX_SINGLE_FILE_BYTES = 10 * 1024 * 1024;
 export const MAX_STRING_CHARS = 100_000;
 export const MAX_TOTAL_TEXT_BYTES = 1 * 1024 * 1024;
-export const MAX_PHONE_CHARS = 100;
 export const MAX_FILENAME_CHARS = 255;
 
 export const VOLUNTEER_AGREEMENT_VERSION = 'volunteer-2026-09-25-v1';
@@ -216,7 +215,6 @@ export const VOLUNTEER_REQUIRED_STRINGS = [
   'first_name',
   'last_name',
   'email',
-  'phone',
   'city',
   'state_region',
   'country',
@@ -227,31 +225,12 @@ export const VOLUNTEER_REQUIRED_STRINGS = [
   'available_start_date',
   'time_commitment',
   'volunteer_duration',
-  'reference_1_name',
-  'reference_1_relationship',
-  'reference_1_email',
-  'reference_1_phone',
-  'reference_2_name',
-  'reference_2_relationship',
-  'reference_2_email',
-  'reference_2_phone',
   'background_check_willing',
 ] as const;
 
-export const VOLUNTEER_EMAIL_FIELDS = [
-  'email',
-  'reference_1_email',
-  'reference_2_email',
-] as const;
-
-export const VOLUNTEER_PHONE_FIELDS = [
-  'phone',
-  'reference_1_phone',
-  'reference_2_phone',
-] as const;
+export const VOLUNTEER_EMAIL_FIELDS = ['email'] as const;
 
 export const VOLUNTEER_DECLARATIONS = [
-  'declare_references_contact',
   'declare_accuracy',
   'declare_no_guarantee',
   'declare_unpaid',
@@ -303,11 +282,6 @@ export function validateVolunteerTextFields(
     const email = single(fields, key).toLowerCase();
     if (!isValidEmail(email)) throw new ValidationError();
     fields[key] = email;
-  }
-
-  for (const key of VOLUNTEER_PHONE_FIELDS) {
-    const phone = single(fields, key);
-    if (!phone || phone.length > MAX_PHONE_CHARS) throw new ValidationError();
   }
 
   const firstName = single(fields, 'first_name');
@@ -530,47 +504,6 @@ export function countWhitespaceSeparatedWords(text: string): number {
   const trimmed = text.trim();
   if (!trimmed) return 0;
   return trimmed.split(/\s+/).filter(Boolean).length;
-}
-
-/**
- * Returns true when DOB (YYYY-MM-DD) is a real past date and the person is at least
- * minAge on the America/Chicago calendar date of `onDate`.
- */
-export function isAtLeastAgeOnChicagoDate(
-  dateOfBirth: string,
-  onDate: Date,
-  minAge: number,
-): boolean {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateOfBirth.trim());
-  if (!match) return false;
-  const year = Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
-  const probe = new Date(Date.UTC(year, month - 1, day));
-  if (
-    probe.getUTCFullYear() !== year ||
-    probe.getUTCMonth() !== month - 1 ||
-    probe.getUTCDate() !== day
-  ) {
-    return false;
-  }
-
-  const today = chicagoCalendarDate(onDate);
-  const todayMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(today);
-  if (!todayMatch) return false;
-  const ty = Number(todayMatch[1]);
-  const tm = Number(todayMatch[2]);
-  const td = Number(todayMatch[3]);
-
-  if (year > ty || (year === ty && month > tm) || (year === ty && month === tm && day > td)) {
-    return false;
-  }
-
-  let age = ty - year;
-  if (tm < month || (tm === month && td < day)) {
-    age -= 1;
-  }
-  return age >= minAge;
 }
 
 export function existingVolunteerSubmissionResponse(submissionId: string): {
