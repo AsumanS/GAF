@@ -153,7 +153,7 @@ export const hiddenWorksSubmitContent = {
             html: 'the date on which Golden Archive Foundation has accepted <strong>100 eligible submissions for review</strong>.',
           },
         ],
-        paragraphs: [
+        after: [
           'A submission counts toward the 100-submission limit only after it passes an initial eligibility review.',
           'If the limit is reached before May 31, 2027, submissions will close early.',
         ],
