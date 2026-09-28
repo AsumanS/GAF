@@ -81,7 +81,11 @@ export const privacyContent = {
   },
   yourInformation: {
     heading: 'Your Information',
-    body: 'You may contact Golden Archive Foundation to ask a question about personal information you have provided or to request access to, correction of, or deletion of that information, subject to applicable law and applicable legal, administrative, and recordkeeping requirements. Depending on where you reside, you may have additional rights regarding your personal information under applicable law.',
+    paragraphs: [
+      'You may contact Golden Archive Foundation to ask a question about personal information you have provided or to request access to, correction of, or deletion of that information, subject to applicable law and applicable legal, administrative, and recordkeeping requirements.',
+      'Depending on where you reside and the circumstances of the processing, you may also have the right to request restriction of processing, object to processing, receive certain personal information in a portable format, or withdraw consent where processing is based on consent.',
+      'You may also have the right to lodge a complaint with a competent data protection authority or other applicable privacy regulator.',
+    ],
   },
   changes: {
     heading: 'Changes to This Policy',

@@ -57,7 +57,7 @@ import { privacyContent as c } from '../content/privacy';
         <p>{c.thirdParty.body}</p>
 
         <h2>{c.yourInformation.heading}</h2>
-        <p>{c.yourInformation.body}</p>
+        {c.yourInformation.paragraphs.map((p) => <p>{p}</p>)}
 
         <h2>{c.changes.heading}</h2>
         <p>{c.changes.body}</p>
