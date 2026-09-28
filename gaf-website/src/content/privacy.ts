@@ -69,7 +69,21 @@ export const privacyContent = {
   },
   dataRetention: {
     heading: 'Data Retention',
-    body: 'Personal information is retained for as long as reasonably necessary for the purpose for which it was collected, for organizational recordkeeping, or as required by law.',
+    intro:
+      'Golden Archive Foundation retains personal information only for as long as reasonably necessary for the purposes for which it was collected and to satisfy applicable legal, administrative, accounting, and recordkeeping requirements.',
+    listIntro:
+      'Unless a longer period is required for a particular legal or administrative reason, the Foundation generally applies the following retention periods:',
+    items: [
+      'Hidden Works submissions not selected: two years after the conclusion of the contest.',
+      "Selected Hidden Works submissions: records necessary to document the selection, development, publication, and provenance of the project may be retained as part of the Foundation's permanent project and publication records. Personal information that is not necessary for those purposes will not be retained indefinitely.",
+      'Unsuccessful or unmatched volunteer applications: two years after the application is submitted.',
+      "Active volunteer records: for the duration of the volunteer's service and three years after that service ends.",
+      'General inquiries and correspondence: two years after the last substantive communication, unless there is a reason to retain the correspondence longer.',
+      'Donation and financial records: seven years, or longer where required by applicable law.',
+      'Website and security logs: generally up to 90 days, unless longer retention is necessary to investigate a security incident, prevent abuse, or satisfy a legal obligation.',
+    ],
+    after:
+      'When personal information is no longer required for the applicable purpose or retention period, the Foundation will delete or anonymize it where reasonably practicable, subject to applicable legal and recordkeeping requirements.',
   },
   internationalUsers: {
     heading: 'International Users',

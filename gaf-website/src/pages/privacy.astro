@@ -48,7 +48,12 @@ import { privacyContent as c } from '../content/privacy';
         <p>{c.dataSecurity.body}</p>
 
         <h2>{c.dataRetention.heading}</h2>
-        <p>{c.dataRetention.body}</p>
+        <p>{c.dataRetention.intro}</p>
+        <p>{c.dataRetention.listIntro}</p>
+        <ul>
+          {c.dataRetention.items.map((item) => <li>{item}</li>)}
+        </ul>
+        <p>{c.dataRetention.after}</p>
 
         <h2>{c.internationalUsers.heading}</h2>
         <p>{c.internationalUsers.body}</p>
