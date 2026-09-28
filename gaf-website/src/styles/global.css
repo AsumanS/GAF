@@ -365,6 +365,16 @@
     @apply mt-1.5 font-sans text-xs text-ink-soft;
   }
 
+  .volunteer-form textarea[aria-invalid='true'],
+  .volunteer-form input[aria-invalid='true'],
+  .volunteer-form select[aria-invalid='true'] {
+    @apply border-accent;
+  }
+
+  .volunteer-form .field-word-error {
+    @apply mt-1.5 font-sans text-xs font-semibold text-accent;
+  }
+
   .volunteer-form-choice {
     @apply min-w-0 border-0 p-0;
   }
@@ -448,6 +458,22 @@
 
   .agreement-group-accept {
     @apply mt-3 border-t border-rule pt-3;
+  }
+
+  .agreement-group.is-incomplete {
+    @apply border border-accent bg-accent/5 px-3;
+  }
+
+  .agreement-group.is-incomplete .agreement-group-summary-title {
+    @apply text-accent;
+  }
+
+  .agreement-group.is-incomplete .agreement-group-accept {
+    @apply rounded-sm border border-accent bg-white px-3 py-2;
+  }
+
+  .agreement-group.is-incomplete .agreement-group-accept span {
+    @apply font-semibold text-accent;
   }
 
   .agreement-final-cert {

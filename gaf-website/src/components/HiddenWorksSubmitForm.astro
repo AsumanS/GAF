@@ -10,6 +10,7 @@ import {
 const formAction = site.hiddenWorksSubmitFormAction.trim();
 const turnstileSiteKey = (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '').trim();
 const canSubmit = Boolean(formAction && turnstileSiteKey);
+const localPreview = import.meta.env.DEV && !canSubmit;
 
 function clauseLabelParts(clause: AgreementClause) {
   if (!clause.link?.text) return null;
@@ -31,6 +32,8 @@ function clauseLabelParts(clause: AgreementClause) {
   data-submit-form
   data-form-action={canSubmit ? formAction : ''}
   data-turnstile-sitekey={canSubmit ? turnstileSiteKey : ''}
+  data-local-preview={localPreview ? 'true' : 'false'}
+  novalidate
 >
   <input type="hidden" name="submission_idempotency_key" value="" autocomplete="off" />
   <!-- Participant Information -->
@@ -818,8 +821,14 @@ function clauseLabelParts(clause: AgreementClause) {
       data-submit-status
       aria-live="polite"
       aria-atomic="true"
-    ></p>
-    <button type="submit" class="project-involve-cta" data-submit-button disabled={!canSubmit}>
+    >
+      {
+        localPreview
+          ? 'Local preview: validation runs here, but online submission requires Turnstile and the Cloudflare Worker API.'
+          : ''
+      }
+    </p>
+    <button type="submit" class="project-involve-cta" data-submit-button disabled={!canSubmit && !localPreview}>
       Submit a Hidden Work
       <span aria-hidden="true">→</span>
     </button>
@@ -1130,6 +1139,7 @@ function clauseLabelParts(clause: AgreementClause) {
 
     const formAction = form.getAttribute('data-form-action') || '';
     const sitekey = form.getAttribute('data-turnstile-sitekey') || '';
+    const localPreview = form.getAttribute('data-local-preview') === 'true';
     const submitButton = form.querySelector('[data-submit-button]');
     const statusEl = form.querySelector('[data-submit-status]');
     const widgetHost = form.querySelector('[data-turnstile-widget]');
@@ -1142,7 +1152,12 @@ function clauseLabelParts(clause: AgreementClause) {
           : String(Date.now()) + '-' + Math.random().toString(16).slice(2);
     }
 
-    if (!formAction || !sitekey || !submitButton || !statusEl || !widgetHost) {
+    if (!submitButton || !statusEl) {
+      return;
+    }
+
+    const canSubmitOnline = Boolean(formAction && sitekey && widgetHost);
+    if (!canSubmitOnline && !localPreview) {
       return;
     }
 
@@ -1159,8 +1174,11 @@ function clauseLabelParts(clause: AgreementClause) {
     const FIELD_REQUIRED_MESSAGE = 'This field is required.';
     const FREEFORM_MAX_WORDS = 200;
     const FREEFORM_MAX_MESSAGE = 'This field must be at most 200 words.';
+    const FREEFORM_MAX_HINT = 'Max 200 words.';
     const READER_CASE_MIN_MESSAGE = 'The Reader-Facing Case must be at least 500 words.';
     const READER_CASE_MAX_MESSAGE = 'The Reader-Facing Case must be at most 1,000 words.';
+    const READER_CASE_MIN_HINT = 'Min 500 words.';
+    const READER_CASE_MAX_HINT = 'Max 1,000 words.';
     const EMAIL_INVALID_MESSAGE = 'Enter a valid email address.';
     const URL_INVALID_MESSAGE = 'Enter a valid http or https URL.';
 
@@ -1217,13 +1235,41 @@ function clauseLabelParts(clause: AgreementClause) {
       return (el.validationMessage && el.validationMessage.trim()) || FIELD_REQUIRED_MESSAGE;
     }
 
+    function clearWordLimitHints() {
+      form.querySelectorAll('[data-word-error]').forEach((el) => el.remove());
+    }
+
+    function showWordLimitHint(textarea, hint) {
+      if (!(textarea instanceof HTMLTextAreaElement)) return;
+      textarea.setAttribute('aria-invalid', 'true');
+      let err = textarea.parentElement
+        ? textarea.parentElement.querySelector(':scope > [data-word-error]')
+        : null;
+      if (!err) {
+        err = document.createElement('p');
+        err.className = 'field-word-error';
+        err.setAttribute('data-word-error', '');
+        err.setAttribute('role', 'alert');
+        textarea.insertAdjacentElement('afterend', err);
+      }
+      err.textContent = hint;
+    }
+
     function showFieldValidationError(el, message) {
       if (el && el.hasAttribute('data-agreement-accept')) {
         showAgreementRequiredError(el);
         return;
       }
+      clearWordLimitHints();
       if (el) {
         el.setAttribute('aria-invalid', 'true');
+        if (message === FREEFORM_MAX_MESSAGE) {
+          showWordLimitHint(el, FREEFORM_MAX_HINT);
+        } else if (message === READER_CASE_MIN_MESSAGE) {
+          showWordLimitHint(el, READER_CASE_MIN_HINT);
+        } else if (message === READER_CASE_MAX_MESSAGE) {
+          showWordLimitHint(el, READER_CASE_MAX_HINT);
+        }
       }
       setStatus(message || messageForInvalidField(el));
       focusNamedField(el && el.name ? el.name : '');
@@ -1232,7 +1278,6 @@ function clauseLabelParts(clause: AgreementClause) {
     function clearClientValidationStatus() {
       const current = statusEl.textContent || '';
       if (
-        current === AGREEMENT_REQUIRED_MESSAGE ||
         current === FIELD_REQUIRED_MESSAGE ||
         current === FREEFORM_MAX_MESSAGE ||
         current === READER_CASE_MIN_MESSAGE ||
@@ -1243,14 +1288,22 @@ function clauseLabelParts(clause: AgreementClause) {
         setStatus('');
       }
       form.querySelectorAll('[aria-invalid="true"]').forEach((input) => {
+        if (input.hasAttribute('data-agreement-accept')) return;
         input.removeAttribute('aria-invalid');
       });
+      clearWordLimitHints();
     }
 
     function showReaderCaseWordError(message) {
+      clearWordLimitHints();
       if (readerCaseInput) {
         readerCaseInput.setCustomValidity('');
         readerCaseInput.setAttribute('aria-invalid', 'true');
+        if (message === READER_CASE_MIN_MESSAGE) {
+          showWordLimitHint(readerCaseInput, READER_CASE_MIN_HINT);
+        } else if (message === READER_CASE_MAX_MESSAGE) {
+          showWordLimitHint(readerCaseInput, READER_CASE_MAX_HINT);
+        }
       }
       setStatus(message);
       focusNamedField('reader_facing_case');
@@ -1261,24 +1314,29 @@ function clauseLabelParts(clause: AgreementClause) {
         readerCaseInput.setCustomValidity('');
         readerCaseInput.removeAttribute('aria-invalid');
       }
+      clearWordLimitHints();
       const current = statusEl.textContent || '';
       if (current === READER_CASE_MIN_MESSAGE || current === READER_CASE_MAX_MESSAGE) {
         setStatus('');
       }
     }
 
-    function firstUncheckedAgreement() {
-      return (
-        Array.from(form.querySelectorAll('[data-agreement-accept]')).find(
-          (input) => input instanceof HTMLInputElement && !input.checked,
-        ) || null
-      );
+    function clearAgreementHighlights() {
+      form.querySelectorAll('[data-agreement-group].is-incomplete').forEach((group) => {
+        group.classList.remove('is-incomplete');
+      });
     }
 
     function showAgreementRequiredError(checkbox) {
+      clearAgreementHighlights();
       if (checkbox) {
         checkbox.setCustomValidity('');
         checkbox.setAttribute('aria-invalid', 'true');
+        const group = checkbox.closest('[data-agreement-group]');
+        if (group) {
+          group.classList.add('is-incomplete');
+          group.open = true;
+        }
       }
       setStatus(AGREEMENT_REQUIRED_MESSAGE);
       focusNamedField(checkbox && checkbox.name ? checkbox.name : '');
@@ -1291,6 +1349,7 @@ function clauseLabelParts(clause: AgreementClause) {
           input.removeAttribute('aria-invalid');
         }
       });
+      clearAgreementHighlights();
       if ((statusEl.textContent || '') === AGREEMENT_REQUIRED_MESSAGE) {
         setStatus('');
       }
@@ -1377,12 +1436,29 @@ function clauseLabelParts(clause: AgreementClause) {
           reject(new Error('turnstile_unavailable'));
           return;
         }
+        const timer = setTimeout(function () {
+          if (tokenRejecter) {
+            tokenRejecter(new Error('turnstile_timeout'));
+            tokenResolver = null;
+            tokenRejecter = null;
+          }
+        }, 20000);
+        const originalResolve = tokenResolver;
+        const originalReject = tokenRejecter;
+        tokenResolver = function (token) {
+          clearTimeout(timer);
+          originalResolve(token);
+        };
+        tokenRejecter = function (err) {
+          clearTimeout(timer);
+          originalReject(err);
+        };
         window.turnstile.execute(widgetId);
       });
     }
 
     function renderWidget() {
-      if (!window.turnstile || widgetId !== null) return;
+      if (!canSubmitOnline || !window.turnstile || widgetId !== null) return;
       widgetId = window.turnstile.render(widgetHost, {
         sitekey: sitekey,
         execution: 'execute',
@@ -1414,6 +1490,7 @@ function clauseLabelParts(clause: AgreementClause) {
     }
 
     function waitForTurnstile(attempt) {
+      if (!canSubmitOnline) return;
       if (window.turnstile) {
         renderWidget();
         return;
@@ -1424,6 +1501,89 @@ function clauseLabelParts(clause: AgreementClause) {
       }, 50);
     }
 
+    function isActiveControl(el) {
+      if (!el || el.disabled) return false;
+      if (el.closest('[hidden]')) return false;
+      return true;
+    }
+
+    function wordLimitErrorFor(el) {
+      if (!(el instanceof HTMLTextAreaElement)) return null;
+      if (!isActiveControl(el)) return null;
+      const n = countWords(el.value);
+      if (el.hasAttribute('data-reader-case')) {
+        updateReaderWordCount();
+        if (n < 500) return { el: el, message: READER_CASE_MIN_MESSAGE };
+        if (n > 1000) return { el: el, message: READER_CASE_MAX_MESSAGE };
+        return null;
+      }
+      if (!el.hasAttribute('data-max-words')) return null;
+      const max = Number(el.getAttribute('data-max-words') || FREEFORM_MAX_WORDS);
+      if (n > max) return { el: el, message: FREEFORM_MAX_MESSAGE };
+      return null;
+    }
+
+    function firstFormValidationError() {
+      const seenRadioNames = new Set();
+      const controls = form.querySelectorAll('input, select, textarea');
+
+      for (let i = 0; i < controls.length; i++) {
+        const el = controls[i];
+        if (!isActiveControl(el)) continue;
+
+        const type = (el.type || '').toLowerCase();
+        if (
+          type === 'hidden' ||
+          type === 'submit' ||
+          type === 'button' ||
+          type === 'reset' ||
+          type === 'file' ||
+          type === 'image'
+        ) {
+          continue;
+        }
+
+        if (type === 'radio') {
+          const name = el.name || '';
+          if (!name || seenRadioNames.has(name)) continue;
+          seenRadioNames.add(name);
+          const group = form.querySelectorAll('input[type="radio"][name="' + name.replace(/"/g, '\\"') + '"]');
+          const anyRequired = Array.prototype.some.call(group, function (radio) {
+            return radio.required;
+          });
+          if (!anyRequired) continue;
+          const anyChecked = Array.prototype.some.call(group, function (radio) {
+            return radio.checked;
+          });
+          if (!anyChecked) {
+            return { el: el, message: FIELD_REQUIRED_MESSAGE };
+          }
+          continue;
+        }
+
+        if (type === 'checkbox') {
+          if (el.required && !el.checked) {
+            return {
+              el: el,
+              message: el.hasAttribute('data-agreement-accept')
+                ? AGREEMENT_REQUIRED_MESSAGE
+                : FIELD_REQUIRED_MESSAGE,
+            };
+          }
+          continue;
+        }
+
+        if (typeof el.checkValidity === 'function' && !el.checkValidity()) {
+          return { el: el, message: messageForInvalidField(el) };
+        }
+
+        const wordError = wordLimitErrorFor(el);
+        if (wordError) return wordError;
+      }
+
+      return null;
+    }
+
     waitForTurnstile(0);
 
     form.addEventListener('submit', async (event) => {
@@ -1432,40 +1592,22 @@ function clauseLabelParts(clause: AgreementClause) {
 
       syncConditionalRequirements();
 
-      if (!form.checkValidity()) {
-        const firstInvalid = form.querySelector(':invalid');
-        showFieldValidationError(firstInvalid, messageForInvalidField(firstInvalid));
+      const validationError = firstFormValidationError();
+      if (validationError) {
+        if (validationError.el.hasAttribute('data-agreement-accept')) {
+          showAgreementRequiredError(validationError.el);
+        } else if (validationError.el.hasAttribute('data-reader-case')) {
+          showReaderCaseWordError(validationError.message);
+        } else {
+          showFieldValidationError(validationError.el, validationError.message);
+        }
         return;
       }
 
-      const uncheckedAgreement = firstUncheckedAgreement();
-      if (uncheckedAgreement) {
-        showAgreementRequiredError(uncheckedAgreement);
-        return;
-      }
-
-      const readerWords = updateReaderWordCount();
-      if (readerCaseInput) {
-        if (readerWords < 500) {
-          showReaderCaseWordError(READER_CASE_MIN_MESSAGE);
-          return;
-        }
-        if (readerWords > 1000) {
-          showReaderCaseWordError(READER_CASE_MAX_MESSAGE);
-          return;
-        }
-        clearReaderCaseWordError();
-      }
-
-      const oversizedFreeform = Array.from(
-        form.querySelectorAll('textarea[data-max-words]'),
-      ).find((el) => {
-        if (!(el instanceof HTMLTextAreaElement)) return false;
-        const max = Number(el.getAttribute('data-max-words') || FREEFORM_MAX_WORDS);
-        return countWords(el.value) > max;
-      });
-      if (oversizedFreeform instanceof HTMLTextAreaElement) {
-        showFieldValidationError(oversizedFreeform, FREEFORM_MAX_MESSAGE);
+      if (localPreview || !canSubmitOnline) {
+        setStatus(
+          'Local preview only: the form looks valid here, but online submission needs Turnstile and the Cloudflare Worker API.',
+        );
         return;
       }
 
@@ -1486,6 +1628,7 @@ function clauseLabelParts(clause: AgreementClause) {
           method: 'POST',
           body: body,
           credentials: 'same-origin',
+          signal: AbortSignal.timeout(60000),
         });
 
         let data = null;
@@ -1513,8 +1656,17 @@ function clauseLabelParts(clause: AgreementClause) {
         }
         submitButton.disabled = false;
         submitting = false;
-      } catch (_err) {
-        setStatus('Something went wrong. Please try again.');
+      } catch (err) {
+        const timedOut =
+          err &&
+          (err.name === 'TimeoutError' ||
+            err.message === 'turnstile_timeout' ||
+            err.message === 'turnstile_unavailable');
+        setStatus(
+          timedOut
+            ? 'Verification timed out. Please refresh the page and try again.'
+            : 'Something went wrong. Please try again.',
+        );
         if (window.turnstile && widgetId !== null) {
           window.turnstile.reset(widgetId);
         }
