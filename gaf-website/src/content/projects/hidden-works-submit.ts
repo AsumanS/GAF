@@ -31,7 +31,7 @@ export const hiddenWorksSubmitContent = {
     'Submit a historically significant public-domain work for consideration in the Hidden Works Discovery Contest.',
   intro: [
     'Help us discover important works from the world’s literary heritage that have remained outside the reach of a wider American readership.',
-    'The Hidden Works Discovery Contest invites participants to identify historically significant public-domain works and document why they deserve renewed attention. Three selected works will be translated into English, professionally prepared for publication, and introduced to readers in the United States.',
+    'The Hidden Works Discovery Contest invites participants to identify historically significant public-domain works and document why they deserve renewed attention. Golden Archive Foundation intends to select three qualifying works. Works selected through the competition will be prepared for English-language publication and introduced to readers in the United States.',
     'The participant who brought each selected work forward will be credited in the resulting edition and on the book cover under their chosen public credit name.',
   ],
   submissionsOpenHtml: '<strong>Submissions are currently open.</strong>',
@@ -342,7 +342,7 @@ export const hiddenWorksSubmitContent = {
             html: 'Golden Archive Foundation intends to select <strong>three qualifying works</strong>.',
           },
           'A work must satisfy final verification of eligibility, source availability, public-domain status, and publication feasibility before its selection is confirmed.',
-          'The three selected works will be prepared for English-language publication for readers in the United States.',
+          'Works selected through the competition will be prepared for English-language publication for readers in the United States.',
         ],
       },
       {
@@ -580,7 +580,7 @@ export const hiddenWorksSubmitContent = {
         {
           title: 'Selected Works',
           label:
-            'I understand that the contest is intended to select three qualifying works and that ties for a winning position may result in more than three works being selected.',
+            'I understand that the contest is intended to select three qualifying works, that fewer than three works may be selected if fewer than three submissions satisfy the required standards, and that ties for a winning position may result in more than three works being selected.',
         },
         {
           title: 'Public Credit',

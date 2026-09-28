@@ -19,7 +19,7 @@ export const hiddenWorksContent: ProjectPageContent = {
     },
     'Selected discoveries can open the way to deeper research, translation, editorial recovery, and publication. Through that process, Golden Archive Foundation aims to make important works easier to encounter again—not by treating them as historical curiosities, but by returning them to active cultural circulation.',
     {
-      html: '<strong>The three works selected from the competition will be translated into English, published, and introduced to readers in the United States.</strong> Each edition will recognize the participant who brought the work forward, crediting them <strong>in the book and on the cover</strong> as the person who helped bring that work to a new readership.',
+      html: '<strong>Works selected through the competition will be prepared for English-language publication and introduced to readers in the United States.</strong> Each resulting edition will recognize the participant who brought the work forward, crediting them <strong>in the book and on the cover</strong> as the person who helped bring that work to a new readership.',
     },
     'The project is also an invitation to participate in cultural recovery. Librarians, researchers, translators, students, independent scholars, readers, and people with deep knowledge of particular languages or traditions may all encounter works that established publishing channels have overlooked. Hidden Works creates a way for those discoveries to be shared.',
   ],
