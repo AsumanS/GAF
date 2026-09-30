@@ -6,6 +6,7 @@ import {
   VOLUNTEER_AGREEMENT_VERSION,
   VOLUNTEER_TURNSTILE_ACTION,
   ValidationError,
+  FieldValidationError,
   TextTooLargeError,
   buildVolunteerObjectKey,
   collectTextFields,
@@ -171,6 +172,14 @@ export async function handleVolunteerSubmit(
       timer.recordStage('validation', stageStarted);
       if (error instanceof TextTooLargeError) {
         return jsonResponse(413, { success: false, error: 'submission_too_large' });
+      }
+      if (error instanceof FieldValidationError) {
+        return jsonResponse(400, {
+          success: false,
+          error: 'invalid_submission',
+          field: error.field,
+          message: error.publicMessage,
+        });
       }
       if (error instanceof ValidationError) {
         return jsonResponse(400, { success: false, error: 'invalid_submission' });

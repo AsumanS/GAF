@@ -60,6 +60,20 @@ describe('volunteer text validation', () => {
     expect(() => validateVolunteerTextFields(fields, 'idem-1')).toThrow(ValidationError);
   });
 
+  it('rejects free-form text over 200 words', () => {
+    const fields = baseFields({
+      why_volunteer: Array.from({ length: 201 }, (_, i) => `word${i}`).join(' '),
+    });
+    expect(() => validateVolunteerTextFields(fields, 'idem-1')).toThrow(ValidationError);
+  });
+
+  it('allows free-form text at 200 words', () => {
+    const fields = baseFields({
+      why_volunteer: Array.from({ length: 200 }, (_, i) => `word${i}`).join(' '),
+    });
+    expect(() => validateVolunteerTextFields(fields, 'idem-1')).not.toThrow();
+  });
+
   it('rejects a missing declaration', () => {
     const fields = baseFields({ declare_accuracy: 'no' });
     expect(() => validateVolunteerTextFields(fields, 'idem-1')).toThrow(ValidationError);

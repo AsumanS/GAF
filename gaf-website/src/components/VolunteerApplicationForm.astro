@@ -11,6 +11,7 @@ import {
 const formAction = site.volunteerFormAction.trim();
 const turnstileSiteKey = (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '').trim();
 const canSubmit = Boolean(formAction && turnstileSiteKey);
+const localPreview = import.meta.env.DEV && !canSubmit;
 ---
 
 <form
@@ -19,8 +20,11 @@ const canSubmit = Boolean(formAction && turnstileSiteKey);
   enctype="multipart/form-data"
   action={canSubmit ? formAction : undefined}
   aria-labelledby="volunteer-form-title"
+  data-submit-form
   data-form-action={canSubmit ? formAction : ''}
   data-turnstile-sitekey={canSubmit ? turnstileSiteKey : ''}
+  data-local-preview={localPreview ? 'true' : 'false'}
+  novalidate
 >
   <h2 id="volunteer-form-title" class="font-display text-3xl sm:text-4xl">
     Volunteer Application
@@ -98,19 +102,19 @@ const canSubmit = Boolean(formAction && turnstileSiteKey);
         Why would you like to volunteer with Golden Archive Foundation?
         <span class="req" aria-hidden="true">*</span>
       </label>
-      <textarea id="why-volunteer" name="why_volunteer" rows="4" required></textarea>
+      <textarea id="why-volunteer" name="why_volunteer" rows="4" required data-max-words="200"></textarea>
     </div>
     <div class="field mt-5">
       <label for="how-contribute">
         How would you like to contribute? <span class="req" aria-hidden="true">*</span>
       </label>
-      <textarea id="how-contribute" name="how_contribute" rows="4" required></textarea>
+      <textarea id="how-contribute" name="how_contribute" rows="4" required data-max-words="200"></textarea>
     </div>
     <div class="field mt-5">
       <label for="work-interests">
         Are there particular kinds of work you are especially interested in?
       </label>
-      <textarea id="work-interests" name="work_interests" rows="3"></textarea>
+      <textarea id="work-interests" name="work_interests" rows="3" data-max-words="200"></textarea>
     </div>
   </section>
 
@@ -120,7 +124,7 @@ const canSubmit = Boolean(formAction && turnstileSiteKey);
       <label for="skills-experience">
         Relevant skills and experience <span class="req" aria-hidden="true">*</span>
       </label>
-      <textarea id="skills-experience" name="skills_experience" rows="4" required></textarea>
+      <textarea id="skills-experience" name="skills_experience" rows="4" required data-max-words="200"></textarea>
     </div>
     <div class="field mt-5">
       <label for="languages">Languages spoken / read / written</label>
@@ -132,11 +136,11 @@ const canSubmit = Boolean(formAction && turnstileSiteKey);
     </div>
     <div class="field mt-5">
       <label for="qualifications">Professional qualifications, certifications, or licenses</label>
-      <textarea id="qualifications" name="qualifications" rows="3"></textarea>
+      <textarea id="qualifications" name="qualifications" rows="3" data-max-words="200"></textarea>
     </div>
     <div class="field mt-5">
       <label for="prior-volunteer">Previous volunteer or nonprofit experience</label>
-      <textarea id="prior-volunteer" name="prior_volunteer" rows="3"></textarea>
+      <textarea id="prior-volunteer" name="prior_volunteer" rows="3" data-max-words="200"></textarea>
     </div>
   </section>
 
@@ -234,7 +238,7 @@ const canSubmit = Boolean(formAction && turnstileSiteKey);
     <h3 id="additional-heading" class="volunteer-form-section-title">Additional Information</h3>
     <div class="field">
       <label for="additional-info">Anything else you would like us to know?</label>
-      <textarea id="additional-info" name="additional_info" rows="4"></textarea>
+      <textarea id="additional-info" name="additional_info" rows="4" data-max-words="200"></textarea>
     </div>
   </section>
 
@@ -242,7 +246,7 @@ const canSubmit = Boolean(formAction && turnstileSiteKey);
     <h3 id="declarations-heading" class="volunteer-form-section-title">Declarations</h3>
     <div class="declaration-list">
       <label class="choice choice-block">
-        <input type="checkbox" name="declare_accuracy" value="yes" required />
+        <input type="checkbox" name="declare_accuracy" value="yes" required data-declaration-accept />
         <span>
           I certify that the information provided in this application is accurate to the best of my
           knowledge.
@@ -250,21 +254,21 @@ const canSubmit = Boolean(formAction && turnstileSiteKey);
         </span>
       </label>
       <label class="choice choice-block">
-        <input type="checkbox" name="declare_no_guarantee" value="yes" required />
+        <input type="checkbox" name="declare_no_guarantee" value="yes" required data-declaration-accept />
         <span>
           I understand that submitting an application does not guarantee a volunteer placement.
           <span class="req" aria-hidden="true">*</span>
         </span>
       </label>
       <label class="choice choice-block">
-        <input type="checkbox" name="declare_unpaid" value="yes" required />
+        <input type="checkbox" name="declare_unpaid" value="yes" required data-declaration-accept />
         <span>
           I understand that volunteer roles with Golden Archive Foundation are unpaid.
           <span class="req" aria-hidden="true">*</span>
         </span>
       </label>
       <label class="choice choice-block">
-        <input type="checkbox" name="declare_confidentiality" value="yes" required />
+        <input type="checkbox" name="declare_confidentiality" value="yes" required data-declaration-accept />
         <span>
           I understand that some volunteer roles may involve access to confidential information and
           may require additional confidentiality or data-handling requirements.
@@ -299,8 +303,14 @@ const canSubmit = Boolean(formAction && turnstileSiteKey);
       data-submit-status
       aria-live="polite"
       aria-atomic="true"
-    ></p>
-    <button type="submit" class="btn-primary" data-submit-button disabled={!canSubmit}>
+    >
+      {
+        localPreview
+          ? 'Local preview: validation runs here, but online submission requires Turnstile and the Cloudflare Worker API.'
+          : ''
+      }
+    </p>
+    <button type="submit" class="btn-primary" data-submit-button disabled={!canSubmit && !localPreview}>
       Submit Volunteer Application
     </button>
   </div>
@@ -318,9 +328,10 @@ const canSubmit = Boolean(formAction && turnstileSiteKey);
 }
 
 <script is:inline>
-  document.querySelectorAll('.volunteer-form').forEach((form) => {
+  document.querySelectorAll('.volunteer-form[data-submit-form]').forEach((form) => {
     const formAction = form.getAttribute('data-form-action') || '';
     const sitekey = form.getAttribute('data-turnstile-sitekey') || '';
+    const localPreview = form.getAttribute('data-local-preview') === 'true';
     const submitButton = form.querySelector('[data-submit-button]');
     const statusEl = form.querySelector('[data-submit-status]');
     const widgetHost = form.querySelector('[data-turnstile-widget]');
@@ -333,28 +344,247 @@ const canSubmit = Boolean(formAction && turnstileSiteKey);
           : String(Date.now()) + '-' + Math.random().toString(16).slice(2);
     }
 
-    form.querySelectorAll('input[name="preferred_availability"]').forEach((box) => {
-      box.addEventListener('change', () => {
-        form
-          .querySelectorAll('input[name="preferred_availability"]')
-          .forEach((item) => item.setCustomValidity(''));
-      });
-    });
+    if (!submitButton || !statusEl) return;
 
-    if (!formAction || !sitekey || !submitButton || !statusEl || !widgetHost) {
-      return;
-    }
+    const canSubmitOnline = Boolean(formAction && sitekey && widgetHost);
+    if (!canSubmitOnline && !localPreview) return;
 
     let widgetId = null;
     let submitting = false;
     let tokenResolver = null;
     let tokenRejecter = null;
 
+    const FIELD_REQUIRED_MESSAGE = 'This field is required.';
+    const FREEFORM_MAX_WORDS = 200;
+    const FREEFORM_MAX_MESSAGE = 'This field must be at most 200 words.';
+    const FREEFORM_MAX_HINT = 'Max 200 words.';
+    const EMAIL_INVALID_MESSAGE = 'Enter a valid email address.';
+    const URL_INVALID_MESSAGE = 'Enter a valid http or https URL.';
+    const AVAILABILITY_MESSAGE = 'Please select at least one preferred availability option.';
+    const DECLARATION_MESSAGE = 'You must accept this declaration to continue.';
+    const AGE_MESSAGE = 'You must be at least 18 years old to apply.';
+    const RESUME_MESSAGE = 'Please upload a résumé or CV.';
+
     function setStatus(message) {
       statusEl.textContent = message || '';
     }
 
-    function errorMessageForStatus(status) {
+    function countWords(text) {
+      const trimmed = (text || '').trim();
+      if (!trimmed) return 0;
+      return trimmed.split(/\s+/).filter(Boolean).length;
+    }
+
+    function isActiveControl(el) {
+      if (!el || el.disabled) return false;
+      if (el.closest('[hidden]')) return false;
+      return true;
+    }
+
+    function clearWordLimitHints() {
+      form.querySelectorAll('[data-word-error]').forEach((el) => el.remove());
+    }
+
+    function clearDeclarationHighlights() {
+      form.querySelectorAll('.choice-block.is-incomplete').forEach((el) => {
+        el.classList.remove('is-incomplete');
+      });
+    }
+
+    function showWordLimitHint(textarea, hint) {
+      if (!(textarea instanceof HTMLTextAreaElement)) return;
+      textarea.setAttribute('aria-invalid', 'true');
+      let err = textarea.parentElement
+        ? textarea.parentElement.querySelector(':scope > [data-word-error]')
+        : null;
+      if (!err) {
+        err = document.createElement('p');
+        err.className = 'field-word-error';
+        err.setAttribute('data-word-error', '');
+        err.setAttribute('role', 'alert');
+        textarea.insertAdjacentElement('afterend', err);
+      }
+      err.textContent = hint;
+    }
+
+    function focusNamedField(name) {
+      if (!name) return;
+      const matches = form.querySelectorAll('[name="' + name.replace(/"/g, '\\"') + '"]');
+      if (!matches.length) return;
+      const el = matches[0];
+      try {
+        el.focus();
+      } catch (_err) {
+        // ignore
+      }
+      if (typeof el.scrollIntoView === 'function') {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function showFieldValidationError(el, message) {
+      clearWordLimitHints();
+      clearDeclarationHighlights();
+      if (el) {
+        el.setAttribute('aria-invalid', 'true');
+        if (message === FREEFORM_MAX_MESSAGE) {
+          showWordLimitHint(el, FREEFORM_MAX_HINT);
+        }
+        if (el.hasAttribute('data-declaration-accept')) {
+          const label = el.closest('.choice-block');
+          if (label) label.classList.add('is-incomplete');
+        }
+      }
+      setStatus(message || FIELD_REQUIRED_MESSAGE);
+      focusNamedField(el && el.name ? el.name : '');
+    }
+
+    function clearClientValidationStatus() {
+      const current = statusEl.textContent || '';
+      if (
+        current === FIELD_REQUIRED_MESSAGE ||
+        current === FREEFORM_MAX_MESSAGE ||
+        current === EMAIL_INVALID_MESSAGE ||
+        current === URL_INVALID_MESSAGE ||
+        current === AVAILABILITY_MESSAGE ||
+        current === AGE_MESSAGE ||
+        current === RESUME_MESSAGE
+      ) {
+        setStatus('');
+      }
+      form.querySelectorAll('[aria-invalid="true"]').forEach((input) => {
+        if (input.hasAttribute('data-declaration-accept')) return;
+        input.removeAttribute('aria-invalid');
+      });
+      clearWordLimitHints();
+    }
+
+    function clearDeclarationError() {
+      form.querySelectorAll('[data-declaration-accept]').forEach((input) => {
+        input.removeAttribute('aria-invalid');
+      });
+      clearDeclarationHighlights();
+      if ((statusEl.textContent || '') === DECLARATION_MESSAGE) {
+        setStatus('');
+      }
+    }
+
+    function messageForInvalidField(el) {
+      if (!el) return FIELD_REQUIRED_MESSAGE;
+      if (el.hasAttribute('data-declaration-accept')) return DECLARATION_MESSAGE;
+      if (el.validity && el.validity.valueMissing) {
+        if (el.type === 'file' && el.name === 'resume') return RESUME_MESSAGE;
+        return FIELD_REQUIRED_MESSAGE;
+      }
+      if (el.validity && el.validity.typeMismatch) {
+        if (el.type === 'email') return EMAIL_INVALID_MESSAGE;
+        if (el.type === 'url') return URL_INVALID_MESSAGE;
+      }
+      return (el.validationMessage && el.validationMessage.trim()) || FIELD_REQUIRED_MESSAGE;
+    }
+
+    function wordLimitErrorFor(el) {
+      if (!(el instanceof HTMLTextAreaElement)) return null;
+      if (!isActiveControl(el) || !el.hasAttribute('data-max-words')) return null;
+      const n = countWords(el.value);
+      const max = Number(el.getAttribute('data-max-words') || FREEFORM_MAX_WORDS);
+      if (n > max) return { el: el, message: FREEFORM_MAX_MESSAGE };
+      return null;
+    }
+
+    function firstFormValidationError() {
+      const seenRadioNames = new Set();
+      const seenCheckboxGroups = new Set();
+      const controls = form.querySelectorAll('input, select, textarea');
+
+      for (let i = 0; i < controls.length; i++) {
+        const el = controls[i];
+        if (!isActiveControl(el)) continue;
+
+        const type = (el.type || '').toLowerCase();
+        if (type === 'hidden' || type === 'submit' || type === 'button' || type === 'reset') {
+          continue;
+        }
+
+        if (type === 'radio') {
+          const name = el.name || '';
+          if (!name || seenRadioNames.has(name)) continue;
+          seenRadioNames.add(name);
+          const group = form.querySelectorAll(
+            'input[type="radio"][name="' + name.replace(/"/g, '\\"') + '"]',
+          );
+          const anyRequired = Array.prototype.some.call(group, function (radio) {
+            return radio.required;
+          });
+          if (!anyRequired) continue;
+          const checked = Array.prototype.find.call(group, function (radio) {
+            return radio.checked;
+          });
+          if (!checked) {
+            return { el: el, message: FIELD_REQUIRED_MESSAGE };
+          }
+          if (name === 'age_18_or_older' && checked.value !== 'Yes') {
+            return { el: checked, message: AGE_MESSAGE };
+          }
+          continue;
+        }
+
+        if (type === 'checkbox') {
+          const name = el.name || '';
+          if (name === 'preferred_availability') {
+            if (seenCheckboxGroups.has(name)) continue;
+            seenCheckboxGroups.add(name);
+            const group = form.querySelectorAll(
+              'input[type="checkbox"][name="preferred_availability"]',
+            );
+            const anyChecked = Array.prototype.some.call(group, function (box) {
+              return box.checked;
+            });
+            if (!anyChecked) {
+              return { el: el, message: AVAILABILITY_MESSAGE };
+            }
+            continue;
+          }
+          if (el.required && !el.checked) {
+            return {
+              el: el,
+              message: el.hasAttribute('data-declaration-accept')
+                ? DECLARATION_MESSAGE
+                : FIELD_REQUIRED_MESSAGE,
+            };
+          }
+          continue;
+        }
+
+        if (type === 'file') {
+          if (el.required && (!el.files || el.files.length === 0)) {
+            return {
+              el: el,
+              message: el.name === 'resume' ? RESUME_MESSAGE : FIELD_REQUIRED_MESSAGE,
+            };
+          }
+          continue;
+        }
+
+        if (typeof el.checkValidity === 'function' && !el.checkValidity()) {
+          return { el: el, message: messageForInvalidField(el) };
+        }
+
+        const wordError = wordLimitErrorFor(el);
+        if (wordError) return wordError;
+      }
+
+      return null;
+    }
+
+    form.addEventListener('input', clearClientValidationStatus);
+    form.addEventListener('change', clearClientValidationStatus);
+    form.querySelectorAll('[data-declaration-accept]').forEach((input) => {
+      input.addEventListener('change', clearDeclarationError);
+    });
+
+    function errorMessageForResponse(status, data) {
+      if (status === 400 && data && data.message) return data.message;
       if (status === 413) {
         return 'This submission is too large. Please reduce file sizes and try again.';
       }
@@ -386,12 +616,29 @@ const canSubmit = Boolean(formAction && turnstileSiteKey);
           reject(new Error('turnstile_unavailable'));
           return;
         }
+        const timer = setTimeout(function () {
+          if (tokenRejecter) {
+            tokenRejecter(new Error('turnstile_timeout'));
+            tokenResolver = null;
+            tokenRejecter = null;
+          }
+        }, 20000);
+        const originalResolve = tokenResolver;
+        const originalReject = tokenRejecter;
+        tokenResolver = function (token) {
+          clearTimeout(timer);
+          originalResolve(token);
+        };
+        tokenRejecter = function (err) {
+          clearTimeout(timer);
+          originalReject(err);
+        };
         window.turnstile.execute(widgetId);
       });
     }
 
     function renderWidget() {
-      if (!window.turnstile || widgetId !== null) return;
+      if (!canSubmitOnline || !window.turnstile || widgetId !== null) return;
       widgetId = window.turnstile.render(widgetHost, {
         sitekey: sitekey,
         execution: 'execute',
@@ -423,6 +670,7 @@ const canSubmit = Boolean(formAction && turnstileSiteKey);
     }
 
     function waitForTurnstile(attempt) {
+      if (!canSubmitOnline) return;
       if (window.turnstile) {
         renderWidget();
         return;
@@ -439,20 +687,16 @@ const canSubmit = Boolean(formAction && turnstileSiteKey);
       event.preventDefault();
       if (submitting) return;
 
-      const boxes = form.querySelectorAll('input[name="preferred_availability"]');
-      if (boxes.length) {
-        const checked = Array.from(boxes).some((box) => box.checked);
-        if (!checked) {
-          boxes[0].focus();
-          boxes[0].setCustomValidity('Please select at least one preferred availability option.');
-          boxes[0].reportValidity();
-          return;
-        }
-        boxes.forEach((box) => box.setCustomValidity(''));
+      const validationError = firstFormValidationError();
+      if (validationError) {
+        showFieldValidationError(validationError.el, validationError.message);
+        return;
       }
 
-      if (!form.checkValidity()) {
-        form.reportValidity();
+      if (localPreview || !canSubmitOnline) {
+        setStatus(
+          'Local preview only: the form looks valid here, but online submission needs Turnstile and the Cloudflare Worker API.',
+        );
         return;
       }
 
@@ -473,6 +717,7 @@ const canSubmit = Boolean(formAction && turnstileSiteKey);
           method: 'POST',
           body: body,
           credentials: 'same-origin',
+          signal: AbortSignal.timeout(60000),
         });
 
         let data = null;
@@ -493,14 +738,26 @@ const canSubmit = Boolean(formAction && turnstileSiteKey);
           return;
         }
 
-        setStatus(errorMessageForStatus(response.status));
+        setStatus(errorMessageForResponse(response.status, data));
+        if (data && data.field) {
+          focusNamedField(data.field);
+        }
         if (window.turnstile && widgetId !== null) {
           window.turnstile.reset(widgetId);
         }
         submitButton.disabled = false;
         submitting = false;
-      } catch (_err) {
-        setStatus('Something went wrong. Please try again.');
+      } catch (err) {
+        const timedOut =
+          err &&
+          (err.name === 'TimeoutError' ||
+            err.message === 'turnstile_timeout' ||
+            err.message === 'turnstile_unavailable');
+        setStatus(
+          timedOut
+            ? 'Verification timed out. Please refresh the page and try again.'
+            : 'Something went wrong. Please try again.',
+        );
         if (window.turnstile && widgetId !== null) {
           window.turnstile.reset(widgetId);
         }

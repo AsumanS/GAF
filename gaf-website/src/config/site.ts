@@ -97,7 +97,7 @@ export const site: SiteConfig = {
   legalStatus: '501(c)(3) tax-exempt organization',
   foundationClassification: 'Public charity',
   ein: '41-2754875',
-  publicEmail: 'goldenarchivefoundation@gmail.com',
+  publicEmail: 'contact@goldenarchivefoundation.org',
   mailingAddress: '',
   determinationLetterUrl: '/documents/transparency/IRS_Determination_Letter_Public_Copy.pdf',
   irsSearchUrl:

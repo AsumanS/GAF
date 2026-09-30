@@ -237,6 +237,19 @@ export const VOLUNTEER_DECLARATIONS = [
   'declare_confidentiality',
 ] as const;
 
+/** Max words for volunteer free-form textareas. */
+export const VOLUNTEER_FREEFORM_MAX_WORDS = 200;
+
+export const VOLUNTEER_FREEFORM_TEXT_FIELDS = [
+  'why_volunteer',
+  'how_contribute',
+  'work_interests',
+  'skills_experience',
+  'qualifications',
+  'prior_volunteer',
+  'additional_info',
+] as const;
+
 export type VolunteerValidated = {
   fields: Record<string, string | string[]>;
   payloadJson: string;
@@ -262,26 +275,55 @@ export function validateVolunteerTextFields(
   idempotencyKeyRaw: string | null,
 ): VolunteerValidated {
   const idempotencyKey = (idempotencyKeyRaw ?? '').trim();
-  if (!idempotencyKey) throw new ValidationError();
-
-  for (const key of VOLUNTEER_REQUIRED_STRINGS) {
-    if (!single(fields, key)) throw new ValidationError();
+  if (!idempotencyKey) {
+    throw new FieldValidationError('submission_idempotency_key', 'This field is required.');
   }
 
-  if (single(fields, 'age_18_or_older') !== 'Yes') throw new ValidationError();
+  for (const key of VOLUNTEER_REQUIRED_STRINGS) {
+    if (!single(fields, key)) {
+      throw new FieldValidationError(key, 'This field is required.');
+    }
+  }
+
+  if (single(fields, 'age_18_or_older') !== 'Yes') {
+    throw new FieldValidationError(
+      'age_18_or_older',
+      'You must be at least 18 years old to apply.',
+    );
+  }
 
   const availability = allValues(fields, 'preferred_availability').filter(Boolean);
-  if (availability.length === 0) throw new ValidationError();
+  if (availability.length === 0) {
+    throw new FieldValidationError(
+      'preferred_availability',
+      'Please select at least one preferred availability option.',
+    );
+  }
   fields.preferred_availability = availability;
 
   for (const key of VOLUNTEER_DECLARATIONS) {
-    if (single(fields, key) !== 'yes') throw new ValidationError();
+    if (single(fields, key) !== 'yes') {
+      throw new FieldValidationError(key, 'You must accept this declaration to continue.');
+    }
   }
 
   for (const key of VOLUNTEER_EMAIL_FIELDS) {
     const email = single(fields, key).toLowerCase();
-    if (!isValidEmail(email)) throw new ValidationError();
+    if (!isValidEmail(email)) {
+      throw new FieldValidationError(key, 'Enter a valid email address.');
+    }
     fields[key] = email;
+  }
+
+  for (const key of VOLUNTEER_FREEFORM_TEXT_FIELDS) {
+    const value = single(fields, key);
+    if (!value) continue;
+    if (countWhitespaceSeparatedWords(value) > VOLUNTEER_FREEFORM_MAX_WORDS) {
+      throw new FieldValidationError(
+        key,
+        `This field must be at most ${VOLUNTEER_FREEFORM_MAX_WORDS} words.`,
+      );
+    }
   }
 
   const firstName = single(fields, 'first_name');

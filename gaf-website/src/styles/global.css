@@ -399,6 +399,14 @@
     @apply flex flex-col gap-4;
   }
 
+  .volunteer-form .choice-block.is-incomplete {
+    @apply rounded-sm border border-accent bg-accent/5 px-3 py-2;
+  }
+
+  .volunteer-form .choice-block.is-incomplete span {
+    @apply font-semibold text-accent;
+  }
+
   .agreement-intro {
     @apply mt-1 font-sans text-sm text-ink-muted;
   }
