@@ -3,7 +3,7 @@ import { createSignedSubmissionFileUrl } from './submissionFiles';
 
 export const GMAIL_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 export const GMAIL_SEND_URL = 'https://gmail.googleapis.com/gmail/v1/users/me/messages/send';
-export const NOTIFICATION_MAILBOX = 'contact@goldenarchivefoundation.org';
+export const NOTIFICATION_MAILBOX = 'goldenarchivefoundation@gmail.com';
 
 const OMITTED_PAYLOAD_KEYS = new Set([
   'object_key',
