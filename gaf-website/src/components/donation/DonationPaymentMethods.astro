@@ -1,0 +1,47 @@
+---
+import { donateContent } from '../../content/donate';
+
+type Props = {
+  cardPaymentsEnabled: boolean;
+  paypalPaymentsEnabled: boolean;
+};
+
+const { cardPaymentsEnabled, paypalPaymentsEnabled } = Astro.props;
+const copy = donateContent.form;
+---
+
+<section
+  class="donation-payments"
+  aria-labelledby="donation-payment-heading"
+  data-donation-payments
+  data-card-payments-enabled={cardPaymentsEnabled ? 'true' : 'false'}
+  data-paypal-payments-enabled={paypalPaymentsEnabled ? 'true' : 'false'}
+>
+  <h2 id="donation-payment-heading" class="sr-only">Payment methods</h2>
+  <div class="donation-payment-actions">
+    <button
+      type="button"
+      class="btn-primary donation-pay-btn"
+      data-pay-method="card"
+      disabled={!cardPaymentsEnabled}
+      aria-disabled={!cardPaymentsEnabled ? 'true' : 'false'}
+    >
+      {copy.cardButton}
+    </button>
+    <button
+      type="button"
+      class="btn-secondary donation-pay-btn"
+      data-pay-method="paypal"
+      disabled={!paypalPaymentsEnabled}
+      aria-disabled={!paypalPaymentsEnabled ? 'true' : 'false'}
+    >
+      {copy.paypalButton}
+    </button>
+  </div>
+  <p
+    class="donation-field-error mt-3 hidden"
+    data-payment-error
+    role="alert"
+    hidden
+  ></p>
+</section>

@@ -596,4 +596,207 @@
   .volunteer-form button:disabled {
     @apply cursor-not-allowed opacity-50;
   }
+
+  /* Donation page form */
+  .donation-page-form,
+  .donation-page-below {
+    max-width: 42.5rem; /* ~680px */
+  }
+
+  .donation-form {
+    @apply border border-rule bg-white p-6 sm:p-8;
+  }
+
+  .donation-form-block + .donation-form-block {
+    @apply mt-8;
+  }
+
+  .donation-fieldset {
+    @apply min-w-0 border-0 p-0;
+  }
+
+  .donation-legend,
+  .donation-block-title,
+  .donation-label {
+    @apply mb-3 block font-sans text-sm font-semibold text-ink;
+  }
+
+  .donation-legend {
+    @apply float-none w-full px-0;
+  }
+
+  .donation-segment {
+    @apply grid grid-cols-2 border border-rule;
+  }
+
+  .donation-segment-btn {
+    @apply border-0 bg-white px-4 py-3 font-sans text-sm font-semibold tracking-wide text-ink transition-colors;
+  }
+
+  .donation-segment-btn + .donation-segment-btn {
+    @apply border-l border-rule;
+  }
+
+  .donation-segment-btn.is-selected {
+    @apply bg-accent text-white;
+  }
+
+  .donation-segment-btn:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+    z-index: 1;
+  }
+
+  .donation-amount-grid {
+    @apply grid grid-cols-2 gap-3 sm:grid-cols-3;
+  }
+
+  .donation-amount-btn {
+    @apply border border-rule bg-canvas px-3 py-3 font-sans text-sm font-semibold tracking-wide text-ink transition-colors;
+  }
+
+  .donation-amount-btn.is-selected {
+    @apply border-accent bg-accent text-white;
+  }
+
+  .donation-amount-btn:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  .donation-currency-input {
+    @apply flex items-stretch border border-rule-strong bg-canvas;
+  }
+
+  .donation-currency-prefix {
+    @apply flex items-center border-r border-rule-strong px-3 font-sans text-base text-ink-muted;
+  }
+
+  .donation-currency-input input {
+    @apply w-full border-0 bg-transparent px-3 py-2.5 font-sans text-base text-ink;
+  }
+
+  .donation-currency-input input:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  .donation-currency-input input[aria-invalid='true'] {
+    @apply text-accent;
+  }
+
+  .donation-hint {
+    @apply mt-1.5 font-sans text-xs leading-relaxed text-ink-soft;
+  }
+
+  .donation-field-error {
+    @apply mt-1.5 font-sans text-xs font-semibold text-accent;
+  }
+
+  .donation-option {
+    @apply min-w-0;
+  }
+
+  .donation-check {
+    @apply inline-flex items-start gap-2.5 font-sans text-sm font-semibold text-ink;
+  }
+
+  .donation-check input {
+    @apply mt-0.5;
+  }
+
+  .donation-check.is-disabled {
+    @apply cursor-not-allowed text-ink-soft;
+  }
+
+  .donation-summary-frequency {
+    @apply mb-3 flex items-baseline justify-between gap-4 font-sans text-sm;
+  }
+
+  .donation-summary-frequency-label {
+    @apply text-ink-muted;
+  }
+
+  .donation-summary-frequency [data-summary-frequency] {
+    @apply font-semibold text-ink;
+  }
+
+  .donation-summary-table {
+    @apply w-full border-collapse;
+  }
+
+  .donation-summary-table th,
+  .donation-summary-table td {
+    @apply border-b border-rule py-2.5 font-sans text-sm;
+  }
+
+  .donation-summary-table thead th {
+    @apply text-left font-semibold text-ink;
+  }
+
+  .donation-summary-table thead th:last-child,
+  .donation-summary-table td {
+    @apply text-right font-semibold text-ink;
+  }
+
+  .donation-summary-table tbody th {
+    @apply text-left font-normal text-ink-muted;
+  }
+
+  .donation-summary-table .donation-summary-total th,
+  .donation-summary-table .donation-summary-total td {
+    @apply border-b-0 pt-3 text-base font-semibold text-ink;
+  }
+
+  .donation-summary-note {
+    @apply mt-3 font-sans text-sm text-ink-muted;
+  }
+
+  .donation-payment-actions {
+    @apply grid gap-3 sm:grid-cols-2;
+  }
+
+  .donation-pay-btn {
+    @apply w-full;
+  }
+
+  .donation-pay-btn:disabled {
+    @apply cursor-not-allowed opacity-50;
+  }
+
+  .donation-section-heading {
+    @apply font-display text-2xl text-ink sm:text-3xl;
+  }
+
+  .donation-trust-grid {
+    @apply mt-6 grid gap-8;
+  }
+
+  .donation-trust-title {
+    @apply font-display text-xl text-ink;
+  }
+
+  .donation-trust-grid .body-copy + .body-copy {
+    @apply mt-3;
+  }
+
+  .donation-trust-links {
+    @apply flex flex-wrap gap-x-5 gap-y-2;
+  }
+
+  .donation-trust-links a {
+    @apply font-sans text-sm font-semibold text-ink no-underline hover:text-accent;
+  }
+
+  .donation-legal-link {
+    @apply font-sans text-sm font-semibold text-ink no-underline hover:text-accent;
+  }
+
+  .donation-legal-panel {
+    @apply border border-rule bg-white p-5 sm:p-6;
+  }
+
+  .donation-legal-list {
+    @apply grid gap-4;
+  }
 }

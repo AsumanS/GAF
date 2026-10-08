@@ -1,0 +1,147 @@
+---
+/**
+ * Donation frequency segmented control + amount grid + custom amount field.
+ */
+import {
+  DEFAULT_MONTHLY_AMOUNT,
+  DEFAULT_ONE_TIME_AMOUNT,
+  MONTHLY_PRESETS,
+  ONE_TIME_PRESETS,
+  formatUsd,
+} from '../../lib/donationForm';
+import { donateContent } from '../../content/donate';
+
+const copy = donateContent.form;
+---
+
+<div class="donation-form-block" data-donation-frequency-amount>
+  <fieldset class="donation-fieldset">
+    <legend class="donation-legend">{copy.frequencyLegend}</legend>
+    <div
+      class="donation-segment"
+      role="radiogroup"
+      aria-label={copy.frequencyLegend}
+      data-frequency-group
+    >
+      <button
+        type="button"
+        class="donation-segment-btn is-selected"
+        role="radio"
+        aria-checked="true"
+        data-frequency="one-time"
+      >
+        One-time
+      </button>
+      <button
+        type="button"
+        class="donation-segment-btn"
+        role="radio"
+        aria-checked="false"
+        data-frequency="monthly"
+      >
+        Monthly
+      </button>
+    </div>
+  </fieldset>
+
+  <fieldset class="donation-fieldset mt-8">
+    <legend class="donation-legend">{copy.amountLegend}</legend>
+
+    <div
+      class="donation-amount-grid"
+      role="radiogroup"
+      aria-label={copy.amountLegend}
+      data-amount-group="one-time"
+    >
+      {
+        ONE_TIME_PRESETS.map((amount) => (
+          <button
+            type="button"
+            class:list={[
+              'donation-amount-btn',
+              amount === DEFAULT_ONE_TIME_AMOUNT && 'is-selected',
+            ]}
+            role="radio"
+            aria-checked={amount === DEFAULT_ONE_TIME_AMOUNT ? 'true' : 'false'}
+            data-amount-preset={String(amount)}
+            data-frequency-scope="one-time"
+          >
+            {formatUsd(amount)}
+          </button>
+        ))
+      }
+      <button
+        type="button"
+        class="donation-amount-btn"
+        role="radio"
+        aria-checked="false"
+        data-amount-other
+        data-frequency-scope="one-time"
+      >
+        {copy.otherLabel}
+      </button>
+    </div>
+
+    <div
+      class="donation-amount-grid hidden"
+      role="radiogroup"
+      aria-label={copy.amountLegend}
+      data-amount-group="monthly"
+      hidden
+    >
+      {
+        MONTHLY_PRESETS.map((amount) => (
+          <button
+            type="button"
+            class:list={[
+              'donation-amount-btn',
+              amount === DEFAULT_MONTHLY_AMOUNT && 'is-selected',
+            ]}
+            role="radio"
+            aria-checked={amount === DEFAULT_MONTHLY_AMOUNT ? 'true' : 'false'}
+            data-amount-preset={String(amount)}
+            data-frequency-scope="monthly"
+          >
+            {formatUsd(amount)}
+          </button>
+        ))
+      }
+      <button
+        type="button"
+        class="donation-amount-btn"
+        role="radio"
+        aria-checked="false"
+        data-amount-other
+        data-frequency-scope="monthly"
+      >
+        {copy.otherLabel}
+      </button>
+    </div>
+
+    <div class="donation-custom-amount hidden mt-4" data-custom-amount-wrap hidden>
+      <label class="donation-label" for="donation-custom-amount">{copy.customAmountLabel}</label>
+      <div class="donation-currency-input">
+        <span class="donation-currency-prefix" aria-hidden="true">$</span>
+        <input
+          id="donation-custom-amount"
+          name="custom_amount"
+          type="text"
+          inputmode="decimal"
+          autocomplete="off"
+          enterkeyhint="done"
+          data-custom-amount
+          aria-describedby="donation-custom-amount-hint donation-custom-amount-error"
+          aria-invalid="false"
+        />
+      </div>
+      <p id="donation-custom-amount-hint" class="donation-hint">{copy.customAmountHint}</p>
+      <p
+        id="donation-custom-amount-error"
+        class="donation-field-error hidden"
+        data-custom-amount-error
+        role="alert"
+        hidden
+      ></p>
+    </div>
+  </fieldset>
+</div>

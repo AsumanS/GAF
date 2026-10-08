@@ -1,0 +1,42 @@
+---
+import { donateContent } from '../../content/donate';
+import { site } from '../../config/site';
+
+const legal = donateContent.legal;
+const configuredDisclosure = site.donationDisclosure.trim();
+const jurisdictions = legal.jurisdictions.filter(
+  (entry) => entry.jurisdiction.trim() && entry.text.trim(),
+);
+---
+
+<section class="donation-legal mt-14" aria-labelledby="donation-legal-heading">
+  <h2 id="donation-legal-heading" class="donation-section-heading">{legal.heading}</h2>
+  <p class="body-copy mt-3">{legal.body}</p>
+  <p class="mt-4">
+    <a href={legal.solicitationHref} class="donation-legal-link">
+      {legal.solicitationLinkLabel}
+      <span aria-hidden="true"> →</span>
+    </a>
+  </p>
+
+  {
+    configuredDisclosure ? (
+      <div class="donation-legal-panel mt-6" data-donation-disclosure-configured>
+        <p class="body-copy">{configuredDisclosure}</p>
+      </div>
+    ) : null
+  }
+
+  {
+    jurisdictions.length > 0 ? (
+      <div class="donation-legal-list mt-6" data-donation-disclosures>
+        {jurisdictions.map((entry) => (
+          <article class="donation-legal-panel" data-jurisdiction={entry.jurisdiction}>
+            <h3 class="donation-trust-title">{entry.jurisdiction}</h3>
+            <p class="body-copy mt-2 whitespace-pre-wrap">{entry.text}</p>
+          </article>
+        ))}
+      </div>
+    ) : null
+  }
+</section>

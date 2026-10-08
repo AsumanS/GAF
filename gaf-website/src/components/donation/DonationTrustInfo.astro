@@ -1,0 +1,45 @@
+---
+import { site } from '../../config/site';
+import { donateContent } from '../../content/donate';
+
+const trust = donateContent.trust;
+const contactEmail = site.publicEmail.trim();
+---
+
+<section class="donation-trust" aria-labelledby="donation-trust-heading">
+  <h2 id="donation-trust-heading" class="donation-section-heading">{trust.heading}</h2>
+
+  <div class="donation-trust-grid">
+    <div>
+      <h3 class="donation-trust-title">{trust.tax.heading}</h3>
+      <p class="body-copy mt-2">{trust.tax.body}</p>
+    </div>
+
+    <div>
+      <h3 class="donation-trust-title">{trust.secure.heading}</h3>
+      <p class="body-copy mt-2">{trust.secure.body}</p>
+    </div>
+
+    <div>
+      <h3 class="donation-trust-title">{trust.questions.heading}</h3>
+      <p class="body-copy mt-2">
+        {trust.questions.bodyPrefix}{' '}
+        {
+          contactEmail ? (
+            <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
+          ) : null
+        }
+        .
+      </p>
+      <ul class="donation-trust-links mt-3">
+        {
+          trust.links.map((link) => (
+            <li>
+              <a href={link.href}>{link.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>

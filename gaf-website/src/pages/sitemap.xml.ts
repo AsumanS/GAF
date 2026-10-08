@@ -13,6 +13,7 @@ const paths = [
   '/transparency',
   '/contact',
   '/donate',
+  '/state-charitable-solicitation-disclosures',
   '/privacy',
   '/accessibility',
   '/terms',

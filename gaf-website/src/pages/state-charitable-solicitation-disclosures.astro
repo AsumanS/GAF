@@ -1,0 +1,61 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { solicitationDisclosuresContent as c } from '../content/solicitationDisclosures';
+
+const disclosures = c.disclosures.filter(
+  (entry) => entry.jurisdiction.trim() && entry.paragraphs.some((p) => p.trim()),
+);
+
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+/** Only the explicitly requested contact email and CharitiesNYS.com become links. */
+function withApprovedLinks(value: string): string {
+  return escapeHtml(value)
+    .replaceAll(
+      'contact@goldenarchivefoundation.org',
+      '<a href="mailto:contact@goldenarchivefoundation.org">contact@goldenarchivefoundation.org</a>',
+    )
+    .replaceAll(
+      'CharitiesNYS.com',
+      '<a href="https://www.charitiesnys.com" rel="noopener noreferrer">CharitiesNYS.com</a>',
+    );
+}
+---
+
+<BaseLayout
+  title={c.heading}
+  description={c.metaDescription}
+  canonicalPath="/state-charitable-solicitation-disclosures"
+>
+  <header class="section-pad-tight rule-bottom bg-white">
+    <div class="site-shell measure-wide">
+      <h1 class="text-4xl sm:text-5xl">{c.heading}</h1>
+    </div>
+  </header>
+
+  <article class="section-pad">
+    <div class="site-shell">
+      <div class="prose-editorial measure-wide">
+        {c.paragraphs.map((paragraph) => <p set:html={withApprovedLinks(paragraph)} />)}
+
+        {
+          disclosures.map((entry) => (
+            <section aria-labelledby={`disclosure-${entry.jurisdiction}`}>
+              <h2 id={`disclosure-${entry.jurisdiction}`}>{entry.jurisdiction}</h2>
+              {entry.paragraphs.map((paragraph) => (
+                <p set:html={withApprovedLinks(paragraph)} />
+              ))}
+            </section>
+          ))
+        }
+      </div>
+    </div>
+  </article>
+</BaseLayout>

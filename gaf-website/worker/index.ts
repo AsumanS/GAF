@@ -9,6 +9,7 @@ import { handleHiddenWorksSubmit } from './forms/hiddenWorks';
 import { handleVolunteerSubmit } from './forms/volunteer';
 import { jsonResponse } from './forms/common';
 import { handleSubmissionFileDownload } from './submissionFiles';
+import { handleStripeCheckout } from './stripeCheckout';
 
 export type { Env };
 
@@ -67,7 +68,9 @@ export default {
         if (url.pathname === '/api/forms/hidden-works') {
           return await handleHiddenWorksSubmit(request, env, {}, ctx);
         }
-
+        if (url.pathname === '/api/stripe/checkout') {
+          return await handleStripeCheckout(request, env);
+        }
         return jsonResponse(404, {
           success: false,
           error: 'invalid_submission',

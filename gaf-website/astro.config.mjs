@@ -10,7 +10,6 @@ export default defineConfig({
   trailingSlash: 'never',
   server: {
     port: 4321,
-    strictPort: true,
   },
   redirects: {
     '/projects/lost-stories': '/projects/hidden-works',
@@ -21,6 +20,16 @@ export default defineConfig({
   },
   vite: {
     plugins: [tailwindcss()],
+    server: {
+      strictPort: true,
+      // Local Stripe/form API lives on wrangler (`wrangler dev`, port 8787).
+      proxy: {
+        '/api': {
+          target: 'http://127.0.0.1:8787',
+          changeOrigin: true,
+        },
+      },
+    },
     build: {
       sourcemap: false,
     },

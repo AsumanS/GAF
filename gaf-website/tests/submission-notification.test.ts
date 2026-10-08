@@ -30,6 +30,7 @@ const CLIENT_ID = 'test-gmail-client-id';
 const CLIENT_SECRET = 'test-gmail-client-secret-value';
 const REFRESH_TOKEN = 'test-gmail-refresh-token-value';
 const HMAC_SECRET = 'test-hmac-secret-value';
+const STRIPE_SECRET = 'stripe-test-secret';
 const OBJECT_KEY = 'private/r2/object-key-not-for-email';
 const FILE_BYTES = 'private-file-bytes-marker';
 const FILE_ID = '550e8400-e29b-41d4-a716-446655440000';
@@ -244,6 +245,7 @@ function createEnv(db: ReturnType<typeof createDb>, bucket: ReturnType<typeof cr
     GMAIL_CLIENT_SECRET: CLIENT_SECRET,
     GMAIL_REFRESH_TOKEN: REFRESH_TOKEN,
     SUBMISSION_FILE_LINK_SECRET: HMAC_SECRET,
+    STRIPE_SECRET_KEY: STRIPE_SECRET,
   };
 }
 

@@ -42,6 +42,7 @@ export function secretValuesFromEnv(env: Env): string[] {
     env.GMAIL_REFRESH_TOKEN,
     env.SUBMISSION_FILE_LINK_SECRET,
     env.TURNSTILE_SECRET_KEY,
+    env.STRIPE_SECRET_KEY,
   ].filter((value): value is string => typeof value === 'string' && value.length > 0);
 }
 

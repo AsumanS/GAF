@@ -1,0 +1,334 @@
+---
+/**
+ * Donation form with Stripe Checkout for card payments.
+ * PayPal remains disabled until that integration is connected.
+ */
+import DonationFrequencyAmount from './DonationFrequencyAmount.astro';
+import DonationSummary from './DonationSummary.astro';
+import DonationPaymentMethods from './DonationPaymentMethods.astro';
+import { donateContent } from '../../content/donate';
+
+type Props = {
+  cardPaymentsEnabled: boolean;
+  paypalPaymentsEnabled: boolean;
+};
+
+const { cardPaymentsEnabled, paypalPaymentsEnabled } = Astro.props;
+const copy = donateContent.form;
+---
+
+<form
+  class="donation-form"
+  data-donation-form
+  data-card-payments-enabled={cardPaymentsEnabled ? 'true' : 'false'}
+  data-paypal-payments-enabled={paypalPaymentsEnabled ? 'true' : 'false'}
+  novalidate
+  onsubmit="return false;"
+>
+  <DonationFrequencyAmount />
+
+  <div class="donation-form-block mt-8">
+    <div class="donation-option">
+      <label class="donation-check">
+        <input type="checkbox" name="anonymous" value="yes" data-anonymous />
+        <span>{copy.anonymousLabel}</span>
+      </label>
+      <p class="donation-hint mt-2" id="donation-anonymous-help">{copy.anonymousHelp}</p>
+    </div>
+
+    <div class="donation-option mt-5">
+      <label class="donation-check">
+        <input
+          type="checkbox"
+          name="cover_processing"
+          value="yes"
+          data-processing-costs
+          aria-describedby="donation-processing-help"
+        />
+        <span>{copy.processingLabel}</span>
+      </label>
+      <p class="donation-hint mt-2" id="donation-processing-help">{copy.processingHelp}</p>
+    </div>
+  </div>
+
+  <div class="donation-form-block mt-8 rule-top pt-8">
+    <DonationSummary />
+  </div>
+
+  <div class="donation-form-block mt-8">
+    <DonationPaymentMethods
+      cardPaymentsEnabled={cardPaymentsEnabled}
+      paypalPaymentsEnabled={paypalPaymentsEnabled}
+    />
+  </div>
+</form>
+
+<script>
+  import {
+    activeAmountState,
+    buildDonationSummary,
+    calculateCoveredProcessingFee,
+    createInitialDonationFormState,
+    resolveSelectedAmount,
+    type AmountSelection,
+    type DonationFormState,
+    type DonationFrequency,
+  } from '../../lib/donationForm';
+
+  function initDonationForm(form: HTMLFormElement) {
+    const state: DonationFormState = createInitialDonationFormState();
+    const cardPaymentsEnabled = form.getAttribute('data-card-payments-enabled') === 'true';
+    const paypalPaymentsEnabled =
+      form.getAttribute('data-paypal-payments-enabled') === 'true';
+
+    const frequencyButtons = Array.from(
+      form.querySelectorAll<HTMLButtonElement>('[data-frequency]'),
+    );
+    const oneTimeGroup = form.querySelector<HTMLElement>('[data-amount-group="one-time"]');
+    const monthlyGroup = form.querySelector<HTMLElement>('[data-amount-group="monthly"]');
+    const customWrap = form.querySelector<HTMLElement>('[data-custom-amount-wrap]');
+    const customInput = form.querySelector<HTMLInputElement>('[data-custom-amount]');
+    const customError = form.querySelector<HTMLElement>('[data-custom-amount-error]');
+    const anonymousInput = form.querySelector<HTMLInputElement>('[data-anonymous]');
+    const processingInput = form.querySelector<HTMLInputElement>('[data-processing-costs]');
+    const summaryDonation = form.querySelector<HTMLElement>('[data-summary-donation]');
+    const summaryFee = form.querySelector<HTMLElement>('[data-summary-fee]');
+    const summaryTotal = form.querySelector<HTMLElement>('[data-summary-total]');
+    const summaryFrequency = form.querySelector<HTMLElement>('[data-summary-frequency]');
+    const summaryNote = form.querySelector<HTMLElement>('[data-summary-note]');
+    const paymentError = form.querySelector<HTMLElement>('[data-payment-error]');
+    const cardButton = form.querySelector<HTMLButtonElement>('[data-pay-method="card"]');
+    const paypalButton = form.querySelector<HTMLButtonElement>('[data-pay-method="paypal"]');
+
+    function amountStateFor(frequency: DonationFrequency) {
+      return frequency === 'monthly' ? state.monthly : state.oneTime;
+    }
+
+    function setHidden(el: HTMLElement | null, hidden: boolean) {
+      if (!el) return;
+      el.hidden = hidden;
+      el.classList.toggle('hidden', hidden);
+    }
+
+    function setPaymentError(message: string | null) {
+      if (!paymentError) return;
+      if (message) {
+        paymentError.textContent = message;
+        setHidden(paymentError, false);
+      } else {
+        paymentError.textContent = '';
+        setHidden(paymentError, true);
+      }
+    }
+
+    function syncFrequencyUi() {
+      frequencyButtons.forEach((btn) => {
+        const selected = btn.dataset.frequency === state.frequency;
+        btn.classList.toggle('is-selected', selected);
+        btn.setAttribute('aria-checked', selected ? 'true' : 'false');
+      });
+      setHidden(oneTimeGroup, state.frequency !== 'one-time');
+      setHidden(monthlyGroup, state.frequency !== 'monthly');
+    }
+
+    function syncAmountUi() {
+      const active = amountStateFor(state.frequency);
+      const group = state.frequency === 'monthly' ? monthlyGroup : oneTimeGroup;
+      if (!group) return;
+
+      group.querySelectorAll<HTMLButtonElement>('.donation-amount-btn').forEach((btn) => {
+        const isOther = btn.hasAttribute('data-amount-other');
+        let selected = false;
+        if (isOther) {
+          selected = active.selection.kind === 'other';
+        } else {
+          const preset = Number(btn.dataset.amountPreset);
+          selected =
+            active.selection.kind === 'preset' && active.selection.value === preset;
+        }
+        btn.classList.toggle('is-selected', selected);
+        btn.setAttribute('aria-checked', selected ? 'true' : 'false');
+      });
+
+      const showCustom = active.selection.kind === 'other';
+      setHidden(customWrap, !showCustom);
+      if (customInput) {
+        if (showCustom && active.selection.kind === 'other') {
+          customInput.value = active.selection.raw;
+        } else {
+          customInput.value = '';
+          customInput.setAttribute('aria-invalid', 'false');
+        }
+      }
+    }
+
+    function syncSummaryUi() {
+      const summary = buildDonationSummary(state);
+      if (summaryDonation) summaryDonation.textContent = summary.donationLabel;
+      if (summaryFee) summaryFee.textContent = summary.processingFeeLabel;
+      if (summaryTotal) summaryTotal.textContent = summary.totalLabel;
+      if (summaryFrequency) summaryFrequency.textContent = summary.frequencyLabel;
+
+      if (summaryNote) {
+        if (summary.totalNote) {
+          summaryNote.textContent = summary.totalNote;
+          setHidden(summaryNote, false);
+        } else {
+          summaryNote.textContent = '';
+          setHidden(summaryNote, true);
+        }
+      }
+
+      if (customError && customInput) {
+        const showError =
+          amountStateFor(state.frequency).selection.kind === 'other' && !summary.valid;
+        if (showError && summary.errorMessage) {
+          customError.textContent = summary.errorMessage;
+          setHidden(customError, false);
+          customInput.setAttribute('aria-invalid', 'true');
+        } else {
+          customError.textContent = '';
+          setHidden(customError, true);
+          customInput.setAttribute('aria-invalid', 'false');
+        }
+      }
+    }
+
+    function render() {
+      syncFrequencyUi();
+      syncAmountUi();
+      syncSummaryUi();
+    }
+
+    async function startCardCheckout() {
+      setPaymentError(null);
+      const summary = buildDonationSummary(state);
+      if (!summary.valid) {
+        setPaymentError(summary.errorMessage || 'Enter a valid donation amount.');
+        return;
+      }
+
+      const resolved = resolveSelectedAmount(activeAmountState(state).selection);
+      if (!resolved.ok) {
+        setPaymentError(resolved.message);
+        return;
+      }
+
+      const feeDollars = state.coverProcessingCosts
+        ? calculateCoveredProcessingFee(resolved.dollars)
+        : 0;
+      const chargeCents = Math.round((resolved.dollars + feeDollars) * 100);
+
+      if (cardButton) {
+        cardButton.disabled = true;
+        cardButton.setAttribute('aria-busy', 'true');
+      }
+
+      try {
+        const response = await fetch('/api/stripe/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            frequency: state.frequency,
+            amountCents: chargeCents,
+            donationAmountCents: resolved.cents,
+            anonymous: state.anonymous,
+            coverProcessingCosts: state.coverProcessingCosts,
+          }),
+        });
+
+        let payload: { success?: boolean; checkoutUrl?: string; error?: string } = {};
+        try {
+          payload = (await response.json()) as typeof payload;
+        } catch {
+          payload = {};
+        }
+
+        if (!response.ok || !payload.checkoutUrl) {
+          setPaymentError('Unable to start card checkout. Please try again.');
+          return;
+        }
+
+        window.location.assign(payload.checkoutUrl);
+      } catch {
+        setPaymentError('Unable to start card checkout. Please try again.');
+      } finally {
+        if (cardButton && cardPaymentsEnabled) {
+          cardButton.disabled = false;
+          cardButton.removeAttribute('aria-busy');
+        }
+      }
+    }
+
+    frequencyButtons.forEach((btn) => {
+      btn.addEventListener('click', (event) => {
+        event.preventDefault();
+        const next = btn.dataset.frequency as DonationFrequency | undefined;
+        if (!next || next === state.frequency) return;
+        state.frequency = next;
+        render();
+      });
+    });
+
+    form.querySelectorAll<HTMLButtonElement>('[data-amount-preset]').forEach((btn) => {
+      btn.addEventListener('click', (event) => {
+        event.preventDefault();
+        const scope = btn.dataset.frequencyScope as DonationFrequency | undefined;
+        const value = Number(btn.dataset.amountPreset);
+        if (!scope || !Number.isFinite(value)) return;
+        amountStateFor(scope).selection = { kind: 'preset', value };
+        if (scope === state.frequency) render();
+        else syncAmountUi();
+      });
+    });
+
+    form.querySelectorAll<HTMLButtonElement>('[data-amount-other]').forEach((btn) => {
+      btn.addEventListener('click', (event) => {
+        event.preventDefault();
+        const scope = btn.dataset.frequencyScope as DonationFrequency | undefined;
+        if (!scope) return;
+        const current = amountStateFor(scope).selection;
+        const raw = current.kind === 'other' ? current.raw : '';
+        amountStateFor(scope).selection = { kind: 'other', raw } satisfies AmountSelection;
+        if (scope === state.frequency) {
+          render();
+          customInput?.focus();
+        }
+      });
+    });
+
+    customInput?.addEventListener('input', () => {
+      const active = amountStateFor(state.frequency);
+      active.selection = { kind: 'other', raw: customInput.value };
+      syncSummaryUi();
+    });
+
+    anonymousInput?.addEventListener('change', () => {
+      state.anonymous = Boolean(anonymousInput.checked);
+    });
+
+    processingInput?.addEventListener('change', () => {
+      state.coverProcessingCosts = Boolean(processingInput.checked);
+      syncSummaryUi();
+    });
+
+    cardButton?.addEventListener('click', (event) => {
+      event.preventDefault();
+      if (!cardPaymentsEnabled) return;
+      void startCardCheckout();
+    });
+
+    paypalButton?.addEventListener('click', (event) => {
+      event.preventDefault();
+      if (!paypalPaymentsEnabled) return;
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+    });
+
+    render();
+  }
+
+  document.querySelectorAll<HTMLFormElement>('[data-donation-form]').forEach(initDonationForm);
+</script>

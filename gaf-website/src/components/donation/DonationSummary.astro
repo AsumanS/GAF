@@ -1,0 +1,39 @@
+---
+import { donateContent } from '../../content/donate';
+import { formatUsd, DEFAULT_ONE_TIME_AMOUNT } from '../../lib/donationForm';
+
+const copy = donateContent.form;
+const initial = formatUsd(DEFAULT_ONE_TIME_AMOUNT);
+const zero = formatUsd(0);
+---
+
+<section class="donation-summary" aria-labelledby="donation-summary-heading" data-donation-summary>
+  <h2 id="donation-summary-heading" class="donation-block-title">{copy.summaryHeading}</h2>
+  <p class="donation-summary-frequency">
+    <span class="donation-summary-frequency-label">{copy.summaryFrequency}</span>
+    <span data-summary-frequency>One-time</span>
+  </p>
+  <table class="donation-summary-table">
+    <thead>
+      <tr>
+        <th scope="col">{copy.summaryDescription}</th>
+        <th scope="col">{copy.summaryAmountColumn}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row">{copy.summaryDonation}</th>
+        <td data-summary-donation>{initial}</td>
+      </tr>
+      <tr>
+        <th scope="row">{copy.summaryProcessingFee}</th>
+        <td data-summary-fee>{zero}</td>
+      </tr>
+      <tr class="donation-summary-total">
+        <th scope="row">{copy.summaryTotal}</th>
+        <td data-summary-total>{initial}</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="donation-summary-note hidden" data-summary-note hidden></p>
+</section>

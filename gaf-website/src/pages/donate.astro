@@ -1,33 +1,42 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { site } from '../config/site';
+import DonationForm from '../components/donation/DonationForm.astro';
+import DonationTrustInfo from '../components/donation/DonationTrustInfo.astro';
+import DonationLegalDisclosures from '../components/donation/DonationLegalDisclosures.astro';
+import { donateContent } from '../content/donate';
+import {
+  areCardPaymentsEnabled,
+  arePaypalPaymentsEnabled,
+} from '../lib/donationForm';
+
+const cardPaymentsEnabled = areCardPaymentsEnabled();
+const paypalPaymentsEnabled = arePaypalPaymentsEnabled();
 ---
 
 <BaseLayout
-  title="Support Golden Archive Foundation"
-  description="Support Golden Archive Foundation — online giving information and contact for questions about supporting the Foundation."
+  title={donateContent.heading}
+  description={donateContent.metaDescription}
   canonicalPath="/donate"
 >
   <header class="section-pad-tight rule-bottom bg-white">
     <div class="site-shell measure-wide">
-      <h1 class="text-4xl sm:text-5xl">Support Golden Archive Foundation</h1>
-      <p class="lede mt-5">
-        Your support helps Golden Archive Foundation advance its cultural, educational, and
-        charitable work, including research, publishing, public programs, and the development of
-        projects that bring overlooked cultural works and knowledge to wider audiences.
-      </p>
+      <h1 class="text-4xl sm:text-5xl">{donateContent.heading}</h1>
+      <p class="lede mt-5">{donateContent.intro}</p>
     </div>
   </header>
 
   <article class="section-pad">
     <div class="site-shell">
-      <div class="prose-editorial measure-wide">
-        <h2>Online Giving</h2>
-        <p>Online giving will be available shortly.</p>
-        <p>For questions about supporting the Foundation, please contact:</p>
-        <p>
-          <a href={`mailto:${site.publicEmail}`}>{site.publicEmail}</a>
-        </p>
+      <div class="donation-page-form mx-auto">
+        <DonationForm
+          cardPaymentsEnabled={cardPaymentsEnabled}
+          paypalPaymentsEnabled={paypalPaymentsEnabled}
+        />
+      </div>
+
+      <div class="donation-page-below mx-auto mt-14">
+        <DonationTrustInfo />
+        <DonationLegalDisclosures />
       </div>
     </div>
   </article>

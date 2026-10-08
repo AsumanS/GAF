@@ -3,8 +3,9 @@
  * Edit this file to supply organization facts as they become available.
  * Do not invent values. Leave unknown fields as empty strings, empty arrays, or null.
  *
- * Donation-related fields must remain disabled until legal and state-registration
- * review is complete. See COMPLIANCE.md.
+ * The public donation interface is authorized and active. Stripe/PayPal checkout
+ * remains a separate integration step and must not invent payment credentials.
+ * See COMPLIANCE.md.
  */
 
 import type { FoundationNote, TrustFact, WorkItem } from '../types/content';
@@ -44,24 +45,24 @@ export type SiteConfig = {
   financialStatementsUrl: string;
   socialLinks: SocialLinks;
   /**
-   * Master switch for any donation UI, links, or structured-data actions.
-   * Must remain false until registration and disclosure requirements are met.
+   * Master switch for public donation navigation and the donation form UI.
+   * Authorized by the Foundation; do not gate Donate links or the form on
+   * state-registration lists, jurisdictions, or thresholds.
    */
   donationsEnabled: boolean;
   /**
    * Reserved for a future Zelle presentation path.
-   * Must never be used to show payment details while donationsEnabled is false.
    * Do not store Zelle handles, bank numbers, or routing data in this repository.
    */
   zelleEnabled: boolean;
   fundraisingStatus: FundraisingStatus;
   approvedDonationJurisdictions: string[];
   donationDisclosure: string;
-  /** Short public explanation of what donations support. Shown only when donationsEnabled. */
+  /** Short public explanation of what donations support. */
   donationSupportText: string;
   /** Tax-deductibility language for public donation pages. Leave empty until counsel supplies text. */
   donationTaxLanguage: string;
-  /** Destination for the Donate button. Leave empty until a reviewed giving URL exists. */
+  /** Destination for the Donate button. */
   donationUrl: string;
   submissionsOpen: boolean;
   volunteerApplicationsOpen: boolean;
@@ -110,9 +111,9 @@ export const site: SiteConfig = {
   financialStatementsUrl:
     '/documents/transparency/Golden_Archive_Foundation_2025_Financial_Statements.pdf',
   socialLinks: {},
-  donationsEnabled: false,
+  donationsEnabled: true,
   zelleEnabled: false,
-  fundraisingStatus: 'registration-in-progress',
+  fundraisingStatus: 'enabled',
   approvedDonationJurisdictions: [],
   donationDisclosure: '',
   donationSupportText: '',
@@ -195,7 +196,6 @@ export const site: SiteConfig = {
   ],
   inDevelopmentFacts: [
     { id: 'state-reg', label: 'State charitable solicitation registrations' },
-    { id: 'donations', label: 'Public donation functionality on this website' },
     { id: 'submissions', label: 'Submission portal for Lost Stories' },
     { id: 'contest-rules', label: 'Official contest rules and eligibility finalization' },
     { id: 'jury', label: 'Jury and reviewer appointments' },
@@ -213,7 +213,7 @@ export function absoluteUrl(path = '/'): string {
   return `${site.siteUrl.replace(/\/$/, '')}${normalized}`;
 }
 
-/** True only when donations may appear in UI, metadata, or structured data. */
+/** True when the public donation interface is active. */
 export function donationsAreEnabled(): boolean {
   return site.donationsEnabled === true;
 }
