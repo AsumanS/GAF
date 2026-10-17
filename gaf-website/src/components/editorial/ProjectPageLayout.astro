@@ -4,9 +4,9 @@
  * Supply ProjectPageContent + Project data; keep page files as thin wrappers.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { site } from '../../config/site';
 import type { Project } from '../../data/projects';
 import type { ProjectPageContent } from '../../types/projectPage';
+import { buildDonatePathWithProject } from '../../lib/donationProjects';
 
 type Props = {
   project: Project;
@@ -14,7 +14,8 @@ type Props = {
 };
 
 const { project, content: c } = Astro.props;
-const donateHref = site.donationUrl || '/donate';
+/** Project-designated donate link — uses stable project.id (validated server-side at checkout). */
+const donateHref = buildDonatePathWithProject(project.id);
 ---
 
 <BaseLayout

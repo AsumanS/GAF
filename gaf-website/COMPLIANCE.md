@@ -10,7 +10,7 @@ With `donationsEnabled` set to `true` in `src/config/site.ts`:
 - The `/donate` form is available to all visitors.
 - State-registration lists, jurisdiction arrays, thresholds, or pending applications must **not** hide donation navigation or the donation form.
 
-Stripe and PayPal checkout remain a separate integration task. Do not invent payment endpoints, credentials, or simulated successful transactions until that integration is connected.
+Stripe card checkout is the donation payment provider. Do not invent additional payment endpoints, credentials, or simulated successful transactions.
 
 ## Configuration is not legal advice
 

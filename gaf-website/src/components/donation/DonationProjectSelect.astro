@@ -1,0 +1,42 @@
+---
+/**
+ * Project designation for Stripe metadata (general or a Foundation project).
+ */
+import { donateContent } from '../../content/donate';
+import {
+  donationProjectOptions,
+  resolveDonationProjectId,
+} from '../../lib/donationProjects';
+
+type Props = {
+  /** Preselected project id from `?project=` or page default. */
+  selectedProject?: string;
+};
+
+const { selectedProject = 'general' } = Astro.props;
+const selected = resolveDonationProjectId(selectedProject);
+const copy = donateContent.form;
+const options = donationProjectOptions();
+---
+
+<div class="donation-form-block" data-donation-project-select>
+  <label class="donation-legend" for="donation-project">{copy.projectLegend}</label>
+  <p class="donation-hint mt-1 mb-3" id="donation-project-help">{copy.projectHelp}</p>
+  <div class="donation-select-wrap">
+    <select
+      id="donation-project"
+      name="project"
+      class="donation-select"
+      data-donation-project-select-input
+      aria-describedby="donation-project-help"
+    >
+      {
+        options.map((option) => (
+          <option value={option.id} selected={option.id === selected}>
+            {option.label}
+          </option>
+        ))
+      }
+    </select>
+  </div>
+</div>

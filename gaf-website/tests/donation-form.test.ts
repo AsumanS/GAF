@@ -6,12 +6,9 @@ import {
   ONE_TIME_PRESETS,
   areCardPaymentsEnabled,
   areDonationPaymentControlsEnabled,
-  arePaypalPaymentsEnabled,
   buildDonationSummary,
-  calculateCoveredProcessingFee,
   createInitialDonationFormState,
   formatUsd,
-  isProcessingCostOptionEnabled,
   parseDonationAmount,
   presetsForFrequency,
   shouldShowDonationCtas,
@@ -25,7 +22,6 @@ describe('donation form defaults', () => {
     expect(state.frequency).toBe('one-time');
     expect(state.oneTime.selection).toEqual({ kind: 'preset', value: DEFAULT_ONE_TIME_AMOUNT });
     expect(DEFAULT_ONE_TIME_AMOUNT).toBe(50);
-    expect(state.coverProcessingCosts).toBe(false);
   });
 
   it('exposes the correct one-time amount presets', () => {
@@ -98,11 +94,10 @@ describe('custom amount validation', () => {
 });
 
 describe('donation summary', () => {
-  it('shows donation, optional fee, and total payable', () => {
+  it('shows donation and total payable without a processing fee line', () => {
     const state = createInitialDonationFormState();
     let summary = buildDonationSummary(state);
     expect(summary.donationLabel).toBe(formatUsd(50));
-    expect(summary.processingFeeLabel).toBe(formatUsd(0));
     expect(summary.totalLabel).toBe(formatUsd(50));
     expect(summary.totalNote).toBeNull();
 
@@ -114,31 +109,6 @@ describe('donation summary', () => {
     expect(summary.totalNote).toBe(
       'Your donation will automatically recur every month. You can cancel your recurring donation at any time.',
     );
-  });
-
-  it('adds covered processing fee to the total when selected', () => {
-    expect(isProcessingCostOptionEnabled()).toBe(true);
-    expect(calculateCoveredProcessingFee(50)).toBe(1.8);
-
-    const state = createInitialDonationFormState();
-    state.coverProcessingCosts = true;
-    const summary = buildDonationSummary(state);
-    expect(summary.donationLabel).toBe(formatUsd(50));
-    expect(summary.processingFeeLabel).toBe(formatUsd(1.8));
-    expect(summary.totalLabel).toBe(formatUsd(51.8));
-  });
-});
-
-describe('anonymous and processing-cost controls', () => {
-  it('tracks anonymous selection in form state', () => {
-    const state = createInitialDonationFormState();
-    expect(state.anonymous).toBe(false);
-    state.anonymous = true;
-    expect(state.anonymous).toBe(true);
-  });
-
-  it('enables the processing-cost option', () => {
-    expect(isProcessingCostOptionEnabled()).toBe(true);
   });
 });
 
@@ -159,20 +129,9 @@ describe('payment and donation-access safeguards', () => {
     expect(shouldShowInteractiveDonationForm()).toBe(true);
   });
 
-  it('keeps card payments enabled and PayPal disabled', () => {
+  it('keeps Stripe card payments enabled as the only donation provider', () => {
     expect(areCardPaymentsEnabled()).toBe(true);
-    expect(arePaypalPaymentsEnabled()).toBe(false);
     expect(areDonationPaymentControlsEnabled()).toBe(true);
-  });
-
-  it('does not invent PayPal payment request endpoints in the donation helpers', () => {
-    const source = [
-      shouldShowInteractiveDonationForm.name,
-      areCardPaymentsEnabled.name,
-      arePaypalPaymentsEnabled.name,
-      buildDonationSummary.name,
-    ].join(' ');
-    expect(source).not.toMatch(/paypal\.com/i);
   });
 });
 

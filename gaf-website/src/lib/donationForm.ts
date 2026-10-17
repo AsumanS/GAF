@@ -17,8 +17,6 @@ export type DonationFormState = {
   frequency: DonationFrequency;
   oneTime: FrequencyAmountState;
   monthly: FrequencyAmountState;
-  anonymous: boolean;
-  coverProcessingCosts: boolean;
 };
 
 export type ParsedAmount =
@@ -29,7 +27,6 @@ export type DonationSummary = {
   frequency: DonationFrequency;
   frequencyLabel: string;
   donationLabel: string;
-  processingFeeLabel: string;
   totalLabel: string;
   totalNote: string | null;
   valid: boolean;
@@ -43,10 +40,6 @@ export const MONTHLY_PRESETS = [10, 25, 50, 100, 250] as const;
 export const DEFAULT_ONE_TIME_AMOUNT = 50;
 export const DEFAULT_MONTHLY_AMOUNT = 25;
 export const MIN_DONATION_DOLLARS = 1;
-
-/** Stripe US card rate used for optional fee cover-up calculation. */
-export const PROCESSING_FEE_PERCENT = 0.029;
-export const PROCESSING_FEE_FIXED_DOLLARS = 0.3;
 
 export const FREQUENCY_LABELS: Record<DonationFrequency, string> = {
   'one-time': 'One-time',
@@ -74,8 +67,6 @@ export function createInitialDonationFormState(): DonationFormState {
     frequency: 'one-time',
     oneTime: { selection: { kind: 'preset', value: DEFAULT_ONE_TIME_AMOUNT } },
     monthly: { selection: { kind: 'preset', value: DEFAULT_MONTHLY_AMOUNT } },
-    anonymous: false,
-    coverProcessingCosts: false,
   };
 }
 
@@ -85,17 +76,6 @@ export function activeAmountState(state: DonationFormState): FrequencyAmountStat
 
 export function formatUsd(dollars: number): string {
   return currencyFormatter.format(dollars);
-}
-
-/**
- * Amount the donor pays on top of the gift so the Foundation still receives
- * `donationDollars` after a 2.9% + $0.30 processor fee.
- */
-export function calculateCoveredProcessingFee(donationDollars: number): number {
-  if (!Number.isFinite(donationDollars) || donationDollars <= 0) return 0;
-  const gross =
-    (donationDollars + PROCESSING_FEE_FIXED_DOLLARS) / (1 - PROCESSING_FEE_PERCENT);
-  return Math.round((gross - donationDollars) * 100) / 100;
 }
 
 /**
@@ -168,7 +148,6 @@ export function buildDonationSummary(state: DonationFormState): DonationSummary 
       frequency: state.frequency,
       frequencyLabel,
       donationLabel: '—',
-      processingFeeLabel: '—',
       totalLabel: '—',
       amountLabel: '—',
       totalNote,
@@ -177,19 +156,13 @@ export function buildDonationSummary(state: DonationFormState): DonationSummary 
     };
   }
 
-  const feeDollars = state.coverProcessingCosts
-    ? calculateCoveredProcessingFee(amount.dollars)
-    : 0;
-  const totalDollars =
-    Math.round((amount.dollars + feeDollars) * 100) / 100;
   const donationLabel = formatUsd(amount.dollars);
 
   return {
     frequency: state.frequency,
     frequencyLabel,
     donationLabel,
-    processingFeeLabel: formatUsd(feeDollars),
-    totalLabel: formatUsd(totalDollars),
+    totalLabel: donationLabel,
     amountLabel: donationLabel,
     totalNote,
     valid: true,
@@ -207,19 +180,13 @@ export function shouldShowInteractiveDonationForm(): boolean {
   return true;
 }
 
-/**
- * Card checkout is active (Stripe). PayPal remains off until integrated.
- */
+/** Card checkout via Stripe is the only donation payment provider. */
 export function areCardPaymentsEnabled(): boolean {
   return true;
 }
 
-export function arePaypalPaymentsEnabled(): boolean {
-  return false;
-}
-
 /**
- * @deprecated Prefer areCardPaymentsEnabled / arePaypalPaymentsEnabled.
+ * @deprecated Prefer areCardPaymentsEnabled.
  * Kept for older call sites; true only when card payments are on.
  */
 export function areDonationPaymentControlsEnabled(options?: {
@@ -229,9 +196,4 @@ export function areDonationPaymentControlsEnabled(options?: {
     return false;
   }
   return areCardPaymentsEnabled();
-}
-
-/** Optional processing-fee cover-up is available in the donation UI. */
-export function isProcessingCostOptionEnabled(): boolean {
-  return true;
 }

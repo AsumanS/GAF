@@ -4,7 +4,6 @@ import { formatUsd, DEFAULT_ONE_TIME_AMOUNT } from '../../lib/donationForm';
 
 const copy = donateContent.form;
 const initial = formatUsd(DEFAULT_ONE_TIME_AMOUNT);
-const zero = formatUsd(0);
 ---
 
 <section class="donation-summary" aria-labelledby="donation-summary-heading" data-donation-summary>
@@ -24,10 +23,6 @@ const zero = formatUsd(0);
       <tr>
         <th scope="row">{copy.summaryDonation}</th>
         <td data-summary-donation>{initial}</td>
-      </tr>
-      <tr>
-        <th scope="row">{copy.summaryProcessingFee}</th>
-        <td data-summary-fee>{zero}</td>
       </tr>
       <tr class="donation-summary-total">
         <th scope="row">{copy.summaryTotal}</th>

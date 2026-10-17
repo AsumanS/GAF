@@ -24,25 +24,20 @@ export const donateContent = {
   },
   form: {
     frequencyLegend: 'Donation Frequency',
+    projectLegend: 'Apply this donation to',
+    projectHelp:
+      'Choose a project to designate your gift, or select general support for the Foundation’s overall mission.',
     amountLegend: 'Donation Amount',
     otherLabel: 'Other',
     customAmountLabel: 'Custom amount (USD)',
     customAmountHint: 'Minimum $1.00. Up to two decimal places.',
-    anonymousLabel: 'Make this donation anonymously',
-    anonymousHelp:
-      'If selected, your name will not be used in public acknowledgment materials. Payment processors and legally required financial records still need the information they collect to complete a transaction.',
-    processingLabel: 'Help cover payment processing costs',
-    processingHelp:
-      'Payment processors charge a fee for each transaction. By covering this cost, you help ensure that more of your donation goes directly toward the Foundation’s mission.',
     summaryHeading: 'Donation Summary',
     summaryFrequency: 'Frequency',
     summaryDescription: 'Description',
     summaryAmountColumn: 'Amount',
     summaryDonation: 'Donation',
-    summaryProcessingFee: 'Processing fee (optional)',
     summaryTotal: 'Total payable',
     cardButton: 'Donate with Card',
-    paypalButton: 'Donate with PayPal',
   },
   trust: {
     heading: 'Trust and Transparency',
@@ -52,7 +47,7 @@ export const donateContent = {
     },
     secure: {
       heading: 'Secure Payments',
-      body: 'Donations are processed securely by our payment providers. Golden Archive Foundation does not store complete payment card information.',
+      body: 'Donations are processed securely by our payment provider. Golden Archive Foundation does not store complete payment card information.',
     },
     questions: {
       heading: 'Questions About Donating?',

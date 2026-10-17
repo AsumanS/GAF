@@ -1,54 +1,33 @@
 ---
 /**
- * Donation form with Stripe Checkout for card payments.
- * PayPal remains disabled until that integration is connected.
+ * Donation form with Stripe Checkout for card payments (one-time and monthly).
  */
 import DonationFrequencyAmount from './DonationFrequencyAmount.astro';
+import DonationProjectSelect from './DonationProjectSelect.astro';
 import DonationSummary from './DonationSummary.astro';
 import DonationPaymentMethods from './DonationPaymentMethods.astro';
-import { donateContent } from '../../content/donate';
 
 type Props = {
   cardPaymentsEnabled: boolean;
-  paypalPaymentsEnabled: boolean;
+  /** Server-resolved project id (`general` or a supported project.id). */
+  donationProject?: string;
 };
 
-const { cardPaymentsEnabled, paypalPaymentsEnabled } = Astro.props;
-const copy = donateContent.form;
+const { cardPaymentsEnabled, donationProject = 'general' } = Astro.props;
 ---
 
 <form
   class="donation-form"
   data-donation-form
   data-card-payments-enabled={cardPaymentsEnabled ? 'true' : 'false'}
-  data-paypal-payments-enabled={paypalPaymentsEnabled ? 'true' : 'false'}
+  data-donation-project={donationProject}
   novalidate
   onsubmit="return false;"
 >
-  <DonationFrequencyAmount />
+  <DonationProjectSelect selectedProject={donationProject} />
 
-  <div class="donation-form-block mt-8">
-    <div class="donation-option">
-      <label class="donation-check">
-        <input type="checkbox" name="anonymous" value="yes" data-anonymous />
-        <span>{copy.anonymousLabel}</span>
-      </label>
-      <p class="donation-hint mt-2" id="donation-anonymous-help">{copy.anonymousHelp}</p>
-    </div>
-
-    <div class="donation-option mt-5">
-      <label class="donation-check">
-        <input
-          type="checkbox"
-          name="cover_processing"
-          value="yes"
-          data-processing-costs
-          aria-describedby="donation-processing-help"
-        />
-        <span>{copy.processingLabel}</span>
-      </label>
-      <p class="donation-hint mt-2" id="donation-processing-help">{copy.processingHelp}</p>
-    </div>
+  <div class="mt-8">
+    <DonationFrequencyAmount />
   </div>
 
   <div class="donation-form-block mt-8 rule-top pt-8">
@@ -56,10 +35,7 @@ const copy = donateContent.form;
   </div>
 
   <div class="donation-form-block mt-8">
-    <DonationPaymentMethods
-      cardPaymentsEnabled={cardPaymentsEnabled}
-      paypalPaymentsEnabled={paypalPaymentsEnabled}
-    />
+    <DonationPaymentMethods cardPaymentsEnabled={cardPaymentsEnabled} />
   </div>
 </form>
 
@@ -67,41 +43,64 @@ const copy = donateContent.form;
   import {
     activeAmountState,
     buildDonationSummary,
-    calculateCoveredProcessingFee,
     createInitialDonationFormState,
     resolveSelectedAmount,
     type AmountSelection,
     type DonationFormState,
     type DonationFrequency,
   } from '../../lib/donationForm';
+  import { resolveDonationProjectId } from '../../lib/donationProjects';
 
   function initDonationForm(form: HTMLFormElement) {
     const state: DonationFormState = createInitialDonationFormState();
     const cardPaymentsEnabled = form.getAttribute('data-card-payments-enabled') === 'true';
-    const paypalPaymentsEnabled =
-      form.getAttribute('data-paypal-payments-enabled') === 'true';
+    // Static hosting: prefer `?project=`; user can change via the project selector.
+    // Worker re-validates the allowlist on checkout.
+    let donationProject = resolveDonationProjectId(
+      new URLSearchParams(window.location.search).get('project') ??
+        form.getAttribute('data-donation-project'),
+    );
 
     const frequencyButtons = Array.from(
       form.querySelectorAll<HTMLButtonElement>('[data-frequency]'),
+    );
+    const projectSelect = form.querySelector<HTMLSelectElement>(
+      '[data-donation-project-select-input]',
     );
     const oneTimeGroup = form.querySelector<HTMLElement>('[data-amount-group="one-time"]');
     const monthlyGroup = form.querySelector<HTMLElement>('[data-amount-group="monthly"]');
     const customWrap = form.querySelector<HTMLElement>('[data-custom-amount-wrap]');
     const customInput = form.querySelector<HTMLInputElement>('[data-custom-amount]');
     const customError = form.querySelector<HTMLElement>('[data-custom-amount-error]');
-    const anonymousInput = form.querySelector<HTMLInputElement>('[data-anonymous]');
-    const processingInput = form.querySelector<HTMLInputElement>('[data-processing-costs]');
     const summaryDonation = form.querySelector<HTMLElement>('[data-summary-donation]');
-    const summaryFee = form.querySelector<HTMLElement>('[data-summary-fee]');
     const summaryTotal = form.querySelector<HTMLElement>('[data-summary-total]');
     const summaryFrequency = form.querySelector<HTMLElement>('[data-summary-frequency]');
     const summaryNote = form.querySelector<HTMLElement>('[data-summary-note]');
     const paymentError = form.querySelector<HTMLElement>('[data-payment-error]');
     const cardButton = form.querySelector<HTMLButtonElement>('[data-pay-method="card"]');
-    const paypalButton = form.querySelector<HTMLButtonElement>('[data-pay-method="paypal"]');
 
     function amountStateFor(frequency: DonationFrequency) {
       return frequency === 'monthly' ? state.monthly : state.oneTime;
+    }
+
+    function syncProjectUi() {
+      if (projectSelect) {
+        projectSelect.value = donationProject;
+      }
+      form.setAttribute('data-donation-project', donationProject);
+    }
+
+    function applyProjectSelection(nextRaw: string | null | undefined) {
+      const next = resolveDonationProjectId(nextRaw);
+      donationProject = next;
+      const url = new URL(window.location.href);
+      if (donationProject === 'general') {
+        url.searchParams.delete('project');
+      } else {
+        url.searchParams.set('project', donationProject);
+      }
+      window.history.replaceState({}, '', `${url.pathname}${url.search}`);
+      syncProjectUi();
     }
 
     function setHidden(el: HTMLElement | null, hidden: boolean) {
@@ -165,7 +164,6 @@ const copy = donateContent.form;
     function syncSummaryUi() {
       const summary = buildDonationSummary(state);
       if (summaryDonation) summaryDonation.textContent = summary.donationLabel;
-      if (summaryFee) summaryFee.textContent = summary.processingFeeLabel;
       if (summaryTotal) summaryTotal.textContent = summary.totalLabel;
       if (summaryFrequency) summaryFrequency.textContent = summary.frequencyLabel;
 
@@ -196,6 +194,7 @@ const copy = donateContent.form;
 
     function render() {
       syncFrequencyUi();
+      syncProjectUi();
       syncAmountUi();
       syncSummaryUi();
     }
@@ -214,11 +213,6 @@ const copy = donateContent.form;
         return;
       }
 
-      const feeDollars = state.coverProcessingCosts
-        ? calculateCoveredProcessingFee(resolved.dollars)
-        : 0;
-      const chargeCents = Math.round((resolved.dollars + feeDollars) * 100);
-
       if (cardButton) {
         cardButton.disabled = true;
         cardButton.setAttribute('aria-busy', 'true');
@@ -230,10 +224,8 @@ const copy = donateContent.form;
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             frequency: state.frequency,
-            amountCents: chargeCents,
-            donationAmountCents: resolved.cents,
-            anonymous: state.anonymous,
-            coverProcessingCosts: state.coverProcessingCosts,
+            amountCents: resolved.cents,
+            project: donationProject,
           }),
         });
 
@@ -270,6 +262,10 @@ const copy = donateContent.form;
       });
     });
 
+    projectSelect?.addEventListener('change', () => {
+      applyProjectSelection(projectSelect.value);
+    });
+
     form.querySelectorAll<HTMLButtonElement>('[data-amount-preset]').forEach((btn) => {
       btn.addEventListener('click', (event) => {
         event.preventDefault();
@@ -303,24 +299,10 @@ const copy = donateContent.form;
       syncSummaryUi();
     });
 
-    anonymousInput?.addEventListener('change', () => {
-      state.anonymous = Boolean(anonymousInput.checked);
-    });
-
-    processingInput?.addEventListener('change', () => {
-      state.coverProcessingCosts = Boolean(processingInput.checked);
-      syncSummaryUi();
-    });
-
     cardButton?.addEventListener('click', (event) => {
       event.preventDefault();
       if (!cardPaymentsEnabled) return;
       void startCardCheckout();
-    });
-
-    paypalButton?.addEventListener('click', (event) => {
-      event.preventDefault();
-      if (!paypalPaymentsEnabled) return;
     });
 
     form.addEventListener('submit', (event) => {

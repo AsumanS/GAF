@@ -18,6 +18,13 @@
       setOpen(open);
     });
 
+    // Close before navigating so the open panel never covers the next page's form.
+    panel.querySelectorAll('a[href]').forEach(function (link) {
+      link.addEventListener('click', function () {
+        setOpen(false);
+      });
+    });
+
     document.addEventListener('keydown', function (event) {
       if (event.key === 'Escape') {
         setOpen(false);

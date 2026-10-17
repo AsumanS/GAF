@@ -26,3 +26,13 @@ pnpm-debug.log*
 ._*
 .cursor/
 ../.DS_Store
+
+# macOS
+.DS_Store
+
+# Cloudflare Wrangler
+.wrangler/
+
+# Backups
+gaf-website copy/
+gaf-website copy.zip

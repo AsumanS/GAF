@@ -494,7 +494,13 @@ describe('private submission file endpoint', () => {
 
   it('returns the R2 object only for a valid signature and does not require Origin', async () => {
     const { env } = seededEnv();
-    const { expiresUnix, url } = await createSignedSubmissionFileUrl(FILE_ID, HMAC_SECRET, NOW);
+    // Sign relative to wall clock: worker.fetch verifies with new Date(), not the fixed NOW fixture.
+    const signedAt = new Date();
+    const { expiresUnix, url } = await createSignedSubmissionFileUrl(
+      FILE_ID,
+      HMAC_SECRET,
+      signedAt,
+    );
     const signature = new URL(url).searchParams.get('signature') ?? '';
     const request = await signedRequest(expiresUnix, signature);
     const response = await worker.fetch(request, env, createCtx().ctx);

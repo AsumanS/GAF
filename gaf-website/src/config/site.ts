@@ -3,9 +3,8 @@
  * Edit this file to supply organization facts as they become available.
  * Do not invent values. Leave unknown fields as empty strings, empty arrays, or null.
  *
- * The public donation interface is authorized and active. Stripe/PayPal checkout
- * remains a separate integration step and must not invent payment credentials.
- * See COMPLIANCE.md.
+ * The public donation interface is authorized and active. Stripe checkout must
+ * not invent payment credentials. See COMPLIANCE.md.
  */
 
 import type { FoundationNote, TrustFact, WorkItem } from '../types/content';

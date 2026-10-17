@@ -1,11 +1,22 @@
 import type { Env } from './env';
+import {
+  DONATION_PROJECT_METADATA_KEY,
+  GENERAL_DONATION_PROJECT,
+  resolveDonationProjectId,
+} from './donationProjects';
+
+/**
+ * Appears on the PaymentIntent / Charge for one-time Checkout (`mode=payment`).
+ * Stripe documents this as receipt-customization text for payment receipts.
+ */
+export const ONE_TIME_DONATION_PAYMENT_DESCRIPTION =
+  'Charitable contribution to Golden Archive Foundation. No goods or services were provided in exchange for this contribution.';
 
 type CheckoutRequest = {
   frequency?: unknown;
   amountCents?: unknown;
-  donationAmountCents?: unknown;
-  anonymous?: unknown;
-  coverProcessingCosts?: unknown;
+  /** Donation project designation — validated against an allowlist. */
+  project?: unknown;
 };
 
 type StripeCheckoutSession = {
@@ -47,8 +58,6 @@ export async function handleStripeCheckout(
 
   const frequency = body.frequency;
   const amountCents = body.amountCents;
-  const anonymous = body.anonymous === true;
-  const coverProcessingCosts = body.coverProcessingCosts === true;
 
   if (frequency !== 'one-time' && frequency !== 'monthly') {
     return json(400, {
@@ -69,28 +78,38 @@ export async function handleStripeCheckout(
     });
   }
 
-  /*
-   * When coverProcessingCosts is true, amountCents is the total charged
-   * (donation + fee). donationAmountCents is the gift amount for metadata.
-   */
-  const donationAmountCents =
-    Number.isInteger(body.donationAmountCents) &&
-    typeof body.donationAmountCents === 'number' &&
-    body.donationAmountCents >= 100
-      ? body.donationAmountCents
-      : amountCents;
-
   const origin = new URL(request.url).origin;
   const monthly = frequency === 'monthly';
+  // Unsupported client values become `general` — never honor arbitrary project ids.
+  const projectId = resolveDonationProjectId(body.project);
 
   const params = new URLSearchParams();
 
   params.set('mode', monthly ? 'subscription' : 'payment');
+
+  // Keep `{CHECKOUT_SESSION_ID}` unencoded — Stripe substitutes it literally.
+  const projectQuery =
+    projectId !== GENERAL_DONATION_PROJECT
+      ? `project=${encodeURIComponent(projectId)}&`
+      : '';
   params.set(
     'success_url',
-    `${origin}/donate?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+    `${origin}/donate?${projectQuery}payment=success&session_id={CHECKOUT_SESSION_ID}`,
   );
-  params.set('cancel_url', `${origin}/donate?payment=cancelled`);
+  params.set(
+    'cancel_url',
+    `${origin}/donate?${projectQuery}payment=cancelled`,
+  );
+
+  // Collect full billing address (and name) on Stripe Checkout for IRS reporting.
+  // Stored by Stripe on Customer / PaymentMethod — not in Foundation D1.
+  params.set('billing_address_collection', 'required');
+
+  // One-time payments default to guest checkout (no Customer). Create a Customer so
+  // name/address appear in Stripe Customers exports. Subscriptions already create one.
+  if (!monthly) {
+    params.set('customer_creation', 'always');
+  }
 
   params.set('line_items[0][price_data][currency]', 'usd');
   params.set(
@@ -113,49 +132,33 @@ export async function handleStripeCheckout(
   }
 
   params.set('metadata[frequency]', frequency);
-  params.set('metadata[donation_amount_cents]', String(donationAmountCents));
-  params.set('metadata[charge_amount_cents]', String(amountCents));
-  params.set('metadata[anonymous]', anonymous ? 'true' : 'false');
-  params.set(
-    'metadata[cover_processing_costs]',
-    coverProcessingCosts ? 'true' : 'false',
-  );
+  params.set('metadata[donation_amount_cents]', String(amountCents));
+  params.set(`metadata[${DONATION_PROJECT_METADATA_KEY}]`, projectId);
 
   if (monthly) {
     params.set('subscription_data[metadata][frequency]', frequency);
     params.set(
       'subscription_data[metadata][donation_amount_cents]',
-      String(donationAmountCents),
-    );
-    params.set(
-      'subscription_data[metadata][charge_amount_cents]',
       String(amountCents),
     );
+    // Copied to each renewal Invoice as subscription_details.metadata (Stripe docs).
     params.set(
-      'subscription_data[metadata][anonymous]',
-      anonymous ? 'true' : 'false',
-    );
-    params.set(
-      'subscription_data[metadata][cover_processing_costs]',
-      coverProcessingCosts ? 'true' : 'false',
+      `subscription_data[metadata][${DONATION_PROJECT_METADATA_KEY}]`,
+      projectId,
     );
   } else {
+    params.set(
+      'payment_intent_data[description]',
+      ONE_TIME_DONATION_PAYMENT_DESCRIPTION,
+    );
     params.set('payment_intent_data[metadata][frequency]', frequency);
     params.set(
       'payment_intent_data[metadata][donation_amount_cents]',
-      String(donationAmountCents),
-    );
-    params.set(
-      'payment_intent_data[metadata][charge_amount_cents]',
       String(amountCents),
     );
     params.set(
-      'payment_intent_data[metadata][anonymous]',
-      anonymous ? 'true' : 'false',
-    );
-    params.set(
-      'payment_intent_data[metadata][cover_processing_costs]',
-      coverProcessingCosts ? 'true' : 'false',
+      `payment_intent_data[metadata][${DONATION_PROJECT_METADATA_KEY}]`,
+      projectId,
     );
   }
 

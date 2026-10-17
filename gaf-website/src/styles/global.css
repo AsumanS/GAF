@@ -651,6 +651,19 @@
     @apply grid grid-cols-2 gap-3 sm:grid-cols-3;
   }
 
+  .donation-select-wrap {
+    @apply border border-rule-strong bg-canvas;
+  }
+
+  .donation-select {
+    @apply box-border w-full max-w-full cursor-pointer border-0 bg-canvas px-3 py-3 font-sans text-base font-semibold tracking-wide text-ink;
+  }
+
+  .donation-select:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
   .donation-amount-btn {
     @apply border border-rule bg-canvas px-3 py-3 font-sans text-sm font-semibold tracking-wide text-ink transition-colors;
   }
@@ -691,22 +704,6 @@
 
   .donation-field-error {
     @apply mt-1.5 font-sans text-xs font-semibold text-accent;
-  }
-
-  .donation-option {
-    @apply min-w-0;
-  }
-
-  .donation-check {
-    @apply inline-flex items-start gap-2.5 font-sans text-sm font-semibold text-ink;
-  }
-
-  .donation-check input {
-    @apply mt-0.5;
-  }
-
-  .donation-check.is-disabled {
-    @apply cursor-not-allowed text-ink-soft;
   }
 
   .donation-summary-frequency {

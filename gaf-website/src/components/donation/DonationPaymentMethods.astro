@@ -3,10 +3,9 @@ import { donateContent } from '../../content/donate';
 
 type Props = {
   cardPaymentsEnabled: boolean;
-  paypalPaymentsEnabled: boolean;
 };
 
-const { cardPaymentsEnabled, paypalPaymentsEnabled } = Astro.props;
+const { cardPaymentsEnabled } = Astro.props;
 const copy = donateContent.form;
 ---
 
@@ -15,9 +14,8 @@ const copy = donateContent.form;
   aria-labelledby="donation-payment-heading"
   data-donation-payments
   data-card-payments-enabled={cardPaymentsEnabled ? 'true' : 'false'}
-  data-paypal-payments-enabled={paypalPaymentsEnabled ? 'true' : 'false'}
 >
-  <h2 id="donation-payment-heading" class="sr-only">Payment methods</h2>
+  <h2 id="donation-payment-heading" class="sr-only">Payment method</h2>
   <div class="donation-payment-actions">
     <button
       type="button"
@@ -27,15 +25,6 @@ const copy = donateContent.form;
       aria-disabled={!cardPaymentsEnabled ? 'true' : 'false'}
     >
       {copy.cardButton}
-    </button>
-    <button
-      type="button"
-      class="btn-secondary donation-pay-btn"
-      data-pay-method="paypal"
-      disabled={!paypalPaymentsEnabled}
-      aria-disabled={!paypalPaymentsEnabled ? 'true' : 'false'}
-    >
-      {copy.paypalButton}
     </button>
   </div>
   <p

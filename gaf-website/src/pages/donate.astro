@@ -4,13 +4,11 @@ import DonationForm from '../components/donation/DonationForm.astro';
 import DonationTrustInfo from '../components/donation/DonationTrustInfo.astro';
 import DonationLegalDisclosures from '../components/donation/DonationLegalDisclosures.astro';
 import { donateContent } from '../content/donate';
-import {
-  areCardPaymentsEnabled,
-  arePaypalPaymentsEnabled,
-} from '../lib/donationForm';
+import { areCardPaymentsEnabled } from '../lib/donationForm';
+import { resolveDonationProjectId } from '../lib/donationProjects';
 
 const cardPaymentsEnabled = areCardPaymentsEnabled();
-const paypalPaymentsEnabled = arePaypalPaymentsEnabled();
+const donationProject = resolveDonationProjectId(Astro.url.searchParams.get('project'));
 ---
 
 <BaseLayout
@@ -30,7 +28,7 @@ const paypalPaymentsEnabled = arePaypalPaymentsEnabled();
       <div class="donation-page-form mx-auto">
         <DonationForm
           cardPaymentsEnabled={cardPaymentsEnabled}
-          paypalPaymentsEnabled={paypalPaymentsEnabled}
+          donationProject={donationProject}
         />
       </div>
 
