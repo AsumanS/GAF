@@ -1,0 +1,127 @@
+---
+/**
+ * Post-Checkout thank-you card. Shown only after Stripe session verification
+ * on production. Localhost may preview the card when Stripe test/live keys
+ * cannot verify a live return URL (UI review only).
+ */
+import { donateContent } from '../../content/donate';
+import { site } from '../../config/site';
+
+const copy = donateContent.thankYou;
+const orgName = site.organizationName;
+---
+
+<div
+  class="donation-thank-you hidden"
+  data-donation-thank-you
+  hidden
+  aria-live="polite"
+>
+  <div class="donation-thank-you-card" data-donation-thank-you-panel>
+    <div class="donation-thank-you-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="28" height="28" focusable="false">
+        <path
+          fill="currentColor"
+          d="M9.2 16.6 4.8 12.2l1.4-1.4 3 3 8-8 1.4 1.4-9.4 9.4Z"
+        ></path>
+      </svg>
+    </div>
+    <h2 class="donation-thank-you-heading">{copy.heading}</h2>
+    <p class="donation-thank-you-message">{copy.message}</p>
+    <p class="donation-thank-you-receipt">{copy.receipt}</p>
+    <p class="donation-thank-you-org">
+      <a href="/" class="donation-thank-you-org-link">{orgName}</a>
+    </p>
+  </div>
+</div>
+
+<script>
+  function setHidden(el: HTMLElement | null, hidden: boolean) {
+    if (!el) return;
+    el.hidden = hidden;
+    el.classList.toggle('hidden', hidden);
+  }
+
+  function isLocalHost(hostname: string): boolean {
+    return (
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname === '[::1]'
+    );
+  }
+
+  function cleanSuccessParamsFromUrl() {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('payment');
+    url.searchParams.delete('session_id');
+    window.history.replaceState({}, '', `${url.pathname}${url.search}`);
+  }
+
+  function showThankYouCard() {
+    const root = document.querySelector<HTMLElement>('[data-donation-thank-you]');
+    const formView = document.querySelector<HTMLElement>('[data-donation-form-view]');
+    const pageHeader = document.querySelector<HTMLElement>('[data-donation-page-header]');
+    const pageBelow = document.querySelector<HTMLElement>('[data-donation-page-below]');
+    setHidden(formView, true);
+    setHidden(pageHeader, true);
+    setHidden(pageBelow, true);
+    setHidden(root, false);
+  }
+
+  function showDonationForm() {
+    const root = document.querySelector<HTMLElement>('[data-donation-thank-you]');
+    const formView = document.querySelector<HTMLElement>('[data-donation-form-view]');
+    const pageHeader = document.querySelector<HTMLElement>('[data-donation-page-header]');
+    const pageBelow = document.querySelector<HTMLElement>('[data-donation-page-below]');
+    setHidden(root, true);
+    setHidden(formView, false);
+    setHidden(pageHeader, false);
+    setHidden(pageBelow, false);
+  }
+
+  async function verifyCheckoutSession(sessionId: string): Promise<boolean> {
+    try {
+      const response = await fetch(
+        `/api/stripe/session?session_id=${encodeURIComponent(sessionId)}`,
+        { method: 'GET', headers: { Accept: 'application/json' } },
+      );
+      const payload = (await response.json()) as {
+        success?: boolean;
+        verified?: boolean;
+      };
+      return Boolean(response.ok && payload.success && payload.verified);
+    } catch {
+      return false;
+    }
+  }
+
+  async function initDonationThankYou() {
+    const root = document.querySelector<HTMLElement>('[data-donation-thank-you]');
+    if (!root) return;
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment') !== 'success') {
+      return;
+    }
+
+    const sessionId = params.get('session_id');
+    cleanSuccessParamsFromUrl();
+
+    if (!sessionId || !/^cs_[a-zA-Z0-9_]+$/.test(sessionId)) {
+      showDonationForm();
+      return;
+    }
+
+    const verified = await verifyCheckoutSession(sessionId);
+    // Production: only show the thank-you card after Stripe confirms payment.
+    // Localhost: allow return-URL UI preview when test keys cannot read live sessions.
+    if (verified || isLocalHost(window.location.hostname)) {
+      showThankYouCard();
+      return;
+    }
+
+    showDonationForm();
+  }
+
+  void initDonationThankYou();
+</script>

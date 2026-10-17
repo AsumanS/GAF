@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import DonationForm from '../components/donation/DonationForm.astro';
+import DonationThankYou from '../components/donation/DonationThankYou.astro';
 import DonationTrustInfo from '../components/donation/DonationTrustInfo.astro';
 import DonationLegalDisclosures from '../components/donation/DonationLegalDisclosures.astro';
 import { donateContent } from '../content/donate';
@@ -16,7 +17,7 @@ const donationProject = resolveDonationProjectId(Astro.url.searchParams.get('pro
   description={donateContent.metaDescription}
   canonicalPath="/donate"
 >
-  <header class="section-pad-tight rule-bottom bg-white">
+  <header class="section-pad-tight rule-bottom bg-white" data-donation-page-header>
     <div class="site-shell measure-wide">
       <h1 class="text-4xl sm:text-5xl">{donateContent.heading}</h1>
       <p class="lede mt-5">{donateContent.intro}</p>
@@ -26,13 +27,16 @@ const donationProject = resolveDonationProjectId(Astro.url.searchParams.get('pro
   <article class="section-pad">
     <div class="site-shell">
       <div class="donation-page-form mx-auto">
-        <DonationForm
-          cardPaymentsEnabled={cardPaymentsEnabled}
-          donationProject={donationProject}
-        />
+        <div data-donation-form-view>
+          <DonationForm
+            cardPaymentsEnabled={cardPaymentsEnabled}
+            donationProject={donationProject}
+          />
+        </div>
+        <DonationThankYou />
       </div>
 
-      <div class="donation-page-below mx-auto mt-14">
+      <div class="donation-page-below mx-auto mt-14" data-donation-page-below>
         <DonationTrustInfo />
         <DonationLegalDisclosures />
       </div>

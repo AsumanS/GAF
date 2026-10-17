@@ -64,9 +64,9 @@ const { cardPaymentsEnabled, donationProject = 'general' } = Astro.props;
     const frequencyButtons = Array.from(
       form.querySelectorAll<HTMLButtonElement>('[data-frequency]'),
     );
-    const projectSelect = form.querySelector<HTMLSelectElement>(
-      '[data-donation-project-select-input]',
-    );
+    const projectSelectEl = form.querySelector('[data-donation-project-select-input]');
+    const projectSelect =
+      projectSelectEl instanceof HTMLSelectElement ? projectSelectEl : null;
     const oneTimeGroup = form.querySelector<HTMLElement>('[data-amount-group="one-time"]');
     const monthlyGroup = form.querySelector<HTMLElement>('[data-amount-group="monthly"]');
     const customWrap = form.querySelector<HTMLElement>('[data-custom-amount-wrap]');

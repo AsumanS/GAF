@@ -607,6 +607,39 @@
     @apply border border-rule bg-white p-6 sm:p-8;
   }
 
+  .donation-thank-you {
+    @apply mx-auto w-full max-w-lg;
+  }
+
+  .donation-thank-you-card {
+    @apply border border-rule bg-white px-6 py-10 text-center sm:px-10 sm:py-12;
+  }
+
+  .donation-thank-you-icon {
+    @apply mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full text-white;
+    background: #2f9e44;
+  }
+
+  .donation-thank-you-heading {
+    @apply font-sans text-xl font-bold tracking-tight text-ink sm:text-2xl;
+  }
+
+  .donation-thank-you-message {
+    @apply mx-auto mt-4 max-w-md font-sans text-base leading-relaxed text-ink;
+  }
+
+  .donation-thank-you-receipt {
+    @apply mx-auto mt-5 max-w-md font-sans text-sm leading-relaxed text-ink-soft;
+  }
+
+  .donation-thank-you-org {
+    @apply mt-8 font-sans text-sm text-ink-soft;
+  }
+
+  .donation-thank-you-org-link {
+    @apply text-ink-soft no-underline hover:text-ink;
+  }
+
   .donation-form-block + .donation-form-block {
     @apply mt-8;
   }

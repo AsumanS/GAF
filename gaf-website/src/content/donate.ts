@@ -39,6 +39,13 @@ export const donateContent = {
     summaryTotal: 'Total payable',
     cardButton: 'Donate with Card',
   },
+  thankYou: {
+    heading: 'Thank You for Your Generosity',
+    message:
+      'Your contribution to Golden Archive Foundation helps preserve, rediscover, and share cultural and literary heritage.',
+    receipt:
+      'A receipt for your contribution will be sent to your email address by Stripe.',
+  },
   trust: {
     heading: 'Trust and Transparency',
     tax: {

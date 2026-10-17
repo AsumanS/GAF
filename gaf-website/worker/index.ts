@@ -10,6 +10,7 @@ import { handleVolunteerSubmit } from './forms/volunteer';
 import { jsonResponse } from './forms/common';
 import { handleSubmissionFileDownload } from './submissionFiles';
 import { handleStripeCheckout } from './stripeCheckout';
+import { handleStripeSessionLookup } from './stripeSession';
 
 export type { Env };
 
@@ -70,6 +71,9 @@ export default {
         }
         if (url.pathname === '/api/stripe/checkout') {
           return await handleStripeCheckout(request, env);
+        }
+        if (url.pathname === '/api/stripe/session') {
+          return await handleStripeSessionLookup(request, env);
         }
         return jsonResponse(404, {
           success: false,
