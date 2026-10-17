@@ -10,7 +10,7 @@ import {
  * Stripe documents this as receipt-customization text for payment receipts.
  */
 export const ONE_TIME_DONATION_PAYMENT_DESCRIPTION =
-  'Charitable contribution to Golden Archive Foundation. No goods or services were provided in exchange for this contribution.';
+  'Charitable contribution to Golden Archive Foundation (EIN: 41-2754875). No goods or services were provided in exchange for this contribution.';
 
 type CheckoutRequest = {
   frequency?: unknown;

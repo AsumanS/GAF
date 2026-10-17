@@ -90,7 +90,7 @@ describe('Stripe Checkout Session — one-time receipt description', () => {
       ONE_TIME_DONATION_PAYMENT_DESCRIPTION,
     );
     expect(params.get('payment_intent_data[description]')).toBe(
-      'Charitable contribution to Golden Archive Foundation. No goods or services were provided in exchange for this contribution.',
+      'Charitable contribution to Golden Archive Foundation (EIN: 41-2754875). No goods or services were provided in exchange for this contribution.',
     );
   });
 
