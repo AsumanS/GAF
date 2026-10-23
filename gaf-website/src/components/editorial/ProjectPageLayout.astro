@@ -38,16 +38,33 @@ const donateHref = buildDonatePathWithProject(project.id);
             ) : null
           }
         </div>
-        <figure class="project-detail-figure overflow-hidden border border-rule">
-          <img
-            src={project.image.src}
-            alt={project.image.alt}
-            width="960"
-            height="720"
-            class="aspect-[4/3] w-full object-fill"
-            decoding="async"
-          />
-        </figure>
+        {
+          project.id === 'hidden-works' ? (
+            <div class="relative flex items-center justify-center lg:self-stretch">
+              <figure class="project-detail-figure w-3/4 overflow-hidden border border-rule lg:absolute lg:inset-0 lg:flex lg:w-full lg:items-center lg:justify-center lg:overflow-visible lg:border-0">
+                <img
+                  src={project.image.src}
+                  alt={project.image.alt}
+                  width="819"
+                  height="1024"
+                  class="aspect-[819/1024] h-auto w-full object-contain lg:aspect-auto lg:h-auto lg:w-auto lg:max-h-full lg:max-w-[75%] lg:border lg:border-rule"
+                  decoding="async"
+                />
+              </figure>
+            </div>
+          ) : (
+            <figure class="project-detail-figure overflow-hidden border border-rule">
+              <img
+                src={project.image.src}
+                alt={project.image.alt}
+                width="960"
+                height="720"
+                class="aspect-[4/3] w-full object-fill"
+                decoding="async"
+              />
+            </figure>
+          )
+        }
       </div>
     </div>
   </header>

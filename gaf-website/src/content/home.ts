@@ -8,7 +8,7 @@ export const homeContent = {
       'Bringing ancient stories, cultural memory, and creative service to modern audiences.',
     nonprofitLabel: 'A 501(c)(3) public charity',
   },
-  projectsHeading: 'Our Projects',
+  projectsHeading: 'Current Projects',
   /** Home card copy keyed by project slug — images come from src/data/projects.ts. */
   projects: {
     'hidden-works': {

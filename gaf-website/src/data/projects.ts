@@ -46,8 +46,8 @@ export const projects: Project[] = [
     linkLabel: 'Get Involved',
     layout: 'bibliographic',
     image: {
-      src: '/assets/lost-stories.jpg',
-      alt: 'Antique books on dark wooden shelves in an old library',
+      src: '/assets/hidden-works.jpg',
+      alt: 'Poster for the Hidden Works Discovery Contest, showing a sailing ship on the Atlantic beneath the words “250 Years Old, Still Waiting to Cross the Atlantic.”',
     },
   },
   {

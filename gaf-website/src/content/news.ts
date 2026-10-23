@@ -1,3 +1,5 @@
+import { site } from '../config/site';
+
 export type NewsUpdate = {
   publishedOn: string;
   title: string;
@@ -40,8 +42,12 @@ export const newsContent = {
       title: 'Golden Archive Foundation Joins Facebook and Instagram',
       text: `Official pages are now open on Facebook and Instagram. Follow them for news of projects, research, publications, and ways to take part in preserving and sharing cultural heritage.`,
       links: [
-        { text: 'Facebook', href: 'https://www.facebook.com/profile.php?id=61595572550847' },
-        { text: 'Instagram', href: 'https://www.instagram.com/goldenarchivefoundation/' },
+        ...(site.socialLinks.facebook
+          ? [{ text: 'Facebook', href: site.socialLinks.facebook }]
+          : []),
+        ...(site.socialLinks.instagram
+          ? [{ text: 'Instagram', href: site.socialLinks.instagram }]
+          : []),
       ],
     },
     {

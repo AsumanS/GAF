@@ -28,9 +28,12 @@ const imageFirst = index % 2 === 1;
       <img
         src={project.image.src}
         alt={project.image.alt}
-        width="640"
-        height="480"
-        class="project-entry-img"
+        width={project.id === 'hidden-works' ? 819 : 640}
+        height={project.id === 'hidden-works' ? 1024 : 480}
+        class:list={[
+          'project-entry-img',
+          project.id === 'hidden-works' && 'aspect-[819/1024] h-auto object-contain',
+        ]}
         loading="lazy"
         decoding="async"
       />

@@ -109,7 +109,10 @@ export const site: SiteConfig = {
   annualReportUrl: '/documents/transparency/Golden_Archive_Foundation_2025_Annual_Report.pdf',
   financialStatementsUrl:
     '/documents/transparency/Golden_Archive_Foundation_2025_Financial_Statements.pdf',
-  socialLinks: {},
+  socialLinks: {
+    facebook: 'https://www.facebook.com/profile.php?id=61595572550847',
+    instagram: 'https://www.instagram.com/goldenarchivefoundation/',
+  },
   donationsEnabled: true,
   zelleEnabled: false,
   fundraisingStatus: 'enabled',
@@ -218,7 +221,7 @@ export function donationsAreEnabled(): boolean {
 }
 
 /** Social profiles that have a real URL configured. */
-export function configuredSocialLinks(): Array<{ label: string; href: string }> {
+export function configuredSocialLinks(): Array<{ key: keyof SocialLinks; label: string; href: string }> {
   const labels: Record<keyof SocialLinks, string> = {
     bluesky: 'Bluesky',
     facebook: 'Facebook',
@@ -235,9 +238,9 @@ export function configuredSocialLinks(): Array<{ label: string; href: string }> 
     .map((key) => {
       const href = site.socialLinks[key];
       if (!href) return null;
-      return { label: labels[key], href };
+      return { key, label: labels[key], href };
     })
-    .filter((item): item is { label: string; href: string } => item !== null);
+    .filter((item): item is { key: keyof SocialLinks; label: string; href: string } => item !== null);
 }
 
 export function hasFoundationNote(): boolean {

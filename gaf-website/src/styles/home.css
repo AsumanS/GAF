@@ -203,6 +203,17 @@
   transition: transform 0.5s ease;
 }
 
+.project-lost .project-image {
+  background: #12324f;
+}
+
+.project-lost .project-image img {
+  object-fit: contain;
+  object-position: center;
+  aspect-ratio: 819 / 1024;
+  height: auto;
+}
+
 .project:hover .project-image img {
   transform: scale(1.018);
 }
@@ -280,6 +291,33 @@
 .project-copy-dark .project-link {
   color: #e2c078;
   border-color: #e2c078;
+}
+
+.project-lost .project-copy-dark {
+  background: #f3eee5;
+  color: #423d37;
+}
+
+.project-lost .project-copy-dark h3 {
+  color: #24364a;
+}
+
+.project-lost .project-copy-dark p {
+  color: #423d37;
+}
+
+.project-lost .project-rule {
+  background: #b74e3e;
+}
+
+.project-lost .project-link {
+  color: #9f4337;
+  border-color: #9f4337;
+}
+
+.project-lost:hover .project-link {
+  background: #9f4337;
+  color: #f3eee5;
 }
 
 .project-copy-light .project-link {
