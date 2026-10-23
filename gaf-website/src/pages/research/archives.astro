@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArchiveDossier from '../../components/editorial/ArchiveDossier.astro';
+import {
+  archiveRecordSections,
+  archivesContent as c,
+  featuredArchiveRecord,
+  otherArchiveRecords,
+} from '../../content/archives';
+
+const featured = featuredArchiveRecord();
+const records = otherArchiveRecords(featured);
+---
+
+<BaseLayout title="From the Archives" description={c.metaDescription} canonicalPath="/research/archives">
+  <header class="section-pad-tight rule-bottom bg-white">
+    <div class="site-shell measure-wide">
+      <p class="kicker">
+        <a href="/research" class="text-accent no-underline hover:text-accent-dark">Research</a>
+      </p>
+      <h1 class="mt-3 text-4xl sm:text-5xl">From the Archives</h1>
+      <p class="lede mt-5 max-w-3xl">{c.intro}</p>
+      <p class="body-copy mt-5 max-w-3xl">
+        <a href="/research/articles">Research Articles</a> {c.contrast}
+      </p>
+    </div>
+  </header>
+
+  <article class="section-pad">
+    <div class="site-shell">
+      <section aria-labelledby="featured-heading">
+        <h2 id="featured-heading" class="font-display text-3xl">{c.featuredHeading}</h2>
+        {
+          featured ? (
+            <ArchiveDossier record={featured} />
+          ) : (
+            <p class="body-copy mt-5 max-w-3xl">{c.featuredEmpty}</p>
+          )
+        }
+      </section>
+
+      <section class="mt-14" aria-labelledby="records-heading">
+        <h2 id="records-heading" class="font-display text-3xl">{c.recordsHeading}</h2>
+        {
+          records.length > 0 ? (
+            <ul class="mt-6 grid gap-6 md:grid-cols-2">
+              {records.map((record) => {
+                const meta = [record.author, record.originalLanguage, record.date]
+                  .filter((part) => part.trim())
+                  .join(' · ');
+                return (
+                  <li class="border border-rule bg-white p-7 sm:p-9">
+                    {meta ? <p class="meta">{meta}</p> : null}
+                    <h3 class="mt-2 font-display text-2xl">{record.title}</h3>
+                    {record.summary ? <p class="body-copy mt-3">{record.summary}</p> : null}
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p class="body-copy mt-5 max-w-3xl">{featured ? c.recordsMore : c.recordsEmpty}</p>
+          )
+        }
+      </section>
+
+      <section class="mt-14" aria-labelledby="record-sections-heading">
+        <h2 id="record-sections-heading" class="font-display text-3xl">{c.sectionsHeading}</h2>
+        <p class="body-copy mt-5 max-w-3xl">{c.sectionsIntro}</p>
+        <ol class="mt-6 grid list-none gap-6 md:grid-cols-2">
+          {
+            archiveRecordSections.map((section) => (
+              <li class="border border-rule bg-white p-7 sm:p-9">
+                <p class="meta">
+                  <span aria-hidden="true">{section.number}</span>
+                  <span class="sr-only">Section {section.number}</span>
+                </p>
+                <h3 class="mt-2 font-display text-2xl">{section.title}</h3>
+                <p class="body-copy mt-3">{section.description}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </section>
+    </div>
+  </article>
+</BaseLayout>

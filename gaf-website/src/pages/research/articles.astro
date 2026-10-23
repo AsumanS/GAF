@@ -1,0 +1,151 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/editorial/ArticleCard.astro';
+import {
+  articleCategories,
+  publicArticleListing,
+  researchArticles,
+  researchArticlesContent as c,
+} from '../../content/researchArticles';
+
+const { featured, latest } = publicArticleListing(researchArticles);
+const hasPublished = Boolean(featured) || latest.length > 0;
+---
+
+<BaseLayout
+  title="Research Articles"
+  description={c.metaDescription}
+  canonicalPath="/research/articles"
+>
+  <header class="section-pad-tight rule-bottom bg-white">
+    <div class="site-shell measure-wide">
+      <p class="kicker">
+        <a href="/research" class="text-accent no-underline hover:text-accent-dark">Research</a>
+      </p>
+      <h1 class="mt-3 text-4xl sm:text-5xl">Research Articles</h1>
+      <p class="lede mt-5 max-w-3xl">{c.intro}</p>
+    </div>
+  </header>
+
+  <article class="section-pad">
+    <div class="site-shell">
+      {
+        hasPublished ? null : <p class="body-copy max-w-3xl">{c.emptyState}</p>
+      }
+      {
+        hasPublished ? (
+      <section aria-labelledby="topics-heading">
+        <h2 id="topics-heading" class="font-display text-3xl">{c.topicsHeading}</h2>
+        <ul class="mt-5 flex flex-wrap gap-2" aria-label={c.topicsLabel}>
+          <li>
+            <button
+              type="button"
+              class="border border-ink bg-ink px-3 py-1.5 font-sans text-sm font-medium text-white hover:border-ink"
+              data-article-filter="all"
+              aria-pressed="true"
+            >
+              {c.allTopicsLabel}
+            </button>
+          </li>
+          {
+            articleCategories.map((category) => (
+              <li>
+                <button
+                  type="button"
+                  class="border border-rule bg-white px-3 py-1.5 font-sans text-sm font-medium text-ink hover:border-ink"
+                  data-article-filter={category.id}
+                  aria-pressed="false"
+                >
+                  {category.label}
+                </button>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+        ) : null
+      }
+
+      {
+        featured ? (
+          <section class="mt-12" aria-labelledby="featured-heading" data-article-category={featured.categoryId}>
+            <h2 id="featured-heading" class="font-display text-3xl">{c.featuredHeading}</h2>
+            <div class="mt-6">
+              <ArticleCard article={featured} featured />
+            </div>
+          </section>
+        ) : null
+      }
+
+      {
+        latest.length > 0 ? (
+      <section class="mt-14" aria-labelledby="latest-heading">
+        <h2 id="latest-heading" class="font-display text-3xl">{c.latestHeading}</h2>
+        <ul class="mt-6 grid gap-6 md:grid-cols-2">
+          {
+            latest.map((article) => (
+              <li data-article-category={article.categoryId}>
+                <ArticleCard article={article} />
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+        ) : null
+      }
+      {
+        hasPublished ? (
+          <p class="body-copy mt-6" data-articles-empty hidden>
+            {c.emptyTopic}
+          </p>
+        ) : null
+      }
+    </div>
+  </article>
+</BaseLayout>
+
+<script is:inline>
+  (function () {
+    function initArticleFilters() {
+      var buttons = Array.prototype.slice.call(document.querySelectorAll('[data-article-filter]'));
+      var groups = Array.prototype.slice.call(document.querySelectorAll('[data-article-category]'));
+      var empty = document.querySelector('[data-articles-empty]');
+      if (!buttons.length || !groups.length) return;
+
+      function setPressed(button, pressed) {
+        button.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+        button.classList.toggle('border-ink', pressed);
+        button.classList.toggle('bg-ink', pressed);
+        button.classList.toggle('text-white', pressed);
+        button.classList.toggle('border-rule', !pressed);
+        button.classList.toggle('bg-white', !pressed);
+        button.classList.toggle('text-ink', !pressed);
+      }
+
+      function apply(filter) {
+        buttons.forEach(function (button) {
+          setPressed(button, button.getAttribute('data-article-filter') === filter);
+        });
+        var visible = 0;
+        groups.forEach(function (group) {
+          var match = filter === 'all' || group.getAttribute('data-article-category') === filter;
+          group.hidden = !match;
+          if (match) visible += 1;
+        });
+        if (empty) empty.hidden = filter === 'all' || visible > 0;
+      }
+
+      buttons.forEach(function (button) {
+        button.addEventListener('click', function () {
+          apply(button.getAttribute('data-article-filter') || 'all');
+        });
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initArticleFilters);
+    } else {
+      initArticleFilters();
+    }
+  })();
+</script>

@@ -1,0 +1,43 @@
+---
+import { formatNewsDate, linkedParts, newsTextSegments, type NewsUpdate } from '../../content/news';
+
+type Props = {
+  item: NewsUpdate;
+};
+
+const { item } = Astro.props;
+const dateLabel = formatNewsDate(item.publishedOn);
+---
+
+<article>
+  {
+    dateLabel ? (
+      <p class="meta">
+        <time datetime={item.publishedOn}>{dateLabel}</time>
+      </p>
+    ) : null
+  }
+  <h2 class="mt-3 font-display text-2xl text-ink sm:text-3xl">{item.title}</h2>
+  <p class="body-copy mt-4">
+    {
+      newsTextSegments(item.text).map((segment) => {
+        const parts = linkedParts(segment.text, item.links).map((part) =>
+          part.href ? (
+            <a
+              href={part.href}
+              class="text-accent decoration-accent/40 hover:text-accent-dark"
+              {...(part.href.startsWith('http')
+                ? { target: '_blank', rel: 'noopener noreferrer' }
+                : {})}
+            >
+              {part.text}
+            </a>
+          ) : (
+            part.text
+          ),
+        );
+        return segment.italic ? <em>{parts}</em> : parts;
+      })
+    }
+  </p>
+</article>

@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import NewsCard from '../components/editorial/NewsCard.astro';
+import { newsContent as c, newsInDateOrder } from '../content/news';
+
+const items = newsInDateOrder(c.items.filter((item) => item.title.trim() && item.text.trim()));
+---
+
+<BaseLayout title="News & Updates" description={c.metaDescription} canonicalPath="/news">
+  <header class="section-pad-tight rule-bottom bg-white">
+    <div class="site-shell measure-wide">
+      <p class="kicker">News</p>
+      <h1 class="mt-3 text-4xl sm:text-5xl">News &amp; Updates</h1>
+      <p class="lede mt-5 max-w-3xl">{c.intro}</p>
+    </div>
+  </header>
+
+  <div class="section-pad">
+    <div class="site-shell measure-wide">
+      {
+        items.length > 0 ? (
+          <ul>
+            {items.map((item) => (
+              <li class="border-b border-rule py-8 first:pt-0 sm:py-10">
+                <NewsCard item={item} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="body-copy">{c.empty}</p>
+        )
+      }
+      <p class="body-copy mt-10">
+        For press and other inquiries, write to the Foundation through the{' '}
+        <a href="/contact">Contact page</a>.
+      </p>
+    </div>
+  </div>
+</BaseLayout>

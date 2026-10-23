@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { researchContent as c } from '../content/research';
+import { researchSections } from '../content/researchSections';
+---
+
+<BaseLayout
+  title="Research & Publications"
+  description={c.metaDescription}
+  canonicalPath="/research"
+>
+  <header class="section-pad-tight rule-bottom bg-white">
+    <div class="site-shell measure-wide">
+      <p class="kicker">Research</p>
+      <h1 class="mt-3 text-4xl sm:text-5xl">Research &amp; Publications</h1>
+      <div class="mt-5 max-w-3xl space-y-5">
+        {c.intro.map((paragraph) => <p class="lede">{paragraph}</p>)}
+      </div>
+    </div>
+  </header>
+
+  <article class="section-pad">
+    <div class="site-shell">
+      <section aria-labelledby="research-sections">
+        <h2 id="research-sections" class="font-display text-3xl">Explore Our Research</h2>
+        <ul class="mt-6 grid gap-6 md:grid-cols-2">
+          {
+            researchSections.map((section) => (
+              <li>
+                <a
+                  href={section.href}
+                  class="block h-full border border-rule bg-white p-7 no-underline transition-colors hover:border-accent sm:p-9"
+                >
+                  <h3 class="font-display text-2xl text-ink">{section.title}</h3>
+                  <p class="body-copy mt-3">{section.summary}</p>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </div>
+  </article>
+</BaseLayout>

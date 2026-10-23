@@ -1,10 +1,17 @@
 import type { APIRoute } from 'astro';
+import { articleHref, researchArticles } from '../content/researchArticles';
 
 const BASE_URL = 'https://goldenarchivefoundation.org';
 
 const paths = [
   '/',
   '/about',
+  '/research',
+  '/research/articles',
+  '/research/archives',
+  '/research/conversations',
+  '/research/series',
+  '/news',
   '/projects',
   '/projects/hidden-works',
   '/projects/hidden-works/submit',
@@ -17,6 +24,9 @@ const paths = [
   '/privacy',
   '/accessibility',
   '/terms',
+  ...researchArticles
+    .filter((article) => article.status === 'published' && (article.paragraphs?.length ?? 0) > 0)
+    .map((article) => articleHref(article)),
 ];
 
 export const GET: APIRoute = () => {

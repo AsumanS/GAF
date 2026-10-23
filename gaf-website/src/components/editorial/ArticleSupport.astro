@@ -1,0 +1,13 @@
+---
+import { site } from '../../config/site';
+
+const donateHref = site.donationUrl || '/donate';
+---
+
+<aside class="my-10 border border-rule bg-white px-6 py-7 sm:px-8" aria-label="Support our work">
+  <p class="font-display text-xl leading-snug text-ink sm:text-2xl">Would you like to support our work?</p>
+  <div class="mt-5 flex flex-wrap gap-3">
+    <a class="btn-primary" href={donateHref}>Donate</a>
+    <a class="btn-secondary" href="/volunteer">Volunteer</a>
+  </div>
+</aside>

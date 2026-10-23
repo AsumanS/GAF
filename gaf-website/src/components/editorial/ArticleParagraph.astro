@@ -1,0 +1,26 @@
+---
+import type { ArticleInlineFigure } from '../../content/researchArticles';
+
+type Props = {
+  paragraph: string;
+  figure?: ArticleInlineFigure;
+};
+
+const { paragraph, figure } = Astro.props;
+---
+
+{
+  figure ? (
+    <figure class="my-8">
+      <img src={figure.src} alt={figure.alt} class="h-auto w-full" decoding="async" />
+      {
+        figure.credit ? (
+          <figcaption class="mt-2 font-sans text-[0.7rem] leading-snug text-ink-soft">
+            {figure.credit}
+          </figcaption>
+        ) : null
+      }
+    </figure>
+  ) : null
+}
+<p>{paragraph}</p>

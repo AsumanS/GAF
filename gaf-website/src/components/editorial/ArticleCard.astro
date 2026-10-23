@@ -1,0 +1,82 @@
+---
+import ArticleMotif from './ArticleMotif.astro';
+import {
+  articleHref,
+  categoryLabel,
+  formatArticleDate,
+  type ResearchArticle,
+} from '../../content/researchArticles';
+
+type Props = {
+  article: ResearchArticle;
+  featured?: boolean;
+};
+
+const { article, featured = false } = Astro.props;
+const dateLabel = formatArticleDate(article.publishedOn);
+const topic = categoryLabel(article.categoryId);
+const excerpt = article.paragraphs?.filter((paragraph) => paragraph.trim()).join(' ') ?? '';
+---
+
+<article
+  id={article.slug}
+  class:list={[
+    'group relative scroll-mt-28 border border-rule bg-white transition-colors hover:border-accent',
+    featured && 'grid lg:grid-cols-2',
+  ]}
+>
+  <a
+    href={articleHref(article)}
+    class="absolute inset-0 z-10"
+    aria-label={article.title}
+  ></a>
+  <figure
+    class:list={[
+      'flex flex-col overflow-hidden bg-[#e6dcc4]',
+      featured ? 'border-b border-rule lg:border-r lg:border-b-0' : 'border-b border-rule',
+    ]}
+  >
+    {
+      article.image?.src ? (
+        <img
+          src={article.image.src}
+          alt={article.image.alt}
+          class:list={['h-auto w-full object-cover object-center', featured ? 'min-h-56' : 'aspect-[16/9] object-cover']}
+          decoding="async"
+        />
+      ) : (
+        <ArticleMotif motif={article.motif} />
+      )
+    }
+    {
+      article.image?.credit ? (
+        <figcaption class="border-t border-rule bg-white px-3 py-2 font-sans text-[0.7rem] leading-snug text-ink-soft">
+          {article.image.credit}
+        </figcaption>
+      ) : null
+    }
+  </figure>
+  <div
+    class:list={[
+      featured ? 'flex flex-col p-7 sm:p-9 lg:h-0 lg:min-h-full lg:overflow-hidden' : 'p-6 sm:p-7',
+    ]}
+  >
+    <p class="meta">{topic}</p>
+    <h3 class:list={['mt-2 font-display text-ink transition-colors group-hover:text-accent', featured ? 'text-3xl sm:text-4xl' : 'text-2xl']}>
+      {article.title}
+    </h3>
+    <p class="body-copy mt-3">{article.summary}</p>
+    {
+      dateLabel ? (
+        <p class="meta mt-5">
+          <time datetime={article.publishedOn}>{dateLabel}</time>
+        </p>
+      ) : null
+    }
+    {
+      excerpt ? (
+        <p class:list={['body-copy mt-4', featured ? 'line-clamp-4 lg:line-clamp-8' : 'line-clamp-4']}>{excerpt}</p>
+      ) : null
+    }
+  </div>
+</article>

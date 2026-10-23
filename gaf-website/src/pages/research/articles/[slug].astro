@@ -1,0 +1,130 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ArticleParagraph from '../../../components/editorial/ArticleParagraph.astro';
+import ArticleSupport from '../../../components/editorial/ArticleSupport.astro';
+import {
+  articleHref,
+  categoryLabel,
+  citationSegments,
+  formatArticleDate,
+  researchArticles,
+  type ResearchArticle,
+} from '../../../content/researchArticles';
+
+export function getStaticPaths() {
+  return researchArticles
+    .filter((article) => article.status === 'published' && (article.paragraphs?.length ?? 0) > 0)
+    .map((article) => ({
+      params: { slug: article.slug },
+      props: { article },
+    }));
+}
+
+type Props = {
+  article: ResearchArticle;
+};
+
+const { article } = Astro.props;
+const dateLabel = formatArticleDate(article.publishedOn);
+const sources = article.sources ?? [];
+const paragraphs = article.paragraphs ?? [];
+const midpoint = Math.floor(paragraphs.length / 2);
+const opening = midpoint > 0 ? paragraphs.slice(0, midpoint) : paragraphs;
+const closing = midpoint > 0 ? paragraphs.slice(midpoint) : [];
+
+function figureBefore(paragraph: string) {
+  return article.figures?.find((figure) => paragraph.startsWith(figure.beforeParagraph));
+}
+---
+
+<BaseLayout
+  title={article.title}
+  description={article.lede ?? article.summary}
+  canonicalPath={articleHref(article)}
+  ogType="article"
+>
+  <header class="section-pad-tight rule-bottom bg-white">
+    <div class="site-shell measure-wide">
+      <p class="kicker">
+        <a href="/research/articles" class="text-accent no-underline hover:text-accent-dark">Research Articles</a>
+      </p>
+      <p class="meta mt-4">{categoryLabel(article.categoryId)}</p>
+      <div class="mt-3 flex items-start gap-5 sm:gap-8">
+        <h1 class="min-w-0 flex-1 text-4xl sm:text-5xl">{article.title}</h1>
+        {
+          article.image?.src ? (
+            <figure class="w-32 shrink-0 sm:w-44">
+              <img
+                src={article.image.src}
+                alt={article.image.alt}
+                class="h-auto w-full border border-rule"
+                decoding="async"
+              />
+              {
+                article.image.credit ? (
+                  <figcaption class="mt-2 font-sans text-[0.65rem] leading-snug text-ink-soft">
+                    {article.image.credit}
+                  </figcaption>
+                ) : null
+              }
+            </figure>
+          ) : null
+        }
+      </div>
+      {
+        dateLabel ? (
+          <p class="meta mt-4">
+            <time datetime={article.publishedOn}>{dateLabel}</time>
+          </p>
+        ) : null
+      }
+      {article.lede ? <p class="lede mt-5 max-w-3xl">{article.lede}</p> : null}
+    </div>
+  </header>
+
+  <article class="section-pad">
+    <div class="site-shell measure-wide">
+      <div class="prose-editorial">
+        {opening.map((paragraph) => (
+          <ArticleParagraph paragraph={paragraph} figure={figureBefore(paragraph)} />
+        ))}
+      </div>
+      {closing.length > 0 ? <ArticleSupport /> : null}
+      <div class="prose-editorial">
+        {closing.map((paragraph) => (
+          <ArticleParagraph paragraph={paragraph} figure={figureBefore(paragraph)} />
+        ))}
+        {
+          sources.length > 0 ? (
+            <>
+              <h2>Sources and Further Reading</h2>
+              <ol>
+                {sources.map((source) => (
+                  <li>
+                    {citationSegments(source.citation).map((segment) =>
+                      segment.italic ? <em>{segment.text}</em> : segment.text,
+                    )}
+                    {source.url ? (
+                      <>
+                        {' '}
+                        <a
+                          href={source.url}
+                          class="break-all text-ink underline decoration-ink/30 underline-offset-[0.18em] hover:text-accent"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {source.url}
+                        </a>
+                      </>
+                    ) : null}
+                  </li>
+                ))}
+              </ol>
+            </>
+          ) : null
+        }
+      </div>
+      <ArticleSupport />
+    </div>
+  </article>
+</BaseLayout>

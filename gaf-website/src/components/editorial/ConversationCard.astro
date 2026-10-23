@@ -1,0 +1,51 @@
+---
+import {
+  formatConversationDate,
+  type ScholarlyConversation,
+} from '../../content/conversations';
+
+type Props = {
+  conversation: ScholarlyConversation;
+  featured?: boolean;
+  relatedHeading: string;
+};
+
+const { conversation, featured = false, relatedHeading } = Astro.props;
+const dateLabel = formatConversationDate(conversation.publishedOn);
+const name = conversation.participantName.trim();
+const affiliation = conversation.affiliation.trim();
+const related = conversation.related.filter((link) => link.label.trim() && link.href.trim());
+---
+
+<article class="border border-rule bg-white p-7 sm:p-9">
+  <p class="meta">{conversation.expertise}</p>
+  {name ? <p class:list={['mt-2 font-sans font-semibold text-ink', featured ? 'text-lg' : 'text-base']}>{name}</p> : null}
+  {affiliation ? <p class="meta mt-1">{affiliation}</p> : null}
+  <h3 class:list={['mt-3 font-display text-ink', featured ? 'text-3xl sm:text-4xl' : 'text-2xl']}>
+    {conversation.title}
+  </h3>
+  <p class="body-copy mt-3">{conversation.summary}</p>
+  {
+    dateLabel ? (
+      <p class="meta mt-5">
+        <time datetime={conversation.publishedOn}>{dateLabel}</time>
+      </p>
+    ) : null
+  }
+  {
+    related.length > 0 ? (
+      <div class="mt-6">
+        <h4 class="font-sans text-sm font-semibold tracking-wide text-ink">{relatedHeading}</h4>
+        <ul class="mt-3 space-y-2">
+          {related.map((link) => (
+            <li>
+              <a href={link.href} class="editorial-link">
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ) : null
+  }
+</article>

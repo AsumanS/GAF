@@ -1,0 +1,73 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SeriesCard from '../../components/editorial/SeriesCard.astro';
+import { researchArticles } from '../../content/researchArticles';
+import {
+  publicationSeriesContent as c,
+  seriesByStatus,
+  type PublicationSeries,
+} from '../../content/publicationSeries';
+
+const ongoing = seriesByStatus('ongoing');
+const completed = seriesByStatus('completed');
+
+function articlesInOrder(series: PublicationSeries) {
+  return series.articleSlugs
+    .map((slug) => researchArticles.find((article) => article.slug === slug))
+    .filter((article) => article !== undefined);
+}
+---
+
+<BaseLayout
+  title="Publication Series"
+  description={c.metaDescription}
+  canonicalPath="/research/series"
+>
+  <header class="section-pad-tight rule-bottom bg-white">
+    <div class="site-shell measure-wide">
+      <p class="kicker">
+        <a href="/research" class="text-accent no-underline hover:text-accent-dark">Research</a>
+      </p>
+      <h1 class="mt-3 text-4xl sm:text-5xl">Publication Series</h1>
+      <p class="lede mt-5 max-w-3xl">
+        Publication Series groups articles from <a href="/research/articles">Research Articles</a> around
+        a shared subject, in the order those articles appeared. A series does not publish essays of its
+        own.
+      </p>
+    </div>
+  </header>
+
+  <article class="section-pad">
+    <div class="site-shell">
+      <section aria-labelledby="ongoing-heading">
+        <h2 id="ongoing-heading" class="font-display text-3xl">{c.ongoingHeading}</h2>
+        {
+          ongoing.length > 0 ? (
+            <ul class="mt-6 space-y-6">
+              {ongoing.map((series) => (
+                <SeriesCard series={series} articles={articlesInOrder(series)} />
+              ))}
+            </ul>
+          ) : (
+            <p class="body-copy mt-5">No series is in progress.</p>
+          )
+        }
+      </section>
+
+      <section class="mt-14" aria-labelledby="completed-heading">
+        <h2 id="completed-heading" class="font-display text-3xl">{c.completedHeading}</h2>
+        {
+          completed.length > 0 ? (
+            <ul class="mt-6 space-y-6">
+              {completed.map((series) => (
+                <SeriesCard series={series} articles={articlesInOrder(series)} />
+              ))}
+            </ul>
+          ) : (
+            <p class="body-copy mt-5 max-w-3xl">{c.completedEmpty}</p>
+          )
+        }
+      </section>
+    </div>
+  </article>
+</BaseLayout>

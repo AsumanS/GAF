@@ -1,0 +1,44 @@
+---
+import ArticleMotif from './ArticleMotif.astro';
+import { articleHref, type ResearchArticle } from '../../content/researchArticles';
+import {
+  publicationSeriesContent as c,
+  type PublicationSeries,
+} from '../../content/publicationSeries';
+
+type Props = {
+  series: PublicationSeries;
+  articles: ResearchArticle[];
+};
+
+const { series, articles } = Astro.props;
+---
+
+<li id={series.slug} class="scroll-mt-28">
+  <article class="grid overflow-hidden border border-rule bg-white lg:grid-cols-[minmax(16rem,22rem)_1fr]">
+    <div class="aspect-[16/9] overflow-hidden border-b border-rule bg-canvas lg:aspect-auto lg:min-h-full lg:border-r lg:border-b-0">
+      <ArticleMotif motif={series.motif} />
+    </div>
+    <div class="p-7 sm:p-9">
+      <p class="meta">{c.statusLabel[series.status]}</p>
+      <h3 class="mt-2 font-display text-3xl text-ink">{series.title}</h3>
+      <p class="body-copy mt-3">{series.description}</p>
+      {
+        articles.length > 0 ? (
+          <div class="mt-6">
+            <h4 class="font-sans text-sm font-semibold tracking-wide text-ink">{c.orderHeading}</h4>
+            <ol class="mt-3 list-decimal space-y-3 pl-5">
+              {articles.map((article) => (
+                <li>
+                  <a href={articleHref(article)} class="editorial-link">
+                    {article.title}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ) : null
+      }
+    </div>
+  </article>
+</li>

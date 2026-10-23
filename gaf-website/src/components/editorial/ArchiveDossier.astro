@@ -1,0 +1,121 @@
+---
+import type { ArchiveLink, ArchiveRecord } from '../../content/archives';
+
+type Props = {
+  record: ArchiveRecord;
+};
+
+const { record } = Astro.props;
+
+const meta = [record.author, record.originalLanguage, record.date]
+  .filter((part) => part.trim())
+  .join(' · ');
+
+const catalogLinks = filled(record.catalogLinks);
+const digitalCopies = filled(record.digitalCopies);
+const bibliography = record.bibliography.filter((item) => item.label.trim());
+const questions = record.openQuestions.filter((question) => question.trim());
+
+function filled(links: ArchiveLink[]): ArchiveLink[] {
+  return links.filter((link) => link.label.trim() && link.href.trim());
+}
+---
+
+<div class="mt-6 border border-rule bg-white p-7 sm:p-9">
+  {meta ? <p class="meta">{meta}</p> : null}
+  <h3 class="mt-2 font-display text-3xl sm:text-4xl">{record.title}</h3>
+  {record.summary ? <p class="lede mt-5">{record.summary}</p> : null}
+
+  <div class="prose-editorial mt-10 max-w-3xl">
+    {
+      record.historicalContext.trim() ? (
+        <section aria-labelledby="context-heading">
+          <h2 id="context-heading">Historical Context</h2>
+          <p>{record.historicalContext}</p>
+        </section>
+      ) : null
+    }
+    {
+      record.publicationHistory.trim() ? (
+        <section aria-labelledby="publication-heading">
+          <h2 id="publication-heading">Publication History</h2>
+          <p>{record.publicationHistory}</p>
+        </section>
+      ) : null
+    }
+    {
+      record.survivingCopies.trim() || catalogLinks.length > 0 || digitalCopies.length > 0 ? (
+        <section aria-labelledby="copies-heading">
+          <h2 id="copies-heading">Surviving Copies</h2>
+          {record.survivingCopies.trim() ? <p>{record.survivingCopies}</p> : null}
+          {catalogLinks.length > 0 ? (
+            <>
+              <h3>Library catalogs</h3>
+              <ul>
+                {catalogLinks.map((link) => (
+                  <li>
+                    <a href={link.href}>{link.label}</a>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : null}
+          {digitalCopies.length > 0 ? (
+            <>
+              <h3>Digital copies</h3>
+              <ul>
+                {digitalCopies.map((link) => (
+                  <li>
+                    <a href={link.href}>{link.label}</a>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : null}
+        </section>
+      ) : null
+    }
+    {
+      record.englishEditions.trim() ? (
+        <section aria-labelledby="english-heading">
+          <h2 id="english-heading">English Editions</h2>
+          <p>{record.englishEditions}</p>
+        </section>
+      ) : null
+    }
+    {
+      record.scholarlySignificance.trim() ? (
+        <section aria-labelledby="significance-heading">
+          <h2 id="significance-heading">Scholarly Significance</h2>
+          <p>{record.scholarlySignificance}</p>
+        </section>
+      ) : null
+    }
+    {
+      questions.length > 0 ? (
+        <section aria-labelledby="questions-heading">
+          <h2 id="questions-heading">Open Questions</h2>
+          <ul>
+            {questions.map((question) => (
+              <li>{question}</li>
+            ))}
+          </ul>
+        </section>
+      ) : null
+    }
+    {
+      bibliography.length > 0 ? (
+        <section aria-labelledby="bibliography-heading">
+          <h2 id="bibliography-heading">Bibliography</h2>
+          <ul>
+            {bibliography.map((item) => (
+              <li>
+                {item.href.trim() ? <a href={item.href}>{item.label}</a> : item.label}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null
+    }
+  </div>
+</div>

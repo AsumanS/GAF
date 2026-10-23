@@ -1,0 +1,90 @@
+---
+import type { ArticleMotif } from '../../content/researchArticles';
+
+type Props = {
+  motif: ArticleMotif;
+  class?: string;
+};
+
+const { motif, class: className = 'h-full w-full' } = Astro.props;
+---
+
+<svg
+  class={className}
+  viewBox="0 0 640 360"
+  preserveAspectRatio="xMidYMid slice"
+  fill="none"
+  aria-hidden="true"
+>
+  {
+    motif === 'circulation' && (
+      <>
+        <rect width="640" height="360" fill="#f3ebe3" />
+        <rect x="72" y="64" width="200" height="232" fill="#fff" stroke="#121212" stroke-width="1.5" />
+        <path d="M104 108 H240 M104 136 H228 M104 164 H236 M104 192 H210 M104 220 H232" stroke="#121212" stroke-opacity="0.35" />
+        <rect x="368" y="64" width="200" height="232" fill="#fff" stroke="#121212" stroke-width="1.5" />
+        <path d="M400 108 H456" stroke="#b33a2b" stroke-width="1.5" />
+      </>
+    )
+  }
+  {
+    motif === 'rediscovery' && (
+      <>
+        <rect width="640" height="360" fill="#16303a" />
+        <path d="M96 250 C180 80 460 80 544 250" stroke="#f3f6f7" stroke-opacity="0.45" stroke-width="1.5" />
+        <rect x="248" y="118" width="144" height="168" fill="#f7f1ea" stroke="#f3f6f7" stroke-width="1.5" />
+        <path d="M272 162 H368 M272 186 H352 M272 210 H360" stroke="#16303a" stroke-opacity="0.45" />
+        <circle cx="320" cy="96" r="6" fill="#b33a2b" />
+      </>
+    )
+  }
+  {
+    motif === 'canon' && (
+      <>
+        <rect width="640" height="360" fill="#f7f7f5" />
+        <rect x="78" y="78" width="52" height="204" fill="#fff" stroke="#121212" stroke-width="1.5" />
+        <rect x="150" y="78" width="52" height="204" fill="#fff" stroke="#121212" stroke-width="1.5" />
+        <rect x="222" y="78" width="52" height="204" fill="#b33a2b" />
+        <rect x="294" y="78" width="52" height="204" fill="#fff" stroke="#121212" stroke-width="1.5" />
+        <rect x="366" y="78" width="52" height="204" fill="#fff" stroke="#121212" stroke-width="1.5" />
+        <rect x="438" y="78" width="52" height="204" fill="#16303a" />
+        <rect x="510" y="78" width="52" height="204" fill="#fff" stroke="#121212" stroke-width="1.5" />
+      </>
+    )
+  }
+  {
+    motif === 'memory' && (
+      <>
+        <rect width="640" height="360" fill="#f0e6dc" />
+        <rect x="150" y="72" width="150" height="216" fill="#fff" stroke="#121212" stroke-width="1.5" />
+        <path d="M174 112 H276 M174 140 H260 M174 168 H270 M174 196 H248" stroke="#121212" stroke-opacity="0.4" />
+        <rect x="340" y="72" width="150" height="216" fill="#fff" stroke="#121212" stroke-opacity="0.25" stroke-width="1.5" />
+        <path d="M364 112 H430" stroke="#121212" stroke-opacity="0.18" />
+      </>
+    )
+  }
+  {
+    motif === 'translation' && (
+      <>
+        <rect width="640" height="360" fill="#f7f7f5" />
+        <rect x="64" y="64" width="200" height="232" fill="#fff" stroke="#121212" stroke-width="1.5" />
+        <path d="M92 112 H228 M92 140 H210 M92 168 H224 M92 196 H196" stroke="#121212" stroke-opacity="0.35" />
+        <path d="M292 180 H348" stroke="#b33a2b" stroke-width="1.5" />
+        <path d="M336 168 L352 180 L336 192" stroke="#b33a2b" stroke-width="1.5" />
+        <rect x="376" y="64" width="200" height="232" fill="#16303a" />
+        <path d="M404 112 H540 M404 140 H520 M404 168 H536 M404 196 H500" stroke="#f3f6f7" stroke-opacity="0.55" />
+      </>
+    )
+  }
+  {
+    motif === 'oral-tradition' && (
+      <>
+        <rect width="640" height="360" fill="#16303a" />
+        <path d="M120 180 H250" stroke="#f3f6f7" stroke-opacity="0.35" />
+        <path d="M250 180 C300 110 360 110 400 180 C440 250 500 250 540 180" stroke="#f3f6f7" stroke-width="1.5" />
+        <circle cx="250" cy="180" r="7" fill="#b33a2b" />
+        <path d="M168 220 H300" stroke="#f3f6f7" stroke-opacity="0.2" />
+      </>
+    )
+  }
+</svg>

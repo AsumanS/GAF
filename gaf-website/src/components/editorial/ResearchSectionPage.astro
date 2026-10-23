@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { researchSections, type ResearchSection } from '../../content/researchSections';
+
+type Props = {
+  section: ResearchSection;
+};
+
+const { section } = Astro.props;
+const items = section.items.filter((item) => item.title.trim() && item.summary.trim());
+const siblings = researchSections.filter((item) => item.href !== section.href);
+---
+
+<BaseLayout
+  title={section.title}
+  description={section.metaDescription}
+  canonicalPath={section.href}
+>
+  <header class="section-pad-tight rule-bottom bg-white">
+    <div class="site-shell measure-wide">
+      <p class="kicker">
+        <a href="/research" class="text-accent no-underline hover:text-accent-dark">Research</a>
+      </p>
+      <h1 class="mt-3 text-4xl sm:text-5xl">{section.title}</h1>
+      <p class="lede mt-5 max-w-3xl">{section.intro}</p>
+    </div>
+  </header>
+
+  <article class="section-pad">
+    <div class="site-shell measure-wide">
+      {
+        items.length > 0 ? (
+          <ul class="space-y-8">
+            {items.map((item) => (
+              <li class="border-t border-rule pt-6 first:border-t-0 first:pt-0">
+                {item.meta ? <p class="meta">{item.meta}</p> : null}
+                <h2 class="mt-2 font-display text-2xl sm:text-3xl">
+                  {item.href ? (
+                    <a href={item.href} class="text-ink no-underline hover:text-accent">
+                      {item.title}
+                    </a>
+                  ) : (
+                    item.title
+                  )}
+                </h2>
+                <p class="body-copy mt-3">{item.summary}</p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="body-copy">{section.empty}</p>
+        )
+      }
+
+      <nav class="mt-12 border-t border-rule pt-8" aria-label="Other research sections">
+        <h2 class="font-display text-2xl">Also in Research</h2>
+        <ul class="mt-4 space-y-3">
+          {
+            siblings.map((item) => (
+              <li>
+                <a href={item.href} class="editorial-link">
+                  {item.title}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+  </article>
+</BaseLayout>

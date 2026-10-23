@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ConversationCard from '../../components/editorial/ConversationCard.astro';
+import {
+  conversationsContent as c,
+  conversationsInDateOrder,
+  scholarlyConversations,
+} from '../../content/conversations';
+
+const ordered = conversationsInDateOrder(scholarlyConversations);
+const featured = ordered.find((conversation) => conversation.featured) ?? ordered[0];
+const latest = ordered.filter((conversation) => conversation.slug !== featured?.slug);
+---
+
+<BaseLayout
+  title="Scholarly Conversations"
+  description={c.metaDescription}
+  canonicalPath="/research/conversations"
+>
+  <header class="section-pad-tight rule-bottom bg-white">
+    <div class="site-shell measure-wide">
+      <p class="kicker">
+        <a href="/research" class="text-accent no-underline hover:text-accent-dark">Research</a>
+      </p>
+      <h1 class="mt-3 text-4xl sm:text-5xl">Scholarly Conversations</h1>
+      <p class="lede mt-5 max-w-3xl">{c.intro}</p>
+    </div>
+  </header>
+
+  <article class="section-pad">
+    <div class="site-shell">
+      {
+        featured ? (
+          <section aria-labelledby="featured-heading">
+            <h2 id="featured-heading" class="font-display text-3xl">{c.featuredHeading}</h2>
+            <div class="mt-6 max-w-4xl">
+              <ConversationCard conversation={featured} featured relatedHeading={c.relatedHeading} />
+            </div>
+          </section>
+        ) : null
+      }
+
+      <section class="mt-14" aria-labelledby="latest-heading">
+        <h2 id="latest-heading" class="font-display text-3xl">{c.latestHeading}</h2>
+        <ul class="mt-6 grid gap-6 md:grid-cols-2">
+          {
+            latest.map((conversation) => (
+              <li>
+                <ConversationCard conversation={conversation} relatedHeading={c.relatedHeading} />
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </div>
+  </article>
+</BaseLayout>
