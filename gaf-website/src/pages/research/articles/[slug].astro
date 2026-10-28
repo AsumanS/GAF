@@ -27,6 +27,25 @@ type Props = {
 const { article } = Astro.props;
 const dateLabel = formatArticleDate(article.publishedOn);
 const sources = article.sources ?? [];
+const sourceBlocks = sources.reduce<Array<{ group: string; start: number; sources: typeof sources }>>(
+  (blocks, source) => {
+    const group = source.group ?? '';
+    const last = blocks[blocks.length - 1];
+    if (!last || last.group !== group) {
+      const start = last ? last.start + last.sources.length : 1;
+      blocks.push({ group, start, sources: [source] });
+    } else {
+      last.sources.push(source);
+    }
+    return blocks;
+  },
+  [],
+);
+
+function sourceLinks(source: (typeof sources)[number]): string[] {
+  if (source.urls?.length) return source.urls;
+  return source.url ? [source.url] : [];
+}
 const paragraphs = article.paragraphs ?? [];
 const midpoint = Math.floor(paragraphs.length / 2);
 const opening = midpoint > 0 ? paragraphs.slice(0, midpoint) : paragraphs;
@@ -98,28 +117,35 @@ function figureBefore(paragraph: string) {
           sources.length > 0 ? (
             <>
               <h2>Sources and Further Reading</h2>
-              <ol>
-                {sources.map((source) => (
-                  <li>
-                    {citationSegments(source.citation).map((segment) =>
-                      segment.italic ? <em>{segment.text}</em> : segment.text,
-                    )}
-                    {source.url ? (
-                      <>
-                        {' '}
-                        <a
-                          href={source.url}
-                          class="break-all text-ink underline decoration-ink/30 underline-offset-[0.18em] hover:text-accent"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {source.url}
-                        </a>
-                      </>
-                    ) : null}
-                  </li>
-                ))}
-              </ol>
+              {
+                sourceBlocks.map((block) => (
+                  <>
+                    {block.group ? <h3>{block.group}</h3> : null}
+                    <ol start={block.start}>
+                      {block.sources.map((source) => (
+                        <li>
+                          {citationSegments(source.citation).map((segment) =>
+                            segment.italic ? <em>{segment.text}</em> : segment.text,
+                          )}
+                          {sourceLinks(source).map((href) => (
+                            <>
+                              {' '}
+                              <a
+                                href={href}
+                                class="break-all text-ink underline decoration-ink/30 underline-offset-[0.18em] hover:text-accent"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {href}
+                              </a>
+                            </>
+                          ))}
+                        </li>
+                      ))}
+                    </ol>
+                  </>
+                ))
+              }
             </>
           ) : null
         }

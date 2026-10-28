@@ -18,15 +18,19 @@ function article(overrides: Partial<ResearchArticle> & Pick<ResearchArticle, 'sl
 }
 
 describe('public research article listing', () => {
-  it('publishes only the completed Lost Books article', () => {
+  it('publishes the completed articles with the newest one featured', () => {
     const published = researchArticles.filter((entry) => entry.status === 'published');
-    expect(published.map((entry) => entry.slug)).toEqual(['the-lost-books-that-were-never-lost']);
+    expect(published.map((entry) => entry.slug)).toEqual([
+      'where-did-the-seventh-sister-go',
+      'the-lost-books-that-were-never-lost',
+    ]);
     expect(published[0]?.paragraphs?.length).toBeGreaterThan(0);
-    expect(published[0]?.publishedOn).toBe('2026-10-23');
+    expect(published[0]?.publishedOn).toBe('2026-10-28');
+    expect(published[1]?.publishedOn).toBe('2026-10-23');
 
     const listing = publicArticleListing(researchArticles);
-    expect(listing.featured?.slug).toBe('the-lost-books-that-were-never-lost');
-    expect(listing.latest).toEqual([]);
+    expect(listing.featured?.slug).toBe('where-did-the-seventh-sister-go');
+    expect(listing.latest.map((entry) => entry.slug)).toEqual(['the-lost-books-that-were-never-lost']);
 
     const hidden = researchArticles.filter((entry) => entry.status !== 'published');
     expect(hidden).toHaveLength(5);

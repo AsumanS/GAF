@@ -9,10 +9,9 @@ import {
 
 type Props = {
   article: ResearchArticle;
-  featured?: boolean;
 };
 
-const { article, featured = false } = Astro.props;
+const { article } = Astro.props;
 const dateLabel = formatArticleDate(article.publishedOn);
 const topic = categoryLabel(article.categoryId);
 const excerpt = article.paragraphs?.filter((paragraph) => paragraph.trim()).join(' ') ?? '';
@@ -20,62 +19,50 @@ const excerpt = article.paragraphs?.filter((paragraph) => paragraph.trim()).join
 
 <article
   id={article.slug}
-  class:list={[
-    'group relative scroll-mt-28 border border-rule bg-white transition-colors hover:border-accent',
-    featured && 'grid lg:grid-cols-2',
-  ]}
+  class="group relative grid grid-cols-1 scroll-mt-28 border border-rule bg-white transition-colors hover:border-accent lg:grid-cols-[16rem_minmax(0,1fr)]"
 >
   <a
     href={articleHref(article)}
     class="absolute inset-0 z-10"
     aria-label={article.title}
   ></a>
-  <figure
-    class:list={[
-      'flex flex-col overflow-hidden bg-[#e6dcc4]',
-      featured ? 'border-b border-rule lg:border-r lg:border-b-0' : 'border-b border-rule',
-    ]}
-  >
+  <figure class="flex flex-col border-b border-rule bg-[#e6dcc4] lg:self-start lg:border-r lg:border-b-0">
     {
       article.image?.src ? (
         <img
           src={article.image.src}
           alt={article.image.alt}
-          class:list={['h-auto w-full object-cover object-center', featured ? 'min-h-56' : 'aspect-[16/9] object-cover']}
+          class="h-auto w-full bg-[#e6dcc4] object-contain object-center lg:aspect-square"
           decoding="async"
         />
       ) : (
-        <ArticleMotif motif={article.motif} />
+        <ArticleMotif motif={article.motif} class="aspect-square h-auto w-full" />
       )
     }
     {
       article.image?.credit ? (
-        <figcaption class="border-t border-rule bg-white px-3 py-2 font-sans text-[0.7rem] leading-snug text-ink-soft">
+        <figcaption class="border-t border-rule bg-white px-2 py-1.5 font-sans text-[0.65rem] leading-snug text-ink-soft">
           {article.image.credit}
         </figcaption>
       ) : null
     }
   </figure>
-  <div
-    class:list={[
-      featured ? 'flex flex-col p-7 sm:p-9 lg:h-0 lg:min-h-full lg:overflow-hidden' : 'p-6 sm:p-7',
-    ]}
-  >
+  <div class="flex flex-col p-5 sm:p-7 lg:h-0 lg:min-h-full lg:overflow-hidden">
     <p class="meta">{topic}</p>
-    <h3 class:list={['mt-2 font-display text-ink transition-colors group-hover:text-accent', featured ? 'text-3xl sm:text-4xl' : 'text-2xl']}>
+    <h3 class="mt-2 font-display text-2xl text-ink transition-colors group-hover:text-accent sm:text-3xl lg:text-4xl">
       {article.title}
     </h3>
-    <p class="body-copy mt-3">{article.summary}</p>
+    <p class="body-copy mt-3 line-clamp-2">{article.summary}</p>
     {
       dateLabel ? (
-        <p class="meta mt-5">
+        <p class="meta mt-3 sm:mt-4">
           <time datetime={article.publishedOn}>{dateLabel}</time>
         </p>
       ) : null
     }
     {
       excerpt ? (
-        <p class:list={['body-copy mt-4', featured ? 'line-clamp-4 lg:line-clamp-8' : 'line-clamp-4']}>{excerpt}</p>
+        <p class="body-copy mt-3 line-clamp-2 sm:line-clamp-3">{excerpt}</p>
       ) : null
     }
   </div>

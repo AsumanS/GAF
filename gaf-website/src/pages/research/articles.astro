@@ -3,13 +3,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleCard from '../../components/editorial/ArticleCard.astro';
 import {
   articleCategories,
-  publicArticleListing,
+  articlesInDateOrder,
   researchArticles,
   researchArticlesContent as c,
 } from '../../content/researchArticles';
 
-const { featured, latest } = publicArticleListing(researchArticles);
-const hasPublished = Boolean(featured) || latest.length > 0;
+const published = articlesInDateOrder(
+  researchArticles.filter((article) => article.status === 'published'),
+);
+const hasPublished = published.length > 0;
 ---
 
 <BaseLayout
@@ -67,30 +69,16 @@ const hasPublished = Boolean(featured) || latest.length > 0;
       }
 
       {
-        featured ? (
-          <section class="mt-12" aria-labelledby="featured-heading" data-article-category={featured.categoryId}>
-            <h2 id="featured-heading" class="font-display text-3xl">{c.featuredHeading}</h2>
-            <div class="mt-6">
-              <ArticleCard article={featured} featured />
-            </div>
-          </section>
-        ) : null
-      }
-
-      {
-        latest.length > 0 ? (
-      <section class="mt-14" aria-labelledby="latest-heading">
-        <h2 id="latest-heading" class="font-display text-3xl">{c.latestHeading}</h2>
-        <ul class="mt-6 grid gap-6 md:grid-cols-2">
-          {
-            latest.map((article) => (
-              <li data-article-category={article.categoryId}>
-                <ArticleCard article={article} />
-              </li>
-            ))
-          }
-        </ul>
-      </section>
+        hasPublished ? (
+          <ul class="mt-12 grid gap-8">
+            {
+              published.map((article) => (
+                <li data-article-category={article.categoryId}>
+                  <ArticleCard article={article} />
+                </li>
+              ))
+            }
+          </ul>
         ) : null
       }
       {

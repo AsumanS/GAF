@@ -1,4 +1,5 @@
 import { lostBooksArticleBody } from './articles/theLostBooksThatWereNeverLost';
+import { seventhSisterArticleBody } from './articles/whereDidTheSeventhSisterGo';
 
 export type ArticleCategoryId =
   | 'circulation'
@@ -37,6 +38,10 @@ export type ArticleInlineFigure = {
 export type ArticleSource = {
   citation: string;
   url?: string;
+  /** Extra links when a source names more than one. */
+  urls?: string[];
+  /** Bibliography section. Consecutive sources with the same label stay together. */
+  group?: string;
 };
 
 export type ResearchArticle = {
@@ -76,6 +81,22 @@ export const articleCategories: Array<{ id: ArticleCategoryId; label: string }> 
  */
 export const researchArticles: ResearchArticle[] = [
   {
+    slug: 'where-did-the-seventh-sister-go',
+    title: 'Where Did the Seventh Sister Go?',
+    categoryId: 'oral-tradition',
+    motif: 'oral-tradition',
+    summary: seventhSisterArticleBody.lede,
+    status: 'published',
+    publishedOn: '2026-10-28',
+    featured: true,
+    image: {
+      src: '/assets/research/taurus-coelum-stellatum.jpg',
+      alt: 'Colored star chart showing the constellation Taurus, the Pleiades on the bull, and Orion raising a club.',
+      credit: 'Johann Elert Bode, Public domain, via Wikimedia Commons',
+    },
+    ...seventhSisterArticleBody,
+  },
+  {
     slug: 'the-lost-books-that-were-never-lost',
     title: 'The Lost Books That Were Never Lost',
     categoryId: 'circulation',
@@ -83,7 +104,6 @@ export const researchArticles: ResearchArticle[] = [
     summary: lostBooksArticleBody.lede,
     status: 'published',
     publishedOn: '2026-10-23',
-    featured: true,
     image: {
       src: '/assets/research/german-popular-stories-cruikshank.jpg',
       alt: 'George Cruikshank illustration from German Popular Stories, showing villagers running from a cottage.',
