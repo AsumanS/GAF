@@ -1,9 +1,19 @@
 import { site } from '../config/site';
 
+export type NewsBlock = {
+  /** Optional section heading shown above this paragraph. */
+  heading?: string;
+  text: string;
+  /** Emphasis for a closing line the announcement marks as bold. */
+  strong?: boolean;
+};
+
 export type NewsUpdate = {
   publishedOn: string;
   title: string;
   text: string;
+  /** Structured body. When present, this is shown instead of the single `text` paragraph. */
+  blocks?: NewsBlock[];
   /** Phrases in `text` that link to another page. Match the visible phrase, without italic markers. */
   links?: { text: string; href: string }[];
 };
@@ -20,6 +30,50 @@ export const newsContent = {
     'Follow the latest news from Golden Archive Foundation, including our projects, research, publications, and opportunities to get involved.',
   empty: 'There are no updates to show yet. New items will appear here as they are published.',
   items: [
+    {
+      publishedOn: '2026-10-28',
+      title: 'Golden Archive Foundation Launches Its Official Substack Publication',
+      text: `Golden Archive Foundation is pleased to announce the launch of its official publication on Substack, expanding opportunities for readers to engage with the Foundation's research, publications, and cultural heritage initiatives.`,
+      blocks: [
+        {
+          text: `Golden Archive Foundation is pleased to announce the launch of its official publication on Substack, expanding opportunities for readers to engage with the Foundation's research, publications, and cultural heritage initiatives.`,
+        },
+        {
+          text: `As a nonprofit organization dedicated to preserving cultural heritage and bringing greater visibility to overlooked literary works, Golden Archive Foundation seeks to make historical knowledge and literary research accessible to a wider audience.`,
+        },
+        {
+          text: `The new Substack publication will serve as an additional channel for sharing research articles, stories from literary history, perspectives on translation and cultural transmission, and updates on the Foundation's ongoing initiatives.`,
+        },
+        {
+          heading: 'Our First Publication',
+          text: `The launch includes “The Lost Books That Were Never Lost,” an article exploring how works of literature can survive for centuries while remaining unfamiliar to readers beyond their original languages and cultural traditions.`,
+        },
+        {
+          text: `Through examples drawn from the histories of the Brothers Grimm, Pinocchio, *The Sarashina Diary*, and *The Book of Dede Korkut*, the article examines how translation, adaptation, and publishing decisions influence the circulation and recognition of literary works.`,
+        },
+        {
+          heading: 'Expanding Our Community',
+          text: `Through Substack, Golden Archive Foundation hopes to connect with readers, researchers, historians, translators, librarians, and others interested in literature and cultural heritage.`,
+        },
+        {
+          text: `The Foundation also welcomes individuals who wish to contribute their time, knowledge, and skills through volunteer opportunities supporting its cultural and research initiatives.`,
+        },
+        {
+          text: `The Foundation's official website will remain the primary home for its projects, research publications, and institutional information, while Substack will provide an additional way to discover and follow its work.`,
+        },
+        {
+          text: `Visit our official Substack publication to explore our articles and follow future updates.`,
+          strong: true,
+        },
+      ],
+      links: [
+        {
+          text: 'The Lost Books That Were Never Lost',
+          href: '/research/articles/the-lost-books-that-were-never-lost',
+        },
+        { text: 'volunteer opportunities', href: '/volunteer' },
+      ],
+    },
     {
       publishedOn: '2026-10-16',
       title: 'Online Donations Now Available',
