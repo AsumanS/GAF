@@ -18,6 +18,7 @@ export type SocialLinks = {
   instagram?: string;
   linkedin?: string;
   mastodon?: string;
+  substack?: string;
   threads?: string;
   x?: string;
   youtube?: string;
@@ -112,6 +113,7 @@ export const site: SiteConfig = {
   socialLinks: {
     facebook: 'https://www.facebook.com/profile.php?id=61595572550847',
     instagram: 'https://www.instagram.com/goldenarchivefoundation/',
+    substack: 'https://goldenarchivefoundation.substack.com/',
   },
   donationsEnabled: true,
   zelleEnabled: false,
@@ -228,6 +230,7 @@ export function configuredSocialLinks(): Array<{ key: keyof SocialLinks; label: 
     github: 'GitHub',
     instagram: 'Instagram',
     linkedin: 'LinkedIn',
+    substack: 'Substack',
     mastodon: 'Mastodon',
     threads: 'Threads',
     x: 'X',

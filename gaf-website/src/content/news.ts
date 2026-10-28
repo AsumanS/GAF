@@ -72,6 +72,9 @@ export const newsContent = {
           href: '/research/articles/the-lost-books-that-were-never-lost',
         },
         { text: 'volunteer opportunities', href: '/volunteer' },
+        ...(site.socialLinks.substack
+          ? [{ text: 'official Substack publication', href: site.socialLinks.substack }]
+          : []),
       ],
     },
     {
