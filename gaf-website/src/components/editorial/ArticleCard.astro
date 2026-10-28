@@ -52,7 +52,7 @@ const excerpt = article.paragraphs?.filter((paragraph) => paragraph.trim()).join
     <h3 class="mt-2 font-display text-2xl text-ink transition-colors group-hover:text-accent sm:text-3xl lg:text-4xl">
       {article.title}
     </h3>
-    <p class="body-copy mt-3 line-clamp-2">{article.summary}</p>
+    <p class="body-copy mt-3 line-clamp-2 text-justify hyphens-auto">{article.summary}</p>
     {
       dateLabel ? (
         <p class="meta mt-3 sm:mt-4">
@@ -62,7 +62,7 @@ const excerpt = article.paragraphs?.filter((paragraph) => paragraph.trim()).join
     }
     {
       excerpt ? (
-        <p class="body-copy mt-3 line-clamp-2 sm:line-clamp-3">{excerpt}</p>
+        <p class="body-copy mt-3 line-clamp-2 text-justify hyphens-auto sm:line-clamp-3">{excerpt}</p>
       ) : null
     }
   </div>

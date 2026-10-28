@@ -23,7 +23,7 @@ const { paragraph, figure } = Astro.props;
     </figure>
   ) : null
 }
-<p>
+<p class="text-justify hyphens-auto">
   {
     citationSegments(paragraph).map((segment) =>
       segment.italic ? <em>{segment.text}</em> : segment.text,
