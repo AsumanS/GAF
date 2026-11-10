@@ -7,26 +7,43 @@ type Props = {
 };
 
 const { paragraph, figure } = Astro.props;
+const raw = paragraph.trim();
+const isHeading = raw.startsWith('## ');
+const isQuote = raw.startsWith('> ');
+const body = isHeading ? raw.slice(3) : isQuote ? raw.slice(2) : raw;
+const quoteParagraphs = isQuote ? body.split(/\n\n+/) : [];
 ---
 
 {
   figure ? (
     <figure class="my-8">
       <img src={figure.src} alt={figure.alt} class="h-auto w-full" decoding="async" />
-      {
-        figure.credit ? (
-          <figcaption class="mt-2 font-sans text-[0.7rem] leading-snug text-ink-soft">
-            {figure.credit}
-          </figcaption>
-        ) : null
-      }
+      {figure.credit ? (
+        <figcaption class="mt-2 font-sans text-[0.7rem] leading-snug text-ink-soft">
+          {figure.credit}
+        </figcaption>
+      ) : null}
     </figure>
   ) : null
 }
-<p class="text-justify hyphens-auto">
-  {
-    citationSegments(paragraph).map((segment) =>
-      segment.italic ? <em>{segment.text}</em> : segment.text,
-    )
-  }
-</p>
+{
+  isHeading ? (
+    <h2 class="article-heading">{body}</h2>
+  ) : isQuote ? (
+    <blockquote>
+      {quoteParagraphs.map((part) => (
+        <p class="text-justify hyphens-auto">
+          {citationSegments(part).map((segment) =>
+            segment.italic ? <em>{segment.text}</em> : segment.text,
+          )}
+        </p>
+      ))}
+    </blockquote>
+  ) : (
+    <p class="text-justify hyphens-auto">
+      {citationSegments(body).map((segment) =>
+        segment.italic ? <em>{segment.text}</em> : segment.text,
+      )}
+    </p>
+  )
+}

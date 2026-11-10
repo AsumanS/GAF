@@ -14,19 +14,21 @@ type Props = {
 const { article } = Astro.props;
 const dateLabel = formatArticleDate(article.publishedOn);
 const topic = categoryLabel(article.categoryId);
-const excerpt = article.paragraphs?.filter((paragraph) => paragraph.trim()).join(' ') ?? '';
+const excerpt =
+  article.paragraphs
+    ?.filter((paragraph) => {
+      const text = paragraph.trim();
+      return text.length > 0 && !text.startsWith('## ') && !text.startsWith('> ');
+    })
+    .join(' ') ?? '';
 ---
 
 <article
   id={article.slug}
   class="group relative grid grid-cols-1 scroll-mt-28 border border-rule bg-white transition-colors hover:border-accent lg:grid-cols-[16rem_minmax(0,1fr)]"
 >
-  <a
-    href={articleHref(article)}
-    class="absolute inset-0 z-10"
-    aria-label={article.title}
-  ></a>
-  <figure class="flex flex-col border-b border-rule bg-[#e6dcc4] lg:self-start lg:border-r lg:border-b-0">
+  <a href={articleHref(article)} class="absolute inset-0 z-10" aria-label={article.title}></a>
+  <figure class="flex flex-col border-b border-rule bg-[#e6dcc4] lg:border-r lg:border-b-0">
     {
       article.image?.src ? (
         <img
@@ -47,12 +49,16 @@ const excerpt = article.paragraphs?.filter((paragraph) => paragraph.trim()).join
       ) : null
     }
   </figure>
-  <div class="flex flex-col p-5 sm:p-7 lg:h-0 lg:min-h-full lg:overflow-hidden">
+  <div class="flex flex-col p-5 sm:p-7">
     <p class="meta">{topic}</p>
-    <h3 class="mt-2 font-display text-2xl text-ink transition-colors group-hover:text-accent sm:text-3xl lg:text-4xl">
+    <h3
+      class="mt-2 font-display text-2xl text-ink transition-colors group-hover:text-accent sm:text-3xl lg:text-4xl"
+    >
       {article.title}
     </h3>
-    <p class="body-copy mt-3 line-clamp-2 text-justify hyphens-auto">{article.summary}</p>
+    <div class="mt-3">
+      <p class="body-copy line-clamp-2 text-justify hyphens-auto">{article.summary}</p>
+    </div>
     {
       dateLabel ? (
         <p class="meta mt-3 sm:mt-4">
@@ -62,7 +68,9 @@ const excerpt = article.paragraphs?.filter((paragraph) => paragraph.trim()).join
     }
     {
       excerpt ? (
-        <p class="body-copy mt-3 line-clamp-2 text-justify hyphens-auto sm:line-clamp-3">{excerpt}</p>
+        <div class="mt-3">
+          <p class="body-copy line-clamp-2 text-justify hyphens-auto sm:line-clamp-3">{excerpt}</p>
+        </div>
       ) : null
     }
   </div>

@@ -1,21 +1,12 @@
+import { foundBookArticleBody } from './articles/theRealityOfTheFoundBook';
 import { lostBooksArticleBody } from './articles/theLostBooksThatWereNeverLost';
 import { seventhSisterArticleBody } from './articles/whereDidTheSeventhSisterGo';
 
 export type ArticleCategoryId =
-  | 'circulation'
-  | 'rediscovery'
-  | 'canon'
-  | 'memory'
-  | 'translation'
-  | 'oral-tradition';
+  'circulation' | 'rediscovery' | 'canon' | 'memory' | 'translation' | 'oral-tradition';
 
 export type ArticleMotif =
-  | 'circulation'
-  | 'rediscovery'
-  | 'canon'
-  | 'memory'
-  | 'translation'
-  | 'oral-tradition';
+  'circulation' | 'rediscovery' | 'canon' | 'memory' | 'translation' | 'oral-tradition';
 
 /** Public listings include only `published`. A date does not publish an article. */
 export type ArticleStatus = 'draft' | 'planned' | 'unpublished' | 'published';
@@ -81,6 +72,21 @@ export const articleCategories: Array<{ id: ArticleCategoryId; label: string }> 
  */
 export const researchArticles: ResearchArticle[] = [
   {
+    slug: 'the-reality-of-the-found-book',
+    title: 'The Reality of the Found Book',
+    categoryId: 'rediscovery',
+    motif: 'rediscovery',
+    summary: foundBookArticleBody.lede,
+    status: 'published',
+    publishedOn: '2026-11-09',
+    featured: true,
+    image: {
+      src: '/assets/research/the-reality-of-the-found-book.jpg',
+      alt: 'Watercolor of an open wooden chest filled with old books, letters, and a wax-sealed envelope, with loose pages and a dried flower in front.',
+    },
+    ...foundBookArticleBody,
+  },
+  {
     slug: 'where-did-the-seventh-sister-go',
     title: 'Where Did the Seventh Sister Go?',
     categoryId: 'oral-tradition',
@@ -88,7 +94,6 @@ export const researchArticles: ResearchArticle[] = [
     summary: seventhSisterArticleBody.lede,
     status: 'published',
     publishedOn: '2026-10-28',
-    featured: true,
     image: {
       src: '/assets/research/taurus-coelum-stellatum.jpg',
       alt: 'Colored star chart showing the constellation Taurus, the Pleiades on the bull, and Orion raising a club.',
@@ -153,8 +158,7 @@ export const researchArticles: ResearchArticle[] = [
     title: 'Before History Was Written, It Was Told',
     categoryId: 'oral-tradition',
     motif: 'oral-tradition',
-    summary:
-      'How stories carried by speech held historical memory before they were written down.',
+    summary: 'How stories carried by speech held historical memory before they were written down.',
     status: 'planned',
     publishedOn: '',
   },
@@ -205,7 +209,9 @@ export function articlesInDateOrder(articles: ResearchArticle[]): ResearchArticl
  * Featured is the newest published article explicitly marked featured.
  */
 export function publicArticleListing(articles: ResearchArticle[]): PublicArticleListing {
-  const published = articlesInDateOrder(articles.filter((article) => article.status === 'published'));
+  const published = articlesInDateOrder(
+    articles.filter((article) => article.status === 'published'),
+  );
   const featured = published.find((article) => article.featured === true);
   return {
     featured,
@@ -228,7 +234,9 @@ export function citationSegments(citation: string): Array<{ text: string; italic
   return segments;
 }
 
-export function articleHref(article: Pick<ResearchArticle, 'slug' | 'status' | 'paragraphs'>): string {
+export function articleHref(
+  article: Pick<ResearchArticle, 'slug' | 'status' | 'paragraphs'>,
+): string {
   if (article.status === 'published' && (article.paragraphs?.length ?? 0) > 0) {
     return `/research/articles/${article.slug}`;
   }
