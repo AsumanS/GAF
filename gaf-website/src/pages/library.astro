@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { libraryContent as c, librarySections } from '../content/library';
+---
+
+<BaseLayout title="Library" description={c.metaDescription} canonicalPath="/library">
+  <header class="section-pad-tight rule-bottom bg-white">
+    <div class="site-shell measure-wide">
+      <h1 class="text-4xl sm:text-5xl">Library</h1>
+      <p class="lede mt-5 max-w-3xl">{c.intro}</p>
+    </div>
+  </header>
+
+  <article class="section-pad">
+    <div class="site-shell">
+      <ul class="grid gap-6 md:grid-cols-2">
+        {
+          librarySections.map((section) => (
+            <li>
+              {section.href ? (
+                <a
+                  href={section.href}
+                  class="block h-full border border-rule bg-white p-7 no-underline transition-colors hover:border-accent sm:p-9"
+                >
+                  <h2 class="font-display text-2xl text-ink">{section.title}</h2>
+                  <p class="body-copy mt-3">{section.summary}</p>
+                </a>
+              ) : (
+                <div class="h-full border border-rule bg-white p-7 sm:p-9">
+                  <h2 class="font-display text-2xl text-ink">{section.title}</h2>
+                  <p class="body-copy mt-3">{section.summary}</p>
+                </div>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </article>
+</BaseLayout>

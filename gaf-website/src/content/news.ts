@@ -31,6 +31,35 @@ export const newsContent = {
   empty: 'There are no updates to show yet. New items will appear here as they are published.',
   items: [
     {
+      publishedOn: '2026-11-10',
+      title: 'Golden Archive Foundation Launches Its First Public Event: Fellow Readers',
+      text: `Golden Archive Foundation is launching its first public event, Fellow Readers: Virtual Silent Reading Club, an online gathering that brings readers together to enjoy the simple pleasure of reading in shared company.`,
+      blocks: [
+        {
+          text: `Golden Archive Foundation is launching its first public event, **Fellow Readers: Virtual Silent Reading Club**, an online gathering that brings readers together to enjoy the simple pleasure of reading in shared company.`,
+        },
+        {
+          text: `Unlike traditional book clubs, a silent reading club does not require participants to read the same book. Everyone can bring a book of their own choosing and spend time reading alongside others in a relaxed virtual setting. The emphasis is on making time for reading rather than following an assigned reading list or preparing for a discussion.`,
+        },
+        {
+          text: `Fellow Readers is part of the Foundation's commitment to public education, literature, and community engagement. Through this initiative, Golden Archive Foundation hopes to encourage regular reading habits and create a welcoming space for people who share an interest in books.`,
+        },
+        {
+          text: `Readers interested in joining can find event details and registration information on Eventbrite.`,
+        },
+        {
+          text: `View Event & Register on Eventbrite`,
+          strong: true,
+        },
+      ],
+      links: [
+        {
+          text: 'View Event & Register on Eventbrite',
+          href: 'https://www.eventbrite.com/e/fellow-readers-virtual-silent-reading-club-tickets-2004509873993',
+        },
+      ],
+    },
+    {
       publishedOn: '2026-10-28',
       title: 'Golden Archive Foundation Launches Its Official Substack Publication',
       text: `Golden Archive Foundation is pleased to announce the launch of its official publication on Substack, expanding opportunities for readers to engage with the Foundation's research, publications, and cultural heritage initiatives.`,
@@ -120,17 +149,28 @@ export const newsContent = {
   ] satisfies NewsUpdate[],
 };
 
-export function newsTextSegments(text: string): Array<{ text: string; italic: boolean }> {
-  const segments: Array<{ text: string; italic: boolean }> = [];
-  const pattern = /\*([^*]+)\*/g;
+export function newsTextSegments(
+  text: string,
+): Array<{ text: string; italic: boolean; strong: boolean }> {
+  const segments: Array<{ text: string; italic: boolean; strong: boolean }> = [];
+  const pattern = /\*\*([^*]+)\*\*|\*([^*]+)\*/g;
   let last = 0;
   for (const match of text.matchAll(pattern)) {
     const index = match.index ?? 0;
-    if (index > last) segments.push({ text: text.slice(last, index), italic: false });
-    segments.push({ text: match[1] ?? '', italic: true });
+    if (index > last) {
+      segments.push({ text: text.slice(last, index), italic: false, strong: false });
+    }
+    const strong = match[1] !== undefined;
+    segments.push({
+      text: (strong ? match[1] : match[2]) ?? '',
+      italic: !strong,
+      strong,
+    });
     last = index + match[0].length;
   }
-  if (last < text.length) segments.push({ text: text.slice(last), italic: false });
+  if (last < text.length) {
+    segments.push({ text: text.slice(last), italic: false, strong: false });
+  }
   return segments;
 }
 

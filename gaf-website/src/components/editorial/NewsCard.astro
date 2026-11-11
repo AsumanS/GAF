@@ -43,7 +43,13 @@ const blocks = item.blocks?.length ? item.blocks : [{ text: item.text }];
                   part.text
                 ),
               );
-              return segment.italic ? <em>{parts}</em> : parts;
+              return segment.strong ? (
+                <strong>{parts}</strong>
+              ) : segment.italic ? (
+                <em>{parts}</em>
+              ) : (
+                parts
+              );
             })}
           </p>
         </>

@@ -7,6 +7,8 @@ const paths = [
   '/',
   '/about',
   '/research',
+  '/library',
+  '/library/scholarly-articles',
   '/research/articles',
   '/research/archives',
   '/research/conversations',

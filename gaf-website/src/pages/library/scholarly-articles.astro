@@ -1,0 +1,147 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import {
+  scholarlyArticleCategories,
+  scholarlyArticles,
+  scholarlyArticlesContent as c,
+  type ScholarlyArticleCategoryId,
+} from '../../content/scholarlyArticles';
+
+function categoryLabel(id: ScholarlyArticleCategoryId): string {
+  return scholarlyArticleCategories.find((category) => category.id === id)?.label ?? id;
+}
+---
+
+<BaseLayout
+  title="Scholarly Articles"
+  description={c.metaDescription}
+  canonicalPath="/library/scholarly-articles"
+>
+  <header class="section-pad-tight rule-bottom bg-white">
+    <div class="site-shell measure-wide">
+      <p class="kicker">
+        <a href="/library" class="text-accent no-underline hover:text-accent-dark">Library</a>
+      </p>
+      <h1 class="mt-3 text-4xl sm:text-5xl">Scholarly Articles</h1>
+      <p class="lede mt-5 max-w-3xl">{c.intro}</p>
+    </div>
+  </header>
+
+  <article class="section-pad">
+    <div class="site-shell">
+      <section aria-labelledby="topics-heading">
+        <h2 id="topics-heading" class="font-display text-3xl">{c.topicsHeading}</h2>
+        <ul class="mt-5 flex flex-wrap gap-2" aria-label={c.topicsLabel}>
+          <li>
+            <button
+              type="button"
+              class="border border-ink bg-ink px-3 py-1.5 font-sans text-sm font-medium text-white hover:border-ink"
+              data-article-filter="all"
+              aria-pressed="true"
+            >
+              {c.allTopicsLabel}
+            </button>
+          </li>
+          {
+            scholarlyArticleCategories.map((category) => (
+              <li>
+                <button
+                  type="button"
+                  class="border border-rule bg-white px-3 py-1.5 font-sans text-sm font-medium text-ink hover:border-ink"
+                  data-article-filter={category.id}
+                  aria-pressed="false"
+                >
+                  {category.label}
+                </button>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <ul class="mt-12 grid gap-8">
+        {
+          scholarlyArticles.map((article) => (
+            <li
+              data-article-category={article.categoryId}
+              class="border border-rule bg-white p-7 sm:p-9"
+            >
+              <p class="meta">{categoryLabel(article.categoryId)}</p>
+              <h3 class="mt-2 font-display text-2xl text-ink sm:text-3xl">
+                <a
+                  href={article.href}
+                  class="text-ink no-underline hover:text-accent"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {article.title}
+                </a>
+              </h3>
+              <p class="mt-3 font-sans text-sm leading-relaxed text-ink-soft">
+                {article.authors}. <em>{article.publication}</em>, {article.year}.
+              </p>
+              <p class="body-copy mt-4">{article.intro}</p>
+              <a
+                href={article.href}
+                class="editorial-link mt-4 inline-block"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {c.readLabel}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="body-copy mt-6" data-articles-empty hidden>
+        {c.emptyTopic}
+      </p>
+    </div>
+  </article>
+</BaseLayout>
+
+<script is:inline>
+  (function () {
+    function initArticleFilters() {
+      var buttons = Array.prototype.slice.call(document.querySelectorAll('[data-article-filter]'));
+      var groups = Array.prototype.slice.call(document.querySelectorAll('[data-article-category]'));
+      var empty = document.querySelector('[data-articles-empty]');
+      if (!buttons.length || !groups.length) return;
+
+      function setPressed(button, pressed) {
+        button.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+        button.classList.toggle('border-ink', pressed);
+        button.classList.toggle('bg-ink', pressed);
+        button.classList.toggle('text-white', pressed);
+        button.classList.toggle('border-rule', !pressed);
+        button.classList.toggle('bg-white', !pressed);
+        button.classList.toggle('text-ink', !pressed);
+      }
+
+      function apply(filter) {
+        buttons.forEach(function (button) {
+          setPressed(button, button.getAttribute('data-article-filter') === filter);
+        });
+        var visible = 0;
+        groups.forEach(function (group) {
+          var match = filter === 'all' || group.getAttribute('data-article-category') === filter;
+          group.hidden = !match;
+          if (match) visible += 1;
+        });
+        if (empty) empty.hidden = filter === 'all' || visible > 0;
+      }
+
+      buttons.forEach(function (button) {
+        button.addEventListener('click', function () {
+          apply(button.getAttribute('data-article-filter') || 'all');
+        });
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initArticleFilters);
+    } else {
+      initArticleFilters();
+    }
+  })();
+</script>
