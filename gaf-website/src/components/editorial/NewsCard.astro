@@ -19,6 +19,13 @@ const blocks = item.blocks?.length ? item.blocks : [{ text: item.text }];
     ) : null
   }
   <h2 class="mt-3 font-display text-2xl text-ink sm:text-3xl">{item.title}</h2>
+  {
+    item.image ? (
+      <figure class="mt-5">
+        <img src={item.image.src} alt={item.image.alt} class="h-auto w-full" decoding="async" />
+      </figure>
+    ) : null
+  }
   <div class="mt-4 space-y-4">
     {
       blocks.map((block) => (

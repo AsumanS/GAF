@@ -8,6 +8,11 @@ export type NewsBlock = {
   strong?: boolean;
 };
 
+export type NewsImage = {
+  src: string;
+  alt: string;
+};
+
 export type NewsUpdate = {
   publishedOn: string;
   title: string;
@@ -16,6 +21,7 @@ export type NewsUpdate = {
   blocks?: NewsBlock[];
   /** Phrases in `text` that link to another page. Match the visible phrase, without italic markers. */
   links?: { text: string; href: string }[];
+  image?: NewsImage;
 };
 
 /**
@@ -30,6 +36,29 @@ export const newsContent = {
     'Follow the latest news from Golden Archive Foundation, including our projects, research, publications, and opportunities to get involved.',
   empty: 'There are no updates to show yet. New items will appear here as they are published.',
   items: [
+    {
+      publishedOn: '2026-11-13',
+      title: 'Fellow Readers Gathered for an Evening of Silent Reading',
+      text: `On November 12, Fellow Readers, an online silent reading gathering organized by Golden Archive Foundation, brought readers together for an evening dedicated to books and the simple pleasure of reading.`,
+      image: {
+        src: '/assets/news/fellow-readers-november-12.jpg',
+        alt: 'Participants in the Fellow Readers online gathering hold up their books: The Night Battles, The Magus, The Written World, and Slow Productivity, beside the Golden Archive Foundation logo.',
+      },
+      blocks: [
+        {
+          text: `On November 12, Fellow Readers, an online silent reading gathering organized by Golden Archive Foundation, brought readers together for an evening dedicated to books and the simple pleasure of reading.`,
+        },
+        {
+          text: `The idea behind Fellow Readers is straightforward: people can come together to read without having to read the same book, follow a prescribed reading list, or participate in a formal discussion. Each reader brings their own book and enjoys a quiet reading session in the company of others.`,
+        },
+        {
+          text: `Although the gathering takes place online, it offers something that solitary reading does not always provide: a shared time and space devoted entirely to reading.`,
+        },
+        {
+          text: `We thank everyone who joined us and look forward to welcoming readers to future Fellow Readers gatherings.`,
+        },
+      ],
+    },
     {
       publishedOn: '2026-11-10',
       title: 'Golden Archive Foundation Launches Its First Public Event: Fellow Readers',
